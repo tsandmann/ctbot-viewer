@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>SensorViewer.qml</file>
+        <file>ActorViewer.qml</file>
+        <file>RemoteControl.qml</file>
+        <file>RCButton.qml</file>
+    </qresource>
+</RCC>
