@@ -16,8 +16,8 @@
  */
 
 import QtQuick 2.0
-import QtQuick.Controls 2.5
-import QtQuick.Layouts 1.12
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.3
 
 
 ApplicationWindow {
@@ -32,7 +32,7 @@ ApplicationWindow {
             return size * 4 / 3
         }
 
-        return size
+        return size * 0.8
     }
 
     menuBar: MenuBar {
@@ -138,7 +138,7 @@ ApplicationWindow {
                     font.pointSize: fontsize(12)
                     onAccepted: connectClicked(text);
 
-                    signal connectClicked(msg: string)
+                    signal connectClicked(string msg)
 
                     function connected(msg) {
                         enabled = false;
@@ -161,21 +161,21 @@ ApplicationWindow {
                     RowLayout {
                         RadioButton {
                             checked: true
-                            font.pointSize: fontsize(18)
+                            font.pointSize: fontsize(16)
                             leftPadding: -10
                             indicator.height: 32
                             indicator.width: 32
-                            scale: 0.6
+                            scale: 0.7
                             text: qsTr("v 1")
                         }
 
                         RadioButton {
                             id: radio_v2
-                            font.pointSize: fontsize(18)
+                            font.pointSize: fontsize(16)
                             leftPadding: -10
                             indicator.height: 32
                             indicator.width: 32
-                            scale: 0.6
+                            scale: 0.7
                             text: qsTr("v 2")
                         }
                     }
@@ -237,7 +237,7 @@ ApplicationWindow {
                     columns: 2
                     objectName: "Viewer"
 
-                    signal connectClicked(msg: string)
+                    signal connectClicked(string msg)
 
                     Button {
                         text: qsTr("Logs")
