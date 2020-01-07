@@ -27,18 +27,30 @@ ApplicationWindow {
     height: 605
     title: qsTr("ct-Bot Remote Viewer 0.1")
 
+    function fontsize(size) {
+        if (Qt.platform.os == "osx") {
+            return size * 4 / 3
+        }
+
+        return size
+    }
+
     menuBar: MenuBar {
+        font.pointSize: fontsize(12)
+
         Menu {
             title: qsTr("Viewer")
 
             MenuItem {
                 id: connectMenu
                 text: qsTr("Connect")
+                font.pointSize: fontsize(12)
                 onTriggered: hostname.connectClicked(hostname.text);
             }
 
             MenuItem {
                 text: qsTr("Exit")
+                font.pointSize: fontsize(12)
                 onTriggered: Qt.quit();
             }
         }
@@ -48,21 +60,25 @@ ApplicationWindow {
 
             MenuItem {
                 text: qsTr("Main")
+                font.pointSize: fontsize(12)
                 onTriggered: swipeView.currentIndex = 0
             }
 
             MenuItem {
                 text: qsTr("Remote-Calls")
+                font.pointSize: fontsize(12)
                 onTriggered: swipeView.currentIndex = 1
             }
 
             MenuItem {
                 text: qsTr("Logs")
+                font.pointSize: fontsize(12)
                 onTriggered: swipeView.currentIndex = 2
             }
 
             MenuItem {
                 text: qsTr("Map")
+                font.pointSize: fontsize(12)
                 onTriggered: swipeView.currentIndex = 3
             }
         }
@@ -82,7 +98,7 @@ ApplicationWindow {
                 Layout.alignment: "Qt::AlignTop"
 
                 Label {
-                    font.pointSize: 16
+                    font.pointSize: fontsize(12)
                     font.bold: true
                     text: "Sensors:"
                 }
@@ -94,7 +110,7 @@ ApplicationWindow {
                 }
 
                 Label {
-                    font.pointSize: 16
+                    font.pointSize: fontsize(12)
                     font.bold: true
                     text: "Actors:"
                 }
@@ -108,7 +124,7 @@ ApplicationWindow {
                 Layout.alignment: "Qt::AlignTop"
 
                 Label {
-                    font.pointSize: 16
+                    font.pointSize: fontsize(12)
                     font.bold: true
                     text: "ct-Bot connection:"
                 }
@@ -119,17 +135,18 @@ ApplicationWindow {
                     focus: true
                     Layout.preferredWidth: 200
                     placeholderText: qsTr("Hostname")
+                    font.pointSize: fontsize(12)
                     onAccepted: connectClicked(text);
 
                     signal connectClicked(msg: string)
 
-                    function connected(msg: string) {
+                    function connected(msg) {
                         enabled = false;
                         connectMenu.text = button.text = qsTr("Disconnect")
                         button.font.bold = false
                     }
 
-                    function disconnected(msg: string) {
+                    function disconnected(msg) {
                         hostname.enabled = true;
                         connectMenu.text = button.text = qsTr("Connect")
                         button.font.bold = true
@@ -144,7 +161,7 @@ ApplicationWindow {
                     RowLayout {
                         RadioButton {
                             checked: true
-                            font.pointSize: 24
+                            font.pointSize: fontsize(18)
                             leftPadding: -10
                             indicator.height: 32
                             indicator.width: 32
@@ -154,7 +171,7 @@ ApplicationWindow {
 
                         RadioButton {
                             id: radio_v2
-                            font.pointSize: 24
+                            font.pointSize: fontsize(18)
                             leftPadding: -10
                             indicator.height: 32
                             indicator.width: 32
@@ -167,7 +184,7 @@ ApplicationWindow {
                         id: button
                         text: qsTr("Connect")
                         font.bold: true
-                        font.pointSize: 16
+                        font.pointSize: fontsize(12)
                         Layout.preferredWidth: 125
 
                         onClicked: {
@@ -181,7 +198,7 @@ ApplicationWindow {
                 }
 
                 Label {
-                    font.pointSize: 16
+                    font.pointSize: fontsize(12)
                     font.bold: true
                     text: "LCD:"
                 }
@@ -195,7 +212,7 @@ ApplicationWindow {
                         objectName: "LCD"
                         text: ""
                         textMargin: 4
-                        font.pointSize: Qt.platform.os == "ios" ? 12 : 16
+                        font.pointSize: fontsize(12)
                         font.family: "courier"
                         readOnly: true
                     }
@@ -211,7 +228,7 @@ ApplicationWindow {
                 }
 
                 Label {
-                    font.pointSize: 16
+                    font.pointSize: fontsize(12)
                     font.bold: true
                     text: "Viewer:"
                 }
@@ -224,7 +241,7 @@ ApplicationWindow {
 
                     Button {
                         text: qsTr("Logs")
-                        font.pointSize: 16
+                        font.pointSize: fontsize(12)
                         Layout.preferredWidth: 97
 
                         onClicked: {
@@ -234,7 +251,7 @@ ApplicationWindow {
 
                     Button {
                         text: qsTr("Map")
-                        font.pointSize: 16
+                        font.pointSize: fontsize(12)
                         Layout.preferredWidth: 97
 
                         onClicked: {
@@ -244,7 +261,7 @@ ApplicationWindow {
 
                     Button {
                         text: qsTr("Remote-Calls")
-                        font.pointSize: 16
+                        font.pointSize: fontsize(12)
                         Layout.columnSpan: 2
                         Layout.preferredWidth: 200
 
@@ -256,7 +273,7 @@ ApplicationWindow {
                     Button {
                         id: button_console
                         text: qsTr("Console (v2 only)")
-                        font.pointSize: 16
+                        font.pointSize: fontsize(12)
                         Layout.columnSpan: 2
                         Layout.preferredWidth: 200
                         enabled: radio_v2.checked
@@ -274,7 +291,7 @@ ApplicationWindow {
                 Layout.alignment: "Qt::AlignTop"
 
                 Label {
-                    font.pointSize: 16
+                    font.pointSize: fontsize(12)
                     font.bold: true
                     text: "Remote Control:"
                 }
@@ -285,24 +302,46 @@ ApplicationWindow {
 
         RowLayout {
             // Remote-Calls
+            Label {
+                text: "not implemented."
+                font.pointSize: 20
+                leftPadding: 100
+            }
         }
 
         RowLayout {
             // Logs
+            Label {
+                text: "not implemented."
+                font.pointSize: 20
+                leftPadding: 100
+            }
         }
 
         RowLayout {
             // Map
+            Label {
+                text: "not implemented."
+                font.pointSize: 20
+                leftPadding: 100
+            }
         }
 
         RowLayout {
             // Console
             enabled: radio_v2.checked
+
+            Label {
+                text: "not implemented."
+                font.pointSize: 20
+                leftPadding: 100
+            }
         }
     }
 
     footer: TabBar {
         id: tabBar
+        font.pointSize: fontsize(12)
         currentIndex: swipeView.currentIndex
 
         TabButton {

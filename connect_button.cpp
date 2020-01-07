@@ -22,7 +22,7 @@
  * @date    06.01.2020
  */
 
-#include "connectbutton.h"
+#include "connect_button.h"
 
 
 void ConnectButton::cppSlot(QString msg) {

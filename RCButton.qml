@@ -23,7 +23,7 @@ Button {
     id: rcbutton
     Layout.preferredWidth: 35
     Layout.preferredHeight: 25
-    font.pointSize: Qt.platform.os == "ios" ? 10 : 14
+    font.pointSize: applicationWindow.fontsize(10)
 
     onClicked: {
         parent.connectClicked(text);

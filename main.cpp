@@ -36,7 +36,7 @@
 #include "value_model.h"
 #include "value_list.h"
 #include "command.h"
-#include "connectbutton.h"
+#include "connect_button.h"
 
 
 int main(int argc, char* argv[]) {
@@ -48,8 +48,8 @@ int main(int argc, char* argv[]) {
 
 
     ValueList sensorList;
-    sensorList.appendItem(QStringLiteral("Wheel encoder left"));
-    sensorList.appendItem(QStringLiteral("Wheel encoder right"));
+    sensorList.appendItem(QStringLiteral("Wheel enc left"));
+    sensorList.appendItem(QStringLiteral("Wheel enc right"));
     sensorList.appendItem(QStringLiteral("Distance left"));
     sensorList.appendItem(QStringLiteral("Distance right"));
     sensorList.appendItem(QStringLiteral("Line left"));
@@ -141,8 +141,8 @@ int main(int argc, char* argv[]) {
     commands_[ctbot::CommandCodes::CMD_SENS_ENC].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_ENC received: " << cmd << "\n";
 
-        sensorModel.setData(sensor_map["Wheel encoder left"], cmd.get_cmd_data_l(), ValueModel::Value);
-        sensorModel.setData(sensor_map["Wheel encoder right"], cmd.get_cmd_data_r(), ValueModel::Value);
+        sensorModel.setData(sensor_map["Wheel enc left"], cmd.get_cmd_data_l(), ValueModel::Value);
+        sensorModel.setData(sensor_map["Wheel enc right"], cmd.get_cmd_data_r(), ValueModel::Value);
 
         return true;
     });
@@ -277,17 +277,17 @@ int main(int argc, char* argv[]) {
             socket.connectToHost(hostname, 10002);
             if (socket.waitForConnected()) {
                 qDebug() << "Connected to " << hostname;
-                QMetaObject::invokeMethod(object, "connected", Q_ARG(QString, hostname));
+                QMetaObject::invokeMethod(object, "connected", Q_ARG(QVariant, hostname));
                 connected = true;
             } else {
                 qDebug() << "Connection to " << hostname << " failed.";
-                QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QString, hostname));
+                QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QVariant, hostname));
                 connected = false;
             }
         } else {
             socket.close();
             qDebug() << "Connection to " << hostname << " closed.";
-            QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QString, hostname));
+            QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QVariant, hostname));
             connected = false;
         }
     } };
@@ -332,7 +332,7 @@ int main(int argc, char* argv[]) {
     QObject::connect(&socket, &QTcpSocket::disconnected, [&]() {
         qDebug() << "Connection closed.";
         auto object { engine.rootObjects().at(0)->findChild<QObject*>("Hostname") };
-        QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QString, ""));
+        QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QVariant, ""));
     });
 
 

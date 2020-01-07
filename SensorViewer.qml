@@ -36,13 +36,13 @@ Frame {
             Label {
                 Layout.alignment: Qt.AlignLeft
                 text: model.name
-                font.pointSize: Qt.platform.os == "ios" ? 12 : 16
+                font.pointSize: applicationWindow.fontsize(12)
             }
 
             Label {
                 Layout.alignment: Qt.AlignRight
                 text: model.value
-                font.pointSize: Qt.platform.os == "ios" ? 12 : 16
+                font.pointSize: applicationWindow.fontsize(12)
             }
         }
     }
