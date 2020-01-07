@@ -32,6 +32,7 @@
 #include <map>
 #include <vector>
 #include <functional>
+#include <memory>
 #include <cstring>
 
 #include "value_model.h"
