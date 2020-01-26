@@ -26,7 +26,7 @@ Button {
     font.pointSize: applicationWindow.fontsize(10)
 
     onClicked: {
-        parent.connectClicked(text);
+        parent.connectClicked(text, "");
     }
 
     contentItem: Text {

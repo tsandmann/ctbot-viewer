@@ -25,7 +25,7 @@ ApplicationWindow {
     visible: true
     width: 615
     height: 605
-    title: qsTr("ct-Bot Remote Viewer 0.1")
+    title: qsTr("ct-Bot Remote Viewer 0.2")
 
     function fontsize(size) {
         if (Qt.platform.os == "osx") {
@@ -129,27 +129,49 @@ ApplicationWindow {
                     text: "ct-Bot connection:"
                 }
 
-                TextField {
-                    id: hostname
-                    objectName: "Hostname"
-                    focus: true
-                    Layout.preferredWidth: 200
-                    placeholderText: qsTr("Hostname")
-                    font.pointSize: fontsize(12)
-                    onAccepted: connectClicked(text);
+                RowLayout {
+                    spacing: 2
+                    Layout.margins: 2
 
-                    signal connectClicked(string msg)
+                    TextField {
+                        id: hostname
+                        objectName: "Hostname"
+                        focus: true
+                        Layout.preferredWidth: 135
+                        placeholderText: qsTr("Hostname")
+                        font.pointSize: fontsize(12)
+                        onAccepted: connectClicked(hostname.text, port.text);
 
-                    function connected(msg) {
-                        enabled = false;
-                        connectMenu.text = button.text = qsTr("Disconnect")
-                        button.font.bold = false
+                        signal connectClicked(string hostname, string port)
+
+                        function connected(msg) {
+                            hostname.enabled = false;
+                            port.enabled = false;
+                            radio_v1.enabled = false;
+                            radio_v2.enabled = false;
+                            connectMenu.text = button.text = qsTr("Disconnect")
+                            button.font.bold = false
+                        }
+
+                        function disconnected(msg) {
+                            hostname.enabled = true;
+                            port.enabled = true;
+                            radio_v1.enabled = true;
+                            radio_v2.enabled = true;
+                            connectMenu.text = button.text = qsTr("Connect")
+                            button.font.bold = true
+                        }
                     }
 
-                    function disconnected(msg) {
-                        hostname.enabled = true;
-                        connectMenu.text = button.text = qsTr("Connect")
-                        button.font.bold = true
+                    TextField {
+                        id: port
+                        objectName: "Port"
+                        text: radio_v1.checked ? "10002" : "23"
+                        focus: true
+                        Layout.preferredWidth: 65
+                        placeholderText: qsTr("Port")
+                        font.pointSize: fontsize(12)
+                        onAccepted: hostname.connectClicked(hostname.text, port.text);
                     }
                 }
 
@@ -160,6 +182,7 @@ ApplicationWindow {
                 ColumnLayout {
                     RowLayout {
                         RadioButton {
+                            id: radio_v1
                             checked: true
                             font.pointSize: fontsize(16)
                             leftPadding: -10
@@ -188,7 +211,7 @@ ApplicationWindow {
                         Layout.preferredWidth: 125
 
                         onClicked: {
-                            hostname.connectClicked(hostname.text);
+                            hostname.connectClicked(hostname.text, port.text);
                         }
                     }
                 }
@@ -215,6 +238,7 @@ ApplicationWindow {
                         font.pointSize: fontsize(12)
                         font.family: "courier"
                         readOnly: true
+                        selectByMouse: true
                     }
 
                     width: 200
@@ -253,6 +277,7 @@ ApplicationWindow {
                         text: qsTr("Map")
                         font.pointSize: fontsize(12)
                         Layout.preferredWidth: 97
+                        enabled: false
 
                         onClicked: {
                             swipeView.currentIndex = 3
@@ -264,6 +289,7 @@ ApplicationWindow {
                         font.pointSize: fontsize(12)
                         Layout.columnSpan: 2
                         Layout.preferredWidth: 200
+                        enabled: false
 
                         onClicked: {
                             swipeView.currentIndex = 1
@@ -310,11 +336,49 @@ ApplicationWindow {
         }
 
         RowLayout {
-            // Logs
-            Label {
-                text: "not implemented."
-                font.pointSize: 20
-                leftPadding: 100
+            Item {
+                width: 30
+            }
+
+            ColumnLayout {
+                // Logs
+                spacing: 5
+                Layout.margins: 10
+                Layout.alignment: "Qt::AlignTop"
+
+                Label {
+                    font.pointSize: fontsize(12)
+                    font.bold: true
+                    text: "Log:"
+                }
+
+                Rectangle {
+                    ScrollView {
+                        anchors.fill: parent
+                        id: text_scrollview
+                        property ScrollBar hScrollBar: ScrollBar.horizontal
+                        property ScrollBar vScrollBar: ScrollBar.vertical
+
+                        TextArea {
+                            id: log_viewer
+                            objectName: "log_viewer"
+                            placeholderText: qsTr("Log")
+                            textMargin: 4
+                            font.pointSize: fontsize(10)
+                            font.family: "courier"
+                            readOnly: true
+                            selectByMouse: true
+                            clip: true;
+                            onTextChanged: cursorPosition = length;
+                        }
+                    }
+
+                    width: 500
+                    height: 450
+                    border.color: "gray"
+                    border.width: 2
+                    Layout.alignment: "Qt::AlignTop"
+                }
             }
         }
 

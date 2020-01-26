@@ -25,7 +25,7 @@ Frame {
         objectName: "RCButton"
         columns: 3
 
-        signal connectClicked(string msg)
+        signal connectClicked(string msg1, string msg2)
 
         Item {
             width: 35

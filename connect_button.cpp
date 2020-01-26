@@ -25,6 +25,6 @@
 #include "connect_button.h"
 
 
-void ConnectButton::cppSlot(QString msg) {
-    func_(msg);
+void ConnectButton::cppSlot(QString msg1, QString msg2) {
+    func_(msg1, msg2);
 }
