@@ -535,14 +535,6 @@ int main(int argc, char* argv[]) {
             }
             // qDebug() << "sent" << sent << "bytes.";
         }
-
-        {
-            ctbot::CommandNoCRC cmd2 { ctbot::CommandCodes::CMD_REMOTE_CALL, ctbot::CommandCodes::CMD_SUB_REMOTE_CALL_LIST, 0, 0, ctbot::CommandBase::ADDR_SIM,
-                ctbot::CommandBase::ADDR_BROADCAST };
-            if (socket.isOpen()) {
-                socket.write(reinterpret_cast<const char*>(&cmd2.get_cmd()), sizeof(ctbot::CommandData));
-            }
-        }
     } };
     QObject::connect(
         engine.rootObjects().first()->findChild<QObject*>("RCButton"), SIGNAL(rcButtonClicked(QString, QString)), &rc_button, SLOT(cppSlot(QString, QString)));
