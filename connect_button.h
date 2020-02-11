@@ -29,7 +29,6 @@
 #include <functional>
 
 
-// FIXME: template for variable argument list
 class ConnectButton : public QObject {
     Q_OBJECT
     std::function<void(QString, QString)> func_;
@@ -38,5 +37,15 @@ public:
     explicit ConnectButton(std::function<void(QString, QString)> func, QObject* = nullptr) : func_ { func } {}
 
 public slots:
-    void cppSlot(QString msg1, QString msg2);
+    void cppSlot() {
+        func_("", "");
+    }
+
+    void cppSlot(QString msg) {
+        func_(msg, "");
+    }
+
+    void cppSlot(QString msg1, QString msg2) {
+        func_(msg1, msg2);
+    }
 };

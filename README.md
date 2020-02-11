@@ -28,7 +28,7 @@ Consider this as experimental code. **If it breaks, you get to keep both pieces.
 
 ### Using Qt Creator IDE
 
-Open `ctbot-viewer.pro` with [Qt Creator][qt-creator] and build the project.
+Open `ctbot-viewer.pro` with [Qt Creator][qt-creator] and build the project. You will need at least Qt version 5.12.
 
 ### Using make on command-line
 

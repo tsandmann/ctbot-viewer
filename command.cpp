@@ -17,9 +17,9 @@
 
 /**
  * @file    command.cpp
- * @brief   Command management for c't-Sim connection
+ * @brief   Command management
  * @author  Timo Sandmann
- * @date    17.06.2018
+ * @date    06.01.2020
  */
 
 #include "command.h"

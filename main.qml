@@ -25,10 +25,10 @@ ApplicationWindow {
     visible: true
     width: 615
     height: 605
-    title: qsTr("ct-Bot Remote Viewer 0.2")
+    title: qsTr("ct-Bot Remote Viewer 0.3")
 
     function fontsize(size) {
-        if (Qt.platform.os == "osx") {
+        if (Qt.platform.os == "osx" || Qt.platform.os == "ios") {
             return size * 4 / 3
         }
 
@@ -61,33 +61,34 @@ ApplicationWindow {
             MenuItem {
                 text: qsTr("Main")
                 font.pointSize: fontsize(12)
-                onTriggered: swipeView.currentIndex = 0
+                onTriggered: layout.currentIndex = 0
             }
 
             MenuItem {
-                text: qsTr("Remote-Calls")
+                text: qsTr("Remote Calls")
                 font.pointSize: fontsize(12)
-                onTriggered: swipeView.currentIndex = 1
+                onTriggered: layout.currentIndex = 1
             }
 
             MenuItem {
                 text: qsTr("Logs")
                 font.pointSize: fontsize(12)
-                onTriggered: swipeView.currentIndex = 2
+                onTriggered: layout.currentIndex = 2
             }
 
             MenuItem {
                 text: qsTr("Map")
                 font.pointSize: fontsize(12)
-                onTriggered: swipeView.currentIndex = 3
+                onTriggered: layout.currentIndex = 3
             }
         }
     }
 
-    SwipeView {
-        id: swipeView
+    StackLayout {
+        id: layout
         anchors.fill: parent
         currentIndex: tabBar.currentIndex
+        focus: true
 
         RowLayout {
             // Main
@@ -95,7 +96,7 @@ ApplicationWindow {
             ColumnLayout {
                 spacing: 2
                 Layout.margins: 10
-                Layout.alignment: "Qt::AlignTop"
+                Layout.alignment: Qt.AlignTop
 
                 Label {
                     font.pointSize: fontsize(12)
@@ -121,7 +122,7 @@ ApplicationWindow {
             ColumnLayout {
                 spacing: 2
                 Layout.margins: 10
-                Layout.alignment: "Qt::AlignTop"
+                Layout.alignment: Qt.AlignTop
 
                 Label {
                     font.pointSize: fontsize(12)
@@ -269,7 +270,7 @@ ApplicationWindow {
                         Layout.preferredWidth: 97
 
                         onClicked: {
-                            swipeView.currentIndex = 2
+                            layout.currentIndex = 2
                         }
                     }
 
@@ -280,19 +281,18 @@ ApplicationWindow {
                         enabled: false
 
                         onClicked: {
-                            swipeView.currentIndex = 3
+                            layout.currentIndex = 3
                         }
                     }
 
                     Button {
-                        text: qsTr("Remote-Calls")
+                        text: qsTr("Remote Calls")
                         font.pointSize: fontsize(12)
                         Layout.columnSpan: 2
                         Layout.preferredWidth: 200
-                        enabled: false
 
                         onClicked: {
-                            swipeView.currentIndex = 1
+                            layout.currentIndex = 1
                         }
                     }
 
@@ -305,7 +305,7 @@ ApplicationWindow {
                         enabled: radio_v2.checked
 
                         onClicked: {
-                            swipeView.currentIndex = 4
+                            layout.currentIndex = 4
                         }
                     }
                 }
@@ -314,7 +314,7 @@ ApplicationWindow {
             ColumnLayout {
                 spacing: 2
                 Layout.margins: 10
-                Layout.alignment: "Qt::AlignTop"
+                Layout.alignment: Qt.AlignTop
 
                 Label {
                     font.pointSize: fontsize(12)
@@ -327,24 +327,93 @@ ApplicationWindow {
         }
 
         RowLayout {
-            // Remote-Calls
-            Label {
-                text: "not implemented."
-                font.pointSize: 20
-                leftPadding: 100
+            // Remote Calls
+
+            ColumnLayout {
+                spacing: 5
+                Layout.margins: 10
+                Layout.alignment: Qt.AlignTop
+
+                RowLayout {
+                    objectName: "RemoteCallActions"
+
+                    signal remoteCallFetch()
+                    signal remoteCallClear()
+                    signal remoteCallAbort()
+
+                    Label {
+                        font.pointSize: fontsize(12)
+                        font.bold: true
+                        text: "Remote Calls:"
+                    }
+
+                    Item {
+                        width: 40
+                    }
+
+                    Button {
+                        text: "Fetch List"
+                        font.pointSize: applicationWindow.fontsize(12)
+                        implicitHeight: 25
+
+                        onClicked: {
+                            parent.remoteCallClear();
+                            parent.remoteCallFetch();
+                        }
+                    }
+
+                    Button {
+                        text: "Clear List"
+                        font.pointSize: applicationWindow.fontsize(12)
+                        implicitHeight: 25
+
+                        onClicked: {
+                            parent.remoteCallClear();
+                        }
+                    }
+
+                    Button {
+                        id: remotecall_abort
+                        text: "Abort"
+                        font.pointSize: applicationWindow.fontsize(12)
+                        implicitHeight: 25
+
+                        onClicked: {
+                            parent.remoteCallAbort();
+                        }
+                    }
+                }
+
+                RemoteCallViewer {
+                    id: remotecall_viewer
+                }
+
+                Label {
+                    font.pointSize: fontsize(12)
+                    text: "No remote call list received."
+                    visible: remotecall_viewer.implicitHeight < 100 ? true : false
+                }
+
+                Label {
+                    objectName: "CurrentRemoteCallLabel"
+                    font.pointSize: fontsize(12)
+                    font.bold: true
+                    text: "Active Remote Call: none"
+                    visible: remotecall_viewer.implicitHeight < 100 ? false : true
+                }
             }
         }
 
         RowLayout {
             Item {
-                width: 30
+                width: 10
             }
 
             ColumnLayout {
                 // Logs
                 spacing: 5
                 Layout.margins: 10
-                Layout.alignment: "Qt::AlignTop"
+                Layout.alignment: Qt.AlignTop
 
                 Label {
                     font.pointSize: fontsize(12)
@@ -373,11 +442,11 @@ ApplicationWindow {
                         }
                     }
 
-                    width: 500
-                    height: 450
+                    width: 570
+                    implicitHeight: applicationWindow.height - 165
                     border.color: "gray"
                     border.width: 2
-                    Layout.alignment: "Qt::AlignTop"
+                    Layout.alignment: Qt.AlignTop
                 }
             }
         }
@@ -406,31 +475,31 @@ ApplicationWindow {
     footer: TabBar {
         id: tabBar
         font.pointSize: fontsize(12)
-        currentIndex: swipeView.currentIndex
+        currentIndex: layout.currentIndex
 
         TabButton {
             text: qsTr("Main")
-            onClicked: swipeView.currentIndex = 0
+            onClicked: layout.currentIndex = 0
         }
 
         TabButton {
-            text: qsTr("Remote-Calls")
-            onClicked: swipeView.currentIndex = 1
+            text: qsTr("Remote Calls")
+            onClicked: layout.currentIndex = 1
         }
 
         TabButton {
             text: qsTr("Logs")
-            onClicked: swipeView.currentIndex = 2
+            onClicked: layout.currentIndex = 2
         }
 
         TabButton {
             text: qsTr("Map")
-            onClicked: swipeView.currentIndex = 3
+            onClicked: layout.currentIndex = 3
         }
 
         TabButton {
             text: qsTr("Console")
-            onClicked: swipeView.currentIndex = 4
+            onClicked: layout.currentIndex = 4
             enabled: radio_v2.checked
         }
     }

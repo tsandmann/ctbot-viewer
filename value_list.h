@@ -40,7 +40,7 @@ class ValueList : public QObject {
 public:
     explicit ValueList(QObject* parent = nullptr);
 
-    QVector<ViewerItem> items() const;
+    const QVector<ViewerItem>& items() const;
 
     bool setItemAt(int index, const ViewerItem& item);
     //    bool updateItemAt(int index, const int value);

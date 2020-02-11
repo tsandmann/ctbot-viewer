@@ -27,7 +27,7 @@
 
 ValueList::ValueList(QObject* parent) : QObject { parent } {}
 
-QVector<ViewerItem> ValueList::items() const {
+const QVector<ViewerItem>& ValueList::items() const {
     return items_;
 }
 

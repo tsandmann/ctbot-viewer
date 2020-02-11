@@ -24,7 +24,11 @@
 
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlEngine>
+#include <QQmlProperty>
 #include <QQmlContext>
+#include <QQmlComponent>
+#include <QQuickItem>
 #include <QtNetwork>
 #include <QByteArray>
 #include <QString>
@@ -37,8 +41,29 @@
 
 #include "value_model.h"
 #include "value_list.h"
+#include "remotecall_model.h"
+#include "remotecall_list.h"
 #include "command.h"
 #include "connect_button.h"
+
+
+static QQuickItem* FindItemByName(QList<QObject*> nodes, const QString& name) {
+    for (int i {}; i < nodes.size(); ++i) {
+        // search for node
+        if (nodes.at(i) && nodes.at(i)->objectName() == name) {
+            return dynamic_cast<QQuickItem*>(nodes.at(i));
+        }
+        // search in children
+        else if (nodes.at(i) && nodes.at(i)->children().size() > 0) {
+            QQuickItem* item = FindItemByName(nodes.at(i)->children(), name);
+            if (item) {
+                return item;
+            }
+        }
+    }
+    // not found
+    return nullptr;
+}
 
 
 int main(int argc, char* argv[]) {
@@ -81,9 +106,19 @@ int main(int argc, char* argv[]) {
     ValueModel actorModel;
     actorModel.setList(&actorList);
 
+
+    qmlRegisterType<RCModel>("RemoteCalls", 1, 0, "RemotecallModel");
+    qmlRegisterUncreatableType<RCList>("RemoteCalls", 1, 0, "RCList", QStringLiteral("RemoteCalls should not be created in QML"));
+
+    RCList* p_rcList { new RCList };
+    RCModel rcModel;
+    rcModel.setList(p_rcList);
+
+
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("sensorModel"), &sensorModel);
     engine.rootContext()->setContextProperty(QStringLiteral("actorModel"), &actorModel);
+    engine.rootContext()->setContextProperty(QStringLiteral("remotecallModel"), &rcModel);
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(
         &engine, &QQmlApplicationEngine::objectCreated, &app,
@@ -95,8 +130,8 @@ int main(int argc, char* argv[]) {
         Qt::QueuedConnection);
     engine.load(url);
 
-    QObject* p_lcd = engine.rootObjects().at(0)->findChild<QObject*>("LCD"); // FIXME: use data model?
-    QObject* p_log = engine.rootObjects().at(0)->findChild<QObject*>("log_viewer"); // FIXME: use data model?
+    QObject* p_lcd = engine.rootObjects().first()->findChild<QObject*>("LCD"); // FIXME: use data model?
+    QObject* p_log = engine.rootObjects().first()->findChild<QObject*>("log_viewer"); // FIXME: use data model?
 
 
     QHash<QString, QModelIndex> sensor_map;
@@ -241,58 +276,81 @@ int main(int argc, char* argv[]) {
         static char text[4][21];
 
         switch (cmd.get_cmd_subcode()) {
-        case ctbot::CommandCodes::CMD_SUB_LCD_CLEAR:
-            std::memset(&text[0][0], 0, sizeof(text));
-            [[fallthrough]];
+            case ctbot::CommandCodes::CMD_SUB_LCD_CLEAR: {
+                // qDebug() << "Display CLEAR received.";
+                std::memset(&text[0][0], ' ', sizeof(text));
+                text[0][20] = 0;
+                text[1][20] = 0;
+                text[2][20] = 0;
+                text[3][20] = 0;
 
-        case ctbot::CommandCodes::CMD_SUB_LCD_DATA: {
-            size_t col { static_cast<size_t>(cmd.get_cmd_data_l()) };
-            if (col >= 20) {
-                qDebug() << "invalid display command received: col =" << col;
-//                std::cout << cmd << std::endl;
-                col = 19;
-            }
-            size_t row { static_cast<size_t>(cmd.get_cmd_data_r()) };
-            if (row >= 4) {
-                qDebug() << "invalid display command received: row =" << row;
-//                std::cout << cmd << std::endl;
-                return false;
-            }
+                QString data = text[0];
+                data += "\n";
+                data += text[1];
+                data += "\n";
+                data += text[2];
+                data += "\n";
+                data += text[3];
 
-            size_t len { cmd.get_payload_size() };
-            if (len + col > 20) {
-                qDebug() << "len updated: len =" << len << " col =" << col;
-                len = 20 - col;
-            }
-            if (cmd.get_cmd_subcode() == ctbot::CommandCodes::CMD_SUB_LCD_DATA && !len) {
-                qDebug() << "invalid display command received: len =" << len << " col =" << col;
-                std::cout << cmd << std::endl;
-                return false;
+                if (p_lcd) {
+                    p_lcd->setProperty("text", data);
+                }
+
+                return true;
             }
 
-            std::strncpy(&text[row][col], reinterpret_cast<const char*>(cmd.get_payload().data()), len);
-            text[row][len + col] = 0;
+            case ctbot::CommandCodes::CMD_SUB_LCD_DATA: {
+                // std::string payload { reinterpret_cast<const char*>(cmd.get_payload().data()), cmd.get_payload_size() };
+                // qDebug() << "Display DATA received: col =" << cmd.get_cmd_data_l() << " row = " << cmd.get_cmd_data_r() << " len = " <<
+                // cmd.get_payload().size() << " text = " << QString::fromStdString(payload);
 
-            QString data = text[0];
-            data += "\n";
-            data += text[1];
-            data += "\n";
-            data += text[2];
-            data += "\n";
-            data += text[3];
-            data.replace(QRegularExpression("[\001-\011]"), ".");
-            data.replace(QRegularExpression("[\013-\037]"), ".");
-            data.replace(QRegularExpression("[\177-\377]"), "#");
+                size_t col { static_cast<size_t>(cmd.get_cmd_data_l()) };
+                if (col >= 20) {
+                    qDebug() << "invalid display command received: col =" << col;
+                    //  std::cout << cmd << std::endl;
+                    col = 19;
+                }
+                size_t row { static_cast<size_t>(cmd.get_cmd_data_r()) };
+                if (row >= 4) {
+                    qDebug() << "invalid display command received: row =" << row;
+                    //  std::cout << cmd << std::endl;
+                    return false;
+                }
 
-            if (p_lcd) {
-                p_lcd->setProperty("text", data);
+                size_t len { cmd.get_payload_size() };
+                if (len + col > 20) {
+                    qDebug() << "len updated: len =" << len << " col =" << col;
+                    len = 20 - col;
+                }
+                if (!len) {
+                    qDebug() << "invalid display command received: len =" << len << " col =" << col;
+                    std::cout << cmd << std::endl;
+                    return false;
+                }
+
+                std::strncpy(&text[row][col], reinterpret_cast<const char*>(cmd.get_payload().data()), len);
+                text[row][col + len] = 0;
+
+                QString data = text[0];
+                data += "\n";
+                data += text[1];
+                data += "\n";
+                data += text[2];
+                data += "\n";
+                data += text[3];
+                data.replace(QRegularExpression("[\001-\011]"), ".");
+                data.replace(QRegularExpression("[\013-\037]"), ".");
+                data.replace(QRegularExpression("[\177-\377]"), "#");
+                // qDebug() << "data = " << data;
+
+                if (p_lcd) {
+                    p_lcd->setProperty("text", data);
+                }
+
+                return true;
             }
 
-            return true;
-        }
-
-        default:
-            return false;
+            default: return false;
         }
     });
 
@@ -319,30 +377,64 @@ int main(int argc, char* argv[]) {
         return true;
     });
 
+    commands_[ctbot::CommandCodes::CMD_REMOTE_CALL].push_back([&](const ctbot::CommandBase& cmd) {
+        // std::cout << "CMD_REMOTE_CALL received: " << cmd << "\n";
+
+        if (cmd.get_cmd_subcode() != ctbot::CommandCodes::CMD_SUB_REMOTE_CALL_ENTRY) {
+            if (cmd.get_cmd_subcode() == ctbot::CommandCodes::CMD_SUB_REMOTE_CALL_DONE) {
+                auto entry = FindItemByName(engine.rootObjects(), "RemoteCallViewer");
+                if (entry) {
+                    entry->setProperty("enabled", true);
+
+                    auto e = FindItemByName(engine.rootObjects(), "CurrentRemoteCallLabel");
+                    if (e) {
+                        e->setProperty("text", "Active Remote Call: none");
+                    }
+
+                    qDebug() << "RemoteCall done.";
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        if (cmd.get_payload_size() < 66) {
+            return false;
+        }
+
+        const QString name { QString::fromUtf8(reinterpret_cast<const char*>(cmd.get_payload().data() + 4)) };
+        const QString params { QString::fromUtf8(reinterpret_cast<const char*>(cmd.get_payload().data() + 4 + 21)) };
+
+        // qDebug() << "name =" << name << ", params =" << params;
+
+        if (name.length()) {
+            auto items { p_rcList->items() };
+            for (int i {}; i < items.size(); ++i) {
+                if (items[i].name == name) {
+                    return true;
+                }
+            }
+
+            p_rcList->appendItem(name, params);
+        }
+
+        return true;
+    });
+
+    bool connected { false };
 
     ConnectButton button { [&](QString hostname, QString port) {
-        static bool connected { false };
-
         auto object { engine.rootObjects().at(0)->findChild<QObject*>("Hostname") };
         if (!connected) {
             socket.connectToHost(hostname, static_cast<quint16>(port.toUInt()));
-            if (socket.waitForConnected()) {
-                qDebug() << "Connected to " << hostname << ":" << port;
-                QMetaObject::invokeMethod(object, "connected", Q_ARG(QVariant, hostname));
-                connected = true;
-            } else {
-                qDebug() << "Connection to " << hostname << ":" << port << " failed.";
-                QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QVariant, hostname));
-                connected = false;
-            }
         } else {
             socket.close();
-            qDebug() << "Connection to " << hostname << ":" << port<< " closed.";
             QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QVariant, hostname));
-            connected = false;
         }
     } };
-    QObject::connect(engine.rootObjects().at(0)->findChild<QObject*>("Hostname"), SIGNAL(connectClicked(QString, QString)), &button, SLOT(cppSlot(QString, QString)));
+    QObject::connect(
+        engine.rootObjects().at(0)->findChild<QObject*>("Hostname"), SIGNAL(connectClicked(QString, QString)), &button, SLOT(cppSlot(QString, QString)));
 
 
     QByteArray in_buffer;
@@ -361,17 +453,24 @@ int main(int argc, char* argv[]) {
                 }
 
                 if (p_cmd->get_payload_size()) {
+                    const int len { static_cast<int>(p_cmd->get_payload_size()) };
                     size_t n {};
-                    while (in_buffer.size() < static_cast<int>(p_cmd->get_payload_size())) {
+                    while (in_buffer.size() < len) {
                         QCoreApplication::processEvents();
                         if (socket.bytesAvailable()) {
                             in_buffer.append(socket.readAll());
                         }
-                        if (++n > 100) {
-                            break;
+                        if (in_buffer.size() < len) {
+                            if (++n > 100) {
+                                break;
+                            }
+                            QThread::msleep(1);
                         }
-                        QThread::msleep(1);
                     }
+                    if (in_buffer.size() < len) {
+                        continue;
+                    }
+
                     if (!p_cmd->append_payload(in_buffer, p_cmd->get_payload_size())) {
                         qDebug() << "could not receive payload of cmd:";
                         std::cout << *p_cmd << std::endl;
@@ -393,10 +492,26 @@ int main(int argc, char* argv[]) {
         }
     });
 
+    QObject::connect(&socket, &QTcpSocket::connected, [&]() {
+        socket.setSocketOption(QAbstractSocket::LowDelayOption, 1);
+        qDebug() << "Connected to " << socket.peerName() << ":" << socket.peerPort();
+        auto object { engine.rootObjects().at(0)->findChild<QObject*>("Hostname") };
+        QMetaObject::invokeMethod(object, "connected", Q_ARG(QVariant, socket.peerName()));
+        connected = true;
+    });
+
     QObject::connect(&socket, &QTcpSocket::disconnected, [&]() {
         qDebug() << "Connection closed.";
         auto object { engine.rootObjects().at(0)->findChild<QObject*>("Hostname") };
         QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QVariant, ""));
+        connected = false;
+    });
+
+    QObject::connect(&socket, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), [&](QAbstractSocket::SocketError socketError) {
+        qDebug() << "Connection to " << socket.peerName() << " failed:" << socketError;
+        auto object { engine.rootObjects().at(0)->findChild<QObject*>("Hostname") };
+        QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QVariant, socket.peerName()));
+        connected = false;
     });
 
 
@@ -418,11 +533,109 @@ int main(int argc, char* argv[]) {
             if (cmd.get_payload_size()) {
                 sent += socket.write(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int64_t>(cmd.get_payload_size()));
             }
-            //  qDebug() << "sent" << sent << "bytes.";
+            // qDebug() << "sent" << sent << "bytes.";
+        }
+
+        {
+            ctbot::CommandNoCRC cmd2 { ctbot::CommandCodes::CMD_REMOTE_CALL, ctbot::CommandCodes::CMD_SUB_REMOTE_CALL_LIST, 0, 0, ctbot::CommandBase::ADDR_SIM,
+                ctbot::CommandBase::ADDR_BROADCAST };
+            if (socket.isOpen()) {
+                socket.write(reinterpret_cast<const char*>(&cmd2.get_cmd()), sizeof(ctbot::CommandData));
+            }
         }
     } };
-    QObject::connect(engine.rootObjects().at(0)->findChild<QObject*>("RCButton"), SIGNAL(connectClicked(QString, QString)), &rc_button, SLOT(cppSlot(QString, QString)));
+    QObject::connect(
+        engine.rootObjects().first()->findChild<QObject*>("RCButton"), SIGNAL(rcButtonClicked(QString, QString)), &rc_button, SLOT(cppSlot(QString, QString)));
 
+    ConnectButton remotecall_fetch { [&](QString, QString) {
+        ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_REMOTE_CALL, ctbot::CommandCodes::CMD_SUB_REMOTE_CALL_LIST, 0, 0, ctbot::CommandBase::ADDR_SIM,
+            ctbot::CommandBase::ADDR_BROADCAST };
+        if (socket.isOpen()) {
+            socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
+        }
+    } };
+    QObject::connect(engine.rootObjects().first()->findChild<QObject*>("RemoteCallActions"), SIGNAL(remoteCallFetch()), &remotecall_fetch, SLOT(cppSlot()));
+
+    ConnectButton remotecall_clear { [&](QString, QString) {
+        rcModel.setList(nullptr);
+        delete p_rcList;
+        p_rcList = new RCList;
+        rcModel.setList(p_rcList);
+
+        auto entry = FindItemByName(engine.rootObjects(), "RemoteCallViewer");
+        if (entry) {
+            entry->setProperty("enabled", true);
+        }
+        auto e = FindItemByName(engine.rootObjects(), "CurrentRemoteCallLabel");
+        if (e) {
+            e->setProperty("text", "Active Remote Call: none");
+        }
+    } };
+    QObject::connect(engine.rootObjects().first()->findChild<QObject*>("RemoteCallActions"), SIGNAL(remoteCallClear()), &remotecall_clear, SLOT(cppSlot()));
+
+    ConnectButton remotecall_abort { [&](QString, QString) {
+        ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_REMOTE_CALL, ctbot::CommandCodes::CMD_SUB_REMOTE_CALL_ABORT, 0, 0, ctbot::CommandBase::ADDR_SIM,
+            ctbot::CommandBase::ADDR_BROADCAST };
+        if (socket.isOpen()) {
+            socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
+        }
+
+        auto entry = FindItemByName(engine.rootObjects(), "RemoteCallViewer");
+        if (entry) {
+            entry->setProperty("enabled", true);
+        }
+        auto e = FindItemByName(engine.rootObjects(), "CurrentRemoteCallLabel");
+        if (e) {
+            e->setProperty("text", "Active Remote Call: none");
+        }
+    } };
+    QObject::connect(engine.rootObjects().first()->findChild<QObject*>("RemoteCallActions"), SIGNAL(remoteCallAbort()), &remotecall_abort, SLOT(cppSlot()));
+
+
+    ConnectButton remotecall_button { [&](QString name, QString parameter) {
+        qDebug() << "remotecall " << name << "(" << parameter << ")";
+
+        ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_REMOTE_CALL, ctbot::CommandCodes::CMD_SUB_REMOTE_CALL_ORDER, 0, 0, ctbot::CommandBase::ADDR_SIM,
+            ctbot::CommandBase::ADDR_BROADCAST };
+
+        QByteArray payload;
+        payload.append(name.replace("():", ""));
+        payload.append('\0');
+
+        const QStringList par_list { parameter.split(',', QString::SkipEmptyParts) };
+        uint32_t par[] { static_cast<uint32_t>(par_list.at(0).toLong()), static_cast<uint32_t>(par_list.at(1).toLong()),
+            static_cast<uint32_t>(par_list.at(2).toLong()) };
+
+        for (size_t i {}; i < 3; ++i) {
+            payload.append(static_cast<char>((par[i] >> 0) & 0xff));
+            payload.append(static_cast<char>((par[i] >> 8) & 0xff));
+            payload.append(static_cast<char>((par[i] >> 16) & 0xff));
+            payload.append(static_cast<char>((par[i] >> 24) & 0xff));
+        }
+
+        qDebug() << "payload =" << payload;
+
+        cmd.add_payload(payload.data(), static_cast<size_t>(payload.size()));
+
+        if (socket.isOpen()) {
+            qint64 sent { socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData)) };
+            if (cmd.get_payload_size()) {
+                sent += socket.write(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int64_t>(cmd.get_payload_size()));
+            }
+            // qDebug() << "sent" << sent << "bytes.";
+        }
+
+        auto entry = FindItemByName(engine.rootObjects(), "RemoteCallViewer");
+        if (entry) {
+            entry->setProperty("enabled", false);
+        }
+        auto e = FindItemByName(engine.rootObjects(), "CurrentRemoteCallLabel");
+        if (e) {
+            e->setProperty("text", "Active Remote Call: " + name);
+        }
+    } };
+    QObject::connect(engine.rootObjects().first()->findChild<QObject*>("RemoteCallViewer"), SIGNAL(remoteCallClicked(QString, QString)), &remotecall_button,
+        SLOT(cppSlot(QString, QString)));
 
     return app.exec();
 }

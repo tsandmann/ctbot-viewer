@@ -16,15 +16,43 @@
  */
 
 /**
- * @file    connectbutton.cpp
- * @brief   QML button abstraction for use with lambda onclick-handler
+ * @file    remotecall_list.h
+ * @brief   QML list viewer for RemoteCalls
  * @author  Timo Sandmann
- * @date    06.01.2020
+ * @date    27.01.2020
  */
 
-#include "connect_button.h"
+#pragma once
+
+#include <QObject>
+#include <QVector>
 
 
-void ConnectButton::cppSlot(QString msg1, QString msg2) {
-    func_(msg1, msg2);
-}
+struct RCItem {
+    QString name;
+    QString parameter1;
+    QString parameter2;
+    QString parameter3;
+};
+
+
+class RCList : public QObject {
+    Q_OBJECT
+
+public:
+    explicit RCList(QObject* parent = nullptr);
+
+    const QVector<RCItem>& items() const;
+
+    bool setItemAt(int index, const RCItem& item);
+
+signals:
+    void preItemAppended();
+    void postItemAppended();
+
+public slots:
+    void appendItem(const QString& name, const QString& parameter_info);
+
+private:
+    QVector<RCItem> items_;
+};
