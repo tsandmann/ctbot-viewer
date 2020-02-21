@@ -37,48 +37,55 @@ ApplicationWindow {
 
     menuBar: MenuBar {
         font.pointSize: fontsize(12)
+        width: parent.width
 
-        Menu {
+        AutoSizingMenu {
             title: qsTr("Viewer")
 
             MenuItem {
                 id: connectMenu
                 text: qsTr("Connect")
                 font.pointSize: fontsize(12)
+                horizontalPadding: 10
                 onTriggered: hostname.connectClicked(hostname.text);
             }
 
             MenuItem {
                 text: qsTr("Exit")
                 font.pointSize: fontsize(12)
+                horizontalPadding: 10
                 onTriggered: Qt.quit();
             }
         }
 
-        Menu {
+        AutoSizingMenu {
             title: qsTr("Components")
 
             MenuItem {
                 text: qsTr("Main")
                 font.pointSize: fontsize(12)
+                horizontalPadding: 10
                 onTriggered: layout.currentIndex = 0
             }
 
             MenuItem {
                 text: qsTr("Remote Calls")
                 font.pointSize: fontsize(12)
+                horizontalPadding: 10
                 onTriggered: layout.currentIndex = 1
             }
 
             MenuItem {
                 text: qsTr("Logs")
                 font.pointSize: fontsize(12)
+                horizontalPadding: 10
                 onTriggered: layout.currentIndex = 2
             }
 
             MenuItem {
                 text: qsTr("Map")
                 font.pointSize: fontsize(12)
+                horizontalPadding: 10
                 onTriggered: layout.currentIndex = 3
             }
         }
@@ -455,7 +462,8 @@ ApplicationWindow {
             // Map
             Label {
                 text: "not implemented."
-                font.pointSize: 20
+                font.pointSize: fontsize(16)
+                padding: 20
                 leftPadding: 100
             }
         }
@@ -466,7 +474,8 @@ ApplicationWindow {
 
             Label {
                 text: "not implemented."
-                font.pointSize: 20
+                font.pointSize: fontsize(16)
+                padding: 20
                 leftPadding: 100
             }
         }
@@ -475,6 +484,7 @@ ApplicationWindow {
     footer: TabBar {
         id: tabBar
         font.pointSize: fontsize(12)
+        width: 615
         currentIndex: layout.currentIndex
 
         TabButton {

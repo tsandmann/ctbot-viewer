@@ -6,5 +6,6 @@
         <file>RemoteControl.qml</file>
         <file>RCButton.qml</file>
         <file>RemoteCallViewer.qml</file>
+        <file>AutoSizingMenu.qml</file>
     </qresource>
 </RCC>
