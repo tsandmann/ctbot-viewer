@@ -31,6 +31,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000 # disables all the APIs depreca
 SOURCES += \
         command.cpp \
         main.cpp \
+        map_image.cpp \
         remotecall_list.cpp \
         remotecall_model.cpp \
         value_list.cpp \
@@ -52,6 +53,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     command.h \
     connect_button.h \
+    map_image.h \
     remotecall_list.h \
     remotecall_model.h \
     value_list.h \

@@ -45,6 +45,7 @@
 #include "remotecall_list.h"
 #include "command.h"
 #include "connect_button.h"
+#include "map_image.h"
 
 
 static QQuickItem* FindItemByName(QList<QObject*> nodes, const QString& name) {
@@ -114,6 +115,8 @@ int main(int argc, char* argv[]) {
     RCModel rcModel;
     rcModel.setList(p_rcList);
 
+    qmlRegisterType<MapImageItem>("mapimage", 1, 0, "MapImageItem");
+
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("sensorModel"), &sensorModel);
@@ -130,8 +133,8 @@ int main(int argc, char* argv[]) {
         Qt::QueuedConnection);
     engine.load(url);
 
-    QObject* p_lcd = engine.rootObjects().first()->findChild<QObject*>("LCD"); // FIXME: use data model?
-    QObject* p_log = engine.rootObjects().first()->findChild<QObject*>("log_viewer"); // FIXME: use data model?
+    QObject* p_lcd = engine.rootObjects().first()->findChild<QObject*>("LCD");
+    QObject* p_log = engine.rootObjects().first()->findChild<QObject*>("log_viewer");
 
 
     QHash<QString, QModelIndex> sensor_map;
@@ -146,6 +149,7 @@ int main(int argc, char* argv[]) {
         actor_map[e.toString()] = actorModel.index(i, 0);
     }
 
+    MapImageItem* p_map { engine.rootObjects().first()->findChild<MapImageItem*>("Map") };
 
     QTcpSocket socket;
 
@@ -169,103 +173,79 @@ int main(int argc, char* argv[]) {
 
     commands_[ctbot::CommandCodes::CMD_SENS_IR].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_IR received: " << cmd << "\n";
-
         sensorModel.setData(sensor_map["Distance left"], cmd.get_cmd_data_l(), ValueModel::Value);
         sensorModel.setData(sensor_map["Distance right"], cmd.get_cmd_data_r(), ValueModel::Value);
-
         return true;
     });
 
     commands_[ctbot::CommandCodes::CMD_SENS_ENC].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_ENC received: " << cmd << "\n";
-
         sensorModel.setData(sensor_map["Wheel enc left"], cmd.get_cmd_data_l(), ValueModel::Value);
         sensorModel.setData(sensor_map["Wheel enc right"], cmd.get_cmd_data_r(), ValueModel::Value);
-
         return true;
     });
 
     commands_[ctbot::CommandCodes::CMD_SENS_BORDER].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_BORDER received: " << cmd << "\n";
-
         sensorModel.setData(sensor_map["Border left"], cmd.get_cmd_data_l(), ValueModel::Value);
         sensorModel.setData(sensor_map["Border right"], cmd.get_cmd_data_r(), ValueModel::Value);
-
         return true;
     });
 
     commands_[ctbot::CommandCodes::CMD_SENS_LINE].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_LINE received: " << cmd << "\n";
-
         sensorModel.setData(sensor_map["Line left"], cmd.get_cmd_data_l(), ValueModel::Value);
         sensorModel.setData(sensor_map["Line right"], cmd.get_cmd_data_r(), ValueModel::Value);
-
         return true;
     });
 
     commands_[ctbot::CommandCodes::CMD_SENS_LDR].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_LDR received: " << cmd << "\n";
-
         sensorModel.setData(sensor_map["Light left"], cmd.get_cmd_data_l(), ValueModel::Value);
         sensorModel.setData(sensor_map["Light right"], cmd.get_cmd_data_r(), ValueModel::Value);
-
         return true;
     });
 
     commands_[ctbot::CommandCodes::CMD_SENS_TRANS].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_TRANS received: " << cmd << "\n";
-
         sensorModel.setData(sensor_map["Transport pocket"], cmd.get_cmd_data_l(), ValueModel::Value);
-
         return true;
     });
 
     commands_[ctbot::CommandCodes::CMD_SENS_DOOR].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_DOOR received: " << cmd << "\n";
-
         sensorModel.setData(sensor_map["Door"], cmd.get_cmd_data_l(), ValueModel::Value);
-
         return true;
     });
 
     commands_[ctbot::CommandCodes::CMD_SENS_RC5].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_RC5 received: " << cmd << "\n";
-
         sensorModel.setData(sensor_map["RC-5"], cmd.get_cmd_data_l(), ValueModel::Value);
-
         return true;
     });
 
     commands_[ctbot::CommandCodes::CMD_SENS_BPS].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_BPS received: " << cmd << "\n";
-
         sensorModel.setData(sensor_map["BPS"], cmd.get_cmd_data_l(), ValueModel::Value);
-
         return true;
     });
 
     commands_[ctbot::CommandCodes::CMD_SENS_ERROR].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_ERROR received: " << cmd << "\n";
-
         sensorModel.setData(sensor_map["Error"], cmd.get_cmd_data_l(), ValueModel::Value);
-
         return true;
     });
 
     commands_[ctbot::CommandCodes::CMD_AKT_MOT].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_AKT_MOT received: " << cmd << "\n";
-
         actorModel.setData(actor_map["Motor left"], cmd.get_cmd_data_l(), ValueModel::Value);
         actorModel.setData(actor_map["Motor right"], cmd.get_cmd_data_r(), ValueModel::Value);
-
         return true;
     });
 
     commands_[ctbot::CommandCodes::CMD_AKT_LED].push_back([&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_AKT_LED received: " << cmd << std::endl;
-
         actorModel.setData(actor_map["LEDs"], cmd.get_cmd_data_l(), ValueModel::Value);
-
         return true;
     });
 
@@ -354,8 +334,74 @@ int main(int argc, char* argv[]) {
         }
     });
 
-    commands_[ctbot::CommandCodes::CMD_MAP].push_back([&](const ctbot::CommandBase&) {
+    commands_[ctbot::CommandCodes::CMD_MAP].push_back([&](const ctbot::CommandBase& cmd) {
+        static unsigned receive_state {};
+        static uint16_t last_block {};
+
         // std::cout << "CMD_MAP received: " << cmd << "\n";
+
+        if (!p_map) {
+            return false;
+        }
+
+        const auto block = cmd.get_cmd_data_l(); // 16 Bit Adresse des Map-Blocks
+        switch (cmd.get_cmd_subcode()) {
+        case ctbot::CommandCodes::CMD_SUB_MAP_DATA_1: {
+            if (receive_state != 0) {
+                receive_state = 0;
+                return false;
+            }
+            p_map->set_bot_y(MapImageItem::MAP_PIXEL_SIZE_ - cmd.get_cmd_data_r()); // Bot-Position, X-Komponente, wird im Bild in Y-Richtung gezaehlt
+            p_map->update_map(cmd.get_payload().data(), block, 0, 7);
+            receive_state = 1;
+            last_block = block;
+            break;
+        }
+
+        case ctbot::CommandCodes::CMD_SUB_MAP_DATA_2: {
+            if (receive_state != 1 || last_block != block) {
+                receive_state = 0;
+                return false;
+            }
+            p_map->set_bot_x(MapImageItem::MAP_PIXEL_SIZE_ - cmd.get_cmd_data_r()); // Bot-Position, Y-Komponente, wird im Bild in X-Richtung gezaehlt
+            p_map->update_map(cmd.get_payload().data(), block, 8, 15);
+            receive_state = 2;
+            break;
+        }
+
+        case ctbot::CommandCodes::CMD_SUB_MAP_DATA_3: {
+            if (receive_state != 2 || last_block != block) {
+                receive_state = 0;
+                return false;
+            }
+            p_map->set_bot_heading(cmd.get_cmd_data_r());
+            p_map->update_map(cmd.get_payload().data(), block, 16, 23);
+            receive_state = 3;
+            break;
+        }
+
+        case ctbot::CommandCodes::CMD_SUB_MAP_DATA_4: {
+            static QPoint last_bot_pos {};
+
+            if (receive_state != 3 || last_block != block) {
+                receive_state = 0;
+                return false;
+            }
+            p_map->update_map(cmd.get_payload().data(), block, 24, 31);
+            p_map->commit();
+            const auto bot_pos { p_map->get_bot_pos() };
+            if ((last_bot_pos - bot_pos).manhattanLength() > 10) {
+                last_bot_pos = bot_pos;
+
+                QMetaObject::invokeMethod(p_map, "scroll_to", Q_ARG(QVariant, bot_pos.x()), Q_ARG(QVariant, bot_pos.y()));
+            }
+            receive_state = 0;
+            break;
+        }
+
+        default:
+            return false;
+        }
 
         return true;
     });
@@ -455,7 +501,7 @@ int main(int argc, char* argv[]) {
                 if (p_cmd->get_payload_size()) {
                     const int len { static_cast<int>(p_cmd->get_payload_size()) };
                     size_t n {};
-                    while (in_buffer.size() < len) {
+                    while (in_buffer.size() < len) { // FIXME: improve?
                         QCoreApplication::processEvents();
                         if (socket.bytesAvailable()) {
                             in_buffer.append(socket.readAll());

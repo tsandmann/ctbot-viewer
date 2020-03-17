@@ -18,6 +18,7 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
+import mapimage 1.0
 
 
 ApplicationWindow {
@@ -276,20 +277,15 @@ ApplicationWindow {
                         font.pointSize: fontsize(12)
                         Layout.preferredWidth: 97
 
-                        onClicked: {
-                            layout.currentIndex = 2
-                        }
+                        onClicked: layout.currentIndex = 2
                     }
 
                     Button {
                         text: qsTr("Map")
                         font.pointSize: fontsize(12)
                         Layout.preferredWidth: 97
-                        enabled: false
 
-                        onClicked: {
-                            layout.currentIndex = 3
-                        }
+                        onClicked: layout.currentIndex = 3
                     }
 
                     Button {
@@ -298,9 +294,7 @@ ApplicationWindow {
                         Layout.columnSpan: 2
                         Layout.preferredWidth: 200
 
-                        onClicked: {
-                            layout.currentIndex = 1
-                        }
+                        onClicked: layout.currentIndex = 1
                     }
 
                     Button {
@@ -311,9 +305,7 @@ ApplicationWindow {
                         Layout.preferredWidth: 200
                         enabled: radio_v2.checked
 
-                        onClicked: {
-                            layout.currentIndex = 4
-                        }
+                        onClicked: layout.currentIndex = 4
                     }
                 }
             }
@@ -444,8 +436,8 @@ ApplicationWindow {
                             font.family: "courier"
                             readOnly: true
                             selectByMouse: true
-                            clip: true;
-                            onTextChanged: cursorPosition = length;
+                            clip: true
+                            onTextChanged: cursorPosition = length
                         }
                     }
 
@@ -459,12 +451,68 @@ ApplicationWindow {
         }
 
         RowLayout {
-            // Map
-            Label {
-                text: "not implemented."
-                font.pointSize: fontsize(16)
-                padding: 20
-                leftPadding: 100
+            Item {
+                width: 10
+            }
+
+            ColumnLayout {
+                // Map
+                spacing: 5
+                Layout.margins: 10
+                Layout.alignment: Qt.AlignTop
+
+                Label {
+                    font.pointSize: fontsize(12)
+                    font.bold: true
+                    text: "Map:"
+                }
+
+                Rectangle {
+                    Flickable {
+                        id: map_flickable
+                        implicitWidth: applicationWindow.width - 60
+                        implicitHeight: applicationWindow.height - 175
+                        contentWidth: map.width
+                        contentHeight: map.height
+                        clip: true
+                        anchors.centerIn: parent
+
+                        ScrollBar.horizontal: ScrollBar {
+                             policy: ScrollBar.AsNeeded
+                             height: 8
+                             horizontalPadding: 0
+                             verticalPadding: 0
+                        }
+
+                        ScrollBar.vertical: ScrollBar {
+                             policy: ScrollBar.AsNeeded
+                             width: 8
+                             horizontalPadding: 0
+                             verticalPadding: 0
+                        }
+
+                        MapImageItem {
+                            id: map
+                            objectName: "Map"
+                            width: 1536
+                            height: 1536
+                            rotation: 180
+
+                            function scroll_to(x, y) {
+                                map_flickable.contentX = x - map_flickable.implicitWidth / 2;
+                                map_flickable.contentY = y - map_flickable.implicitHeight / 2;
+                            }
+                        }
+                    }
+
+
+                    width: applicationWindow.width - 50
+                    height: applicationWindow.height - 165
+                    border.color: "gray"
+                    border.width: 2
+                    Layout.alignment: Qt.AlignCenter
+                    color: "gray"
+                }
             }
         }
 
