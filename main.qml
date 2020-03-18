@@ -26,7 +26,7 @@ ApplicationWindow {
     visible: true
     width: 615
     height: 605
-    title: qsTr("ct-Bot Remote Viewer 0.3")
+    title: qsTr("ct-Bot Remote Viewer 0.4")
 
     function fontsize(size) {
         if (Qt.platform.os == "osx" || Qt.platform.os == "ios") {

@@ -39,7 +39,7 @@ Q_OBJECT
     Q_PROPERTY(QImage image READ image WRITE setImage NOTIFY imageChanged)
 
 public:
-    static constexpr float MAP_SIZE_ { 12.288 };
+    static constexpr qreal MAP_SIZE_ { 12.288 };
     static constexpr size_t MAP_RESOULTION_ { 125 };
     static constexpr size_t MAP_SECTION_SIZE_ { 16 };
     static constexpr size_t MAP_MACROBLOCK_SIZE_ { 512 };
@@ -88,4 +88,6 @@ private:
     std::atomic<bool> needs_update_;
     QPoint bot_pos_;
     unsigned bot_heading_;
+    const QPen bot_pen_;
+    const QBrush bot_brush_;
 };

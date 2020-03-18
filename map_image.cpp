@@ -26,7 +26,8 @@
 
 
 MapImageItem::MapImageItem(QQuickItem* parent) : QQuickPaintedItem { parent }, current_image_ { MAP_PIXEL_SIZE_, MAP_PIXEL_SIZE_, QImage::Format_Indexed8 },
-    min_ { MAP_PIXEL_SIZE_ / 2, MAP_PIXEL_SIZE_ / 2 }, max_ { MAP_PIXEL_SIZE_ / 2, MAP_PIXEL_SIZE_ / 2 }, p_update_timer_ {}, p_update_thread_ {}, needs_update_ {} {
+    min_ { MAP_PIXEL_SIZE_ / 2, MAP_PIXEL_SIZE_ / 2 }, max_ { MAP_PIXEL_SIZE_ / 2, MAP_PIXEL_SIZE_ / 2 }, p_update_timer_ {}, p_update_thread_ {}, needs_update_ {},
+    bot_pen_ { QColor { 255, 0, 0} }, bot_brush_ { QColor { 255, 0, 0 }, Qt::SolidPattern } {
     QVector<QRgb> table;
     for (int i {}; i < 256; ++i) {
         table.push_back(qRgb(i, i, i));
@@ -59,10 +60,17 @@ MapImageItem::~MapImageItem() {
 
 void MapImageItem::paint(QPainter* painter) {
     painter->drawImage(min_, current_image_, QRect(min_, max_));
-    painter->setPen(QColor { 255, 0, 0 });
-    QPoint pos { static_cast<int>(MAP_PIXEL_SIZE_) - bot_pos_.x(), static_cast<int>(MAP_PIXEL_SIZE_) - bot_pos_.y() };
-    QRect rect { pos - QPoint { 10, 10 }, pos + QPoint { 10, 10 } };
-    painter->drawArc(rect, (bot_heading_ -50) * 16, 280 * 16);
+
+    if (!bot_pos_.isNull()) {
+        const QPointF pos { static_cast<qreal>(MAP_PIXEL_SIZE_ - bot_pos_.x()), static_cast<qreal>(MAP_PIXEL_SIZE_ - bot_pos_.y()) };
+        const QRectF rect { pos - QPointF { MAP_RESOULTION_ * 0.12 / 2. , MAP_RESOULTION_ * 0.12 / 2. }, pos + QPointF { MAP_RESOULTION_ * 0.12 / 2., MAP_RESOULTION_ * 0.12 / 2. } };
+        QPainterPath path { pos };
+        path.arcTo(rect, bot_heading_ - 50., 280.);
+
+        painter->setBrush(bot_brush_);
+        painter->setPen(bot_pen_);
+        painter->drawPath(path);
+    }
 }
 
 QImage MapImageItem::image() const {
@@ -79,35 +87,32 @@ void MapImageItem::set_pixel(const size_t x, const size_t y, const uint8_t value
 }
 
 void MapImageItem::update_map(const uint8_t* data, const size_t block, const size_t from, const size_t to) {
-    const auto x { ((block * (MAP_SECTION_SIZE_ * 2)) % MAP_MACROBLOCK_SIZE_ + (block / MAP_MACROBLOCK_SIZE_) * MAP_MACROBLOCK_SIZE_) % MAP_PIXEL_SIZE_ }; // 2 sections pro Block in X-Richtung (nach Map-Orientierung)
-    const auto y { (((block / MAP_SECTION_SIZE_) * MAP_SECTION_SIZE_) % MAP_MACROBLOCK_SIZE_) + (block / MAP_PIXEL_SIZE_) * MAP_MACROBLOCK_SIZE_ }; // 1 section pro Block in Y-Richtung (nach Map-Orientierung)
+    const auto x { ((block * (MAP_SECTION_SIZE_ * 2)) % MAP_MACROBLOCK_SIZE_ + (block / MAP_MACROBLOCK_SIZE_) * MAP_MACROBLOCK_SIZE_) % MAP_PIXEL_SIZE_ }; // 2 sections per block in X orientation of map
+    const auto y { (((block / MAP_SECTION_SIZE_) * MAP_SECTION_SIZE_) % MAP_MACROBLOCK_SIZE_) + (block / MAP_PIXEL_SIZE_) * MAP_MACROBLOCK_SIZE_ }; // 1 section per block in Y orientation of map
 
-    /* neu empfangene Daten ins Map-Array kopieren */
+    /* copy received data to map-image */
     size_t pic_x {}, pic_y {};
     size_t bufferIndex {};
-    for (size_t j { from }; j <= to && bufferIndex < (MAP_PIXEL_SIZE_ * MAP_PIXEL_SIZE_); ++j) { // Zeilen
-        pic_y = x + j; // X der Map ist Y beim Sim
+    for (size_t j { from }; j <= to && bufferIndex < (MAP_PIXEL_SIZE_ * MAP_PIXEL_SIZE_); ++j) { // rows
+        pic_y = x + j; // X of map is Y of viewer's coordinate system
         if (pic_y >= static_cast<int>(MAP_PIXEL_SIZE_)) {
-            /* ungueltige Daten */
-            return;
+            return; // invalid data
         }
-        for (size_t i {}; i < MAP_SECTION_SIZE_; ++i) { // Spalten
-            pic_x = y + i; // Spaltenindex im Block berechnen, Y der Map ist X beim Sim
+        for (size_t i {}; i < MAP_SECTION_SIZE_; ++i) { // colums
+            pic_x = y + i; // Y of map is X of viewer's coordinate system
             if (pic_x >= static_cast<int>(MAP_PIXEL_SIZE_)) {
-                /* ungueltige Daten */
-                return;
+                return; // invalid data
             }
-            /* Grauwert von int8_t nach int umrechnen */
+            /* calc gray value based on index table */
             int8_t gray { static_cast<int8_t>(data[bufferIndex++]) };
             const auto index { static_cast<int>(gray) + 128 };
             current_image_.setPixel(pic_x, pic_y, static_cast<unsigned>(index));
         }
     }
 
-    // Koordinaten innerhalb des Blocks ausblenden -> Eckpunkt mit kleinsten Koordinaten:
+    /* round coordinates to block size */
     pic_x &= ~(MAP_SECTION_SIZE_ - 1);
-    // 2 Sections pro Block in X-Richtung (Map-Orientierung) entspricht Y-Richtung (Sim-Orientierung):
-    pic_y &= ~(MAP_SECTION_SIZE_ * 2 - 1);
+    pic_y &= ~(MAP_SECTION_SIZE_ * 2 - 1); // 2 sections per block in X orientation of map
     if (pic_x < static_cast<size_t>(min_.x())) {
         min_.setX(pic_x);
     } else if (pic_x > static_cast<size_t>(max_.x())) {
@@ -118,8 +123,6 @@ void MapImageItem::update_map(const uint8_t* data, const size_t block, const siz
     } else if (pic_y > static_cast<size_t>(max_.y())) {
         max_.setY(pic_y);
     }
-
-    //qDebug() << "MapImageItem::update_map(): min: " << min_ << " max: " << max_;
 }
 
 void MapImageItem::commit() {
