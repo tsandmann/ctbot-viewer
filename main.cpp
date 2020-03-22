@@ -167,7 +167,9 @@ int main(int argc, char* argv[]) {
 
     commands_[ctbot::CommandCodes::CMD_SHUTDOWN].push_back([&](const ctbot::CommandBase&) {
         // std::cout << "CMD_SHUTDOWN received: " << cmd << "\n";
-        app.exit(0);
+        auto object { engine.rootObjects().at(0)->findChild<QObject*>("Hostname") };
+        socket.close();
+        QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QVariant, ""));
         return true;
     });
 
