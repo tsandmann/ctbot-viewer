@@ -414,10 +414,26 @@ ApplicationWindow {
                 Layout.margins: 10
                 Layout.alignment: Qt.AlignTop
 
-                Label {
-                    font.pointSize: fontsize(12)
-                    font.bold: true
-                    text: "Log:"
+                RowLayout {
+                    Label {
+                        font.pointSize: fontsize(12)
+                        font.bold: true
+                        text: "Log"
+                    }
+
+                    Item {
+                        width: 40
+                    }
+
+                    Button {
+                        text: "Clear"
+                        font.pointSize: applicationWindow.fontsize(12)
+                        implicitHeight: 25
+
+                        onClicked: {
+                            log_viewer.text = ""
+                        }
+                    }
                 }
 
                 Rectangle {
