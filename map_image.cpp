@@ -61,6 +61,18 @@ MapImageItem::~MapImageItem() {
 void MapImageItem::paint(QPainter* painter) {
     painter->drawImage(min_, current_image_, QRect(min_, max_));
 
+    for (auto& line : lines_) {
+        const QPen pen { std::get<1>(line) };
+        painter->setPen(pen);
+        painter->drawLine(std::get<0>(line));
+    }
+
+    for (auto& circle : circles_) {
+        const QPen pen { std::get<2>(circle) };
+        painter->setPen(pen);
+        painter->drawEllipse(std::get<0>(circle), std::get<1>(circle), std::get<1>(circle));
+    }
+
     if (!bot_pos_.isNull()) {
         const QPointF pos { static_cast<qreal>(MAP_PIXEL_SIZE_ - bot_pos_.x()), static_cast<qreal>(MAP_PIXEL_SIZE_ - bot_pos_.y()) };
         const QRectF rect { pos - QPointF { MAP_RESOULTION_ * 0.12 / 2. , MAP_RESOULTION_ * 0.12 / 2. }, pos + QPointF { MAP_RESOULTION_ * 0.12 / 2., MAP_RESOULTION_ * 0.12 / 2. } };
@@ -82,8 +94,44 @@ void MapImageItem::setImage(const QImage& image) {
     update();
 }
 
+void MapImageItem::clear() {
+    current_image_.fill(128);
+    lines_.clear();
+    circles_.clear();
+}
+
 void MapImageItem::set_pixel(const size_t x, const size_t y, const uint8_t value) {
     current_image_.setPixel(x, y, value);
+}
+
+void MapImageItem::draw_line(const QPoint& from, const QPoint& to, const QColor& color) {
+    lines_.emplace_back(std::make_tuple(QLine { from, to }, color)); // FIXME: lock
+}
+
+void MapImageItem::draw_cicle(const QPoint& center, size_t radius, const QColor& color) {
+    circles_.emplace_back(std::make_tuple(center, radius, color)); // FIXME: lock
+}
+
+void MapImageItem::clear_lines(const size_t remaining) {
+    const auto to_delete { lines_.size() <= remaining ? 0 : lines_.size() - remaining };
+    lines_.erase(lines_.begin(), lines_.begin() + to_delete);
+}
+
+void MapImageItem::clear_circles(const size_t remaining) {
+    const auto to_delete { circles_.size() <= remaining ? 0 : circles_.size() - remaining };
+    circles_.erase(circles_.begin(), circles_.begin() + to_delete);
+}
+
+bool MapImageItem::save_to_file(const QString& filename) const {
+    QUrl url(filename);
+    QFile file(url.toLocalFile());
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        return current_image_.save(&file, "PNG");
+    }
+
+    qDebug() << "MapImageItem::save_to_file(" << filename << ") failed.";
+
+    return false;
 }
 
 void MapImageItem::update_map(const uint8_t* data, const size_t block, const size_t from, const size_t to) {

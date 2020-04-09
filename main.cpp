@@ -135,6 +135,7 @@ int main(int argc, char* argv[]) {
 
     QObject* p_lcd = engine.rootObjects().first()->findChild<QObject*>("LCD");
     QObject* p_log = engine.rootObjects().first()->findChild<QObject*>("log_viewer");
+    QObject* p_script = engine.rootObjects().first()->findChild<QObject*>("script_viewer");
 
 
     QHash<QString, QModelIndex> sensor_map;
@@ -301,7 +302,7 @@ int main(int argc, char* argv[]) {
 
                 size_t len { cmd.get_payload_size() };
                 if (len + col > 20) {
-                    qDebug() << "len updated: len =" << len << " col =" << col;
+                    // qDebug() << "len updated: len =" << len << " col =" << col;
                     len = 20 - col;
                 }
                 if (!len) {
@@ -398,6 +399,77 @@ int main(int argc, char* argv[]) {
                 QMetaObject::invokeMethod(p_map, "scroll_to", Q_ARG(QVariant, bot_pos.x()), Q_ARG(QVariant, bot_pos.y()));
             }
             receive_state = 0;
+            break;
+        }
+
+        case ctbot::CommandCodes::CMD_SUB_MAP_LINE: {
+            if (cmd.get_payload_size() < 8) {
+                return false;
+            }
+
+            QColor color;
+            switch (block) {
+            case 0:
+                color.setRgb(0, 255, 0);
+                break;
+
+            case 1:
+                color.setRgb(255, 0, 0);
+                break;
+
+            default:
+                color.setRgb(0, 0, 0);
+                break;
+            }
+
+            const auto y1 { cmd.get_payload()[0] | cmd.get_payload()[1] << 8 };
+            const auto x1 { cmd.get_payload()[2] | cmd.get_payload()[3] << 8 };
+            const auto y2 { cmd.get_payload()[4] | cmd.get_payload()[5] << 8 };
+            const auto x2 { cmd.get_payload()[6] | cmd.get_payload()[7] << 8 };
+
+            p_map->draw_line(QPoint { x1, y1 }, QPoint { x2, y2 }, color);
+            p_map->commit();
+            break;
+        }
+
+        case ctbot::CommandCodes::CMD_SUB_MAP_CIRCLE: {
+            if (cmd.get_payload_size() < 4) {
+                return false;
+            }
+
+            QColor color;
+            switch (block) {
+            case 0:
+                color.setRgb(0, 255, 0);
+                break;
+
+            case 1:
+                color.setRgb(255, 0, 0);
+                break;
+
+            default:
+                color.setRgb(0, 0, 0);
+                break;
+            }
+
+            const auto radius { cmd.get_cmd_data_r() };
+            const auto y { cmd.get_payload()[0] | cmd.get_payload()[1] << 8 };
+            const auto x { cmd.get_payload()[2] | cmd.get_payload()[3] << 8 };
+
+            p_map->draw_cicle(QPoint { x, y }, radius, color);
+            p_map->commit();
+            break;
+        }
+
+        case ctbot::CommandCodes::CMD_SUB_MAP_CLEAR_LINES: {
+            p_map->clear_lines(block);
+            p_map->commit();
+            break;
+        }
+
+        case ctbot::CommandCodes::CMD_SUB_MAP_CLEAR_CIRCLES: {
+            p_map->clear_circles(block);
+            p_map->commit();
             break;
         }
 
@@ -653,7 +725,7 @@ int main(int argc, char* argv[]) {
             payload.append(static_cast<char>((par[i] >> 24) & 0xff));
         }
 
-        qDebug() << "payload =" << payload;
+        // qDebug() << "payload =" << payload;
 
         cmd.add_payload(payload.data(), static_cast<size_t>(payload.size()));
 
@@ -662,7 +734,7 @@ int main(int argc, char* argv[]) {
             if (cmd.get_payload_size()) {
                 sent += socket.write(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int64_t>(cmd.get_payload_size()));
             }
-            // qDebug() << "sent" << sent << "bytes.";
+            qDebug() << "sent" << sent << "bytes.";
         }
 
         auto entry = FindItemByName(engine.rootObjects(), "RemoteCallViewer");
@@ -676,6 +748,185 @@ int main(int argc, char* argv[]) {
     } };
     QObject::connect(engine.rootObjects().first()->findChild<QObject*>("RemoteCallViewer"), SIGNAL(remoteCallClicked(QString, QString)), &remotecall_button,
         SLOT(cppSlot(QString, QString)));
+
+    ConnectButton map_fetch { [&](QString, QString) {
+        if (!p_map) {
+            return;
+        }
+
+        ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_MAP, ctbot::CommandCodes::CMD_SUB_MAP_REQUEST, 0, 0, ctbot::CommandBase::ADDR_SIM,
+            ctbot::CommandBase::ADDR_BROADCAST };
+        if (socket.isOpen()) {
+            socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
+        }
+    } };
+    QObject::connect(engine.rootObjects().first()->findChild<QObject*>("MapViewer"), SIGNAL(mapFetch()), &map_fetch, SLOT(cppSlot()));
+
+    ConnectButton map_clear { [&](QString, QString) {
+        if (!p_map) {
+            return;
+        }
+        p_map->clear();
+        p_map->set_bot_x(0);
+        p_map->set_bot_y(0);
+        p_map->set_bot_heading(0);
+        p_map->commit();
+    } };
+    QObject::connect(engine.rootObjects().first()->findChild<QObject*>("MapViewer"), SIGNAL(mapClear()), &map_clear, SLOT(cppSlot()));
+
+    ConnectButton map_save { [&](QString filename, QString) {
+        if (!p_map) {
+            return;
+        }
+
+        p_map->save_to_file(filename);
+    } };
+    QObject::connect(engine.rootObjects().first()->findChild<QObject*>("MapViewer"), SIGNAL(mapSave(QString)), &map_save, SLOT(cppSlot(QString)));
+
+    ConnectButton scripts_load { [&](QString filename, QString) {
+        if (!p_script) {
+            return;
+        }
+        auto p_editor{ p_script->findChild<QQuickItem*>("script_editor") };
+        if (!p_editor) {
+            return;
+        }
+
+        QUrl url { filename };
+        QFile file { url.toLocalFile() };
+        if (!file.open(QIODevice::ReadOnly)) {
+            return;
+        }
+        QTextStream stream { &file };
+        QString text;
+        while (!stream.atEnd()) {
+            text.append(stream.readLine());
+            text.append("\n");
+        }
+        file.close();
+
+        p_editor->setProperty("text", text);
+
+        qDebug() << "script loaded from: " << url.toLocalFile();
+    } };
+    QObject::connect(p_script, SIGNAL(scriptLoad(QString)), &scripts_load, SLOT(cppSlot(QString)));
+
+    ConnectButton scripts_save { [&](QString filename, QString) {
+        if (!p_script) {
+            return;
+        }
+        auto p_editor{ p_script->findChild<QQuickItem*>("script_editor") };
+        if (!p_editor) {
+            return;
+        }
+
+        QUrl url { filename };
+        QFile file { url.toLocalFile() };
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            return;
+        }
+        QTextStream stream { &file };
+        const QString text { p_editor->property("text").toString() };
+        stream << text;
+        file.close();
+
+        qDebug() << "script saved to: " << url.toLocalFile();
+    } };
+    QObject::connect(p_script, SIGNAL(scriptSave(QString)), &scripts_save, SLOT(cppSlot(QString)));
+
+    ConnectButton scripts_send { [&](QString, QString) {
+        if (!p_script || !socket.isOpen()) {
+            return;
+        }
+
+        auto p_type { p_script->findChild<QQuickItem*>("scripts_abl") };
+        auto p_execute { p_script->findChild<QQuickItem*>("script_execute") };
+        auto p_filename { p_script->findChild<QQuickItem*>("script_remote_filename") };
+        auto p_content { p_script->findChild<QQuickItem*>("script_editor") };
+
+        if (!p_type || !p_execute || !p_filename || !p_content) {
+            return;
+        }
+
+        const bool type { p_type->property("checked").toBool() }; // false: basic, true: abl
+        const bool execute { p_execute->property("checked").toBool() };
+        const QByteArray remote_filename { p_filename->property("text").toString().toLatin1() };
+        const QByteArray content_array { p_content->property("text").toString().toLatin1() };
+        const auto content_length { static_cast<int16_t>(content_array.length()) };
+
+        // qDebug() << "type=" << type << "execute=" << execute << "filename=" << remote_filename << "length=" << content_length;
+        // qDebug() << "content=" << content_array;
+
+        if (remote_filename.length() < 5) {
+            return;
+        }
+
+        ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_PREPARE, static_cast<int16_t>(type), content_length, ctbot::CommandBase::ADDR_SIM,
+            ctbot::CommandBase::ADDR_BROADCAST };
+        cmd.add_payload(remote_filename.constData(), remote_filename.length());
+
+        qint64 sent { socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData)) };
+        sent += socket.write(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int64_t>(cmd.get_payload_size()));
+        socket.flush();
+
+        // qDebug() << "script prepared, sent=" << sent;
+        QThread::usleep(75 * 3'000);
+
+        sent = 0;
+        int16_t i {};
+        for (; i < content_length / 64; ++i) {
+            ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_DATA, static_cast<int16_t>(type), static_cast<int16_t>(i * 64),
+                ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
+            cmd.add_payload(&content_array.constData()[i * 64], 64);
+            sent += socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
+            sent += socket.write(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int64_t>(cmd.get_payload_size()));
+            socket.flush();
+
+            QThread::usleep(75 * 1'000);
+        }
+
+        const auto to_send { content_length % 64 };
+        // qDebug() << "to_send=" << to_send;
+
+        if (to_send) {
+            ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_DATA, static_cast<int16_t>(type), static_cast<int16_t>(i * 64),
+                ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
+            cmd.add_payload(&content_array.constData()[i * 64], to_send);
+            sent += socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
+            sent += socket.write(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int64_t>(cmd.get_payload_size()));
+            socket.flush();
+
+            QThread::usleep(75 * 1'000);
+        }
+
+        qDebug() << "script sent," << sent << "bytes.";
+
+        if (execute) {
+            ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_START, static_cast<int16_t>(type), 0,
+                ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
+            socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
+
+            qDebug() << "script started.";
+        }
+
+    } };
+    QObject::connect(p_script, SIGNAL(scriptSend()), &scripts_send, SLOT(cppSlot()));
+
+    ConnectButton scripts_abort { [&](QString, QString) {
+        auto p_type { p_script->findChild<QQuickItem*>("scripts_abl") };
+        if (!p_type || !socket.isOpen()) {
+            return;
+        }
+
+        const bool type { p_type->property("checked").toBool() }; // false: basic, true: abl
+
+        ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_STOP, static_cast<int16_t>(type), 0,
+            ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
+        socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
+
+        qDebug() << "script aborted.";
+    } };
+    QObject::connect(p_script, SIGNAL(scriptAbort()), &scripts_abort, SLOT(cppSlot()));
 
     return app.exec();
 }

@@ -26,10 +26,15 @@
 
 #include <cstdint>
 #include <atomic>
+#include <deque>
+#include <tuple>
 #include <QQuickPaintedItem>
 #include <QQuickItem>
 #include <QPainter>
 #include <QImage>
+#include <QPoint>
+#include <QLine>
+#include <QColor>
 #include <QTimer>
 #include <QThread>
 
@@ -58,6 +63,8 @@ public:
 
     void update_map(const uint8_t* data, const size_t block, const size_t from, const size_t to);
 
+    void clear();
+
     void commit();
 
     void set_bot_x(const uint16_t new_pos) {
@@ -71,6 +78,16 @@ public:
     void set_bot_heading(const uint16_t new_head) {
         bot_heading_ = new_head;
     }
+
+    void draw_line(const QPoint& from, const QPoint& to, const QColor& color);
+
+    void draw_cicle(const QPoint& center, size_t radius, const QColor& color);
+
+    void clear_lines(const size_t remaining);
+
+    void clear_circles(const size_t remaining);
+
+    bool save_to_file(const QString& filename) const;
 
     QPoint get_bot_pos() const {
         return bot_pos_;
@@ -90,4 +107,6 @@ private:
     unsigned bot_heading_;
     const QPen bot_pen_;
     const QBrush bot_brush_;
+    std::deque<std::tuple<QLine, QColor>> lines_;
+    std::deque<std::tuple<QPoint, size_t, QColor>> circles_;
 };

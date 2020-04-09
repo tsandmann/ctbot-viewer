@@ -112,7 +112,7 @@ Frame {
         }
 
         RCButton {
-            text: qsTr("^")
+            text: qsTr("||")
         }
 
         Item {
@@ -124,7 +124,7 @@ Frame {
         }
 
         RCButton {
-            text: qsTr(">")
+            text: qsTr("\u25B6")
         }
 
         RCButton {
@@ -135,8 +135,9 @@ Frame {
             width: 35
         }
 
+
         RCButton {
-            text: qsTr("v")
+            text: qsTr("\u25A0")
         }
 
         Item {
@@ -153,11 +154,11 @@ Frame {
         }
 
         RCButton {
-            text: qsTr("*")
+            text: qsTr("\u25CF")
         }
 
         RCButton {
-            text: qsTr("CH*P/P")
+            text: qsTr("CH*P/C")
             Layout.preferredWidth: 75
             Layout.columnSpan: 2
         }

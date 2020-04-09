@@ -18,14 +18,17 @@
 import QtQuick 2.0
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
+import QtQuick.Dialogs 1.3
 import mapimage 1.0
 
 
 ApplicationWindow {
     id: applicationWindow
     visible: true
-    width: 615
     height: 605
+    width: 615
+    minimumHeight: 605
+    minimumWidth: 615
     title: qsTr("ct-Bot Remote Viewer 0.4")
 
     function fontsize(size) {
@@ -88,6 +91,13 @@ ApplicationWindow {
                 font.pointSize: fontsize(12)
                 horizontalPadding: 10
                 onTriggered: layout.currentIndex = 3
+            }
+
+            MenuItem {
+                text: qsTr("Scripts")
+                font.pointSize: fontsize(12)
+                horizontalPadding: 10
+                onTriggered: layout.currentIndex = 4
             }
         }
     }
@@ -273,6 +283,15 @@ ApplicationWindow {
                     signal connectClicked(string msg)
 
                     Button {
+                        text: qsTr("Remote Calls")
+                        font.pointSize: fontsize(12)
+                        Layout.columnSpan: 2
+                        Layout.preferredWidth: 200
+
+                        onClicked: layout.currentIndex = 1
+                    }
+
+                    Button {
                         text: qsTr("Logs")
                         font.pointSize: fontsize(12)
                         Layout.preferredWidth: 97
@@ -289,23 +308,21 @@ ApplicationWindow {
                     }
 
                     Button {
-                        text: qsTr("Remote Calls")
+                        text: qsTr("Scripts")
                         font.pointSize: fontsize(12)
-                        Layout.columnSpan: 2
-                        Layout.preferredWidth: 200
+                        Layout.preferredWidth: 97
 
-                        onClicked: layout.currentIndex = 1
+                        onClicked: layout.currentIndex = 4
                     }
 
                     Button {
                         id: button_console
-                        text: qsTr("Console (v2 only)")
+                        text: qsTr("Console")
                         font.pointSize: fontsize(12)
-                        Layout.columnSpan: 2
-                        Layout.preferredWidth: 200
+                        Layout.preferredWidth: 97
                         enabled: radio_v2.checked
 
-                        onClicked: layout.currentIndex = 4
+                        onClicked: layout.currentIndex = 5
                     }
                 }
             }
@@ -477,10 +494,65 @@ ApplicationWindow {
                 Layout.margins: 10
                 Layout.alignment: Qt.AlignTop
 
-                Label {
-                    font.pointSize: fontsize(12)
-                    font.bold: true
-                    text: "Map:"
+                RowLayout {
+                    id: mapViewer
+                    objectName: "MapViewer"
+
+                    signal mapClear()
+                    signal mapFetch()
+                    signal mapSave(string filename)
+
+                    FileDialog {
+                        id: saveFileDialog
+                        selectExisting: false
+                        defaultSuffix: "png"
+                        nameFilters: [ "Image files (*.png)", "All files (*)" ]
+
+                        onAccepted: {
+                            mapViewer.mapSave(saveFileDialog.fileUrl);
+                        }
+                    }
+
+                    Label {
+                        font.pointSize: fontsize(12)
+                        font.bold: true
+                        text: "Map"
+                    }
+
+                    Item {
+                        width: 40
+                    }
+
+                    Button {
+                        text: "Fetch"
+                        font.pointSize: applicationWindow.fontsize(12)
+                        implicitHeight: 25
+
+                        onClicked: {
+                            parent.mapFetch();
+                        }
+                    }
+
+                    Button {
+                        text: "Clear"
+                        font.pointSize: applicationWindow.fontsize(12)
+                        implicitHeight: 25
+
+                        onClicked: {
+                            parent.mapClear();
+                        }
+                    }
+
+                    Button {
+                        text: "Save to file"
+                        font.pointSize: applicationWindow.fontsize(12)
+                        implicitHeight: 25
+
+                        onClicked: {
+                            saveFileDialog.open();
+                        }
+                    }
+
                 }
 
                 Rectangle {
@@ -533,12 +605,189 @@ ApplicationWindow {
         }
 
         RowLayout {
+            Item {
+                width: 10
+            }
+
+            ColumnLayout {
+                // Scripts
+                spacing: 5
+                Layout.margins: 10
+                Layout.alignment: Qt.AlignTop
+
+                id: script_viewer
+                objectName: "script_viewer"
+
+                signal scriptLoad(string filename)
+                signal scriptSave(string filename)
+                signal scriptAbort()
+                signal scriptSend()
+
+                FileDialog {
+                    id: scriptLoadDialog
+                    selectExisting: true
+                    defaultSuffix: "txt"
+                    nameFilters: [ "Script files (*.txt)", "All files (*)" ]
+
+                    onAccepted: {
+                        script_viewer.scriptLoad(scriptLoadDialog.fileUrl);
+                    }
+                }
+
+                FileDialog {
+                    id: scriptSaveDialog
+                    selectExisting: false
+                    defaultSuffix: "txt"
+                    nameFilters: [ "Script files (*.txt)", "All files (*)" ]
+
+                    onAccepted: {
+                        script_viewer.scriptSave(scriptSaveDialog.fileUrl);
+                    }
+                }
+
+                RowLayout {
+
+                    Label {
+                        font.pointSize: fontsize(12)
+                        font.bold: true
+                        text: "ct-Bot Script"
+                        Layout.preferredWidth: 90
+                    }
+
+                    Item {
+                        width: 40
+                    }
+
+                    TextField {
+                        id: script_remote_filename
+                        objectName: "script_remote_filename"
+                        text: "prog1.txt"
+                        focus: true
+                        Layout.preferredHeight: 25
+                        Layout.preferredWidth: 205
+                        placeholderText: qsTr("Remote filename")
+                        font.pointSize: fontsize(10)
+                        onAccepted: {
+                            script_viewer.scriptSend();
+                        }
+                    }
+
+                    Button {
+                        text: "Send to bot"
+                        font.pointSize: applicationWindow.fontsize(12)
+                        implicitHeight: 25
+
+                        onClicked: {
+                            script_viewer.scriptSend();
+                        }
+                    }
+
+                    CheckBox {
+                        id: script_execute
+                        objectName: "script_execute"
+                        checked: true
+                        font.pointSize: fontsize(16)
+                        leftPadding: -10
+                        indicator.height: 32
+                        indicator.width: 32
+                        scale: 0.7
+                        text: qsTr("Execute")
+                    }
+                }
+
+                RowLayout {
+                    RadioButton {
+                        id: scripts_abl
+                        objectName: "scripts_abl"
+                        checked: true
+                        font.pointSize: fontsize(16)
+                        leftPadding: -15
+                        rightPadding: -10
+                        indicator.height: 32
+                        indicator.width: 32
+                        scale: 0.6
+                        text: qsTr("ABL")
+                    }
+
+                    RadioButton {
+                        id: scripts_basic
+                        font.pointSize: fontsize(16)
+                        leftPadding: -10
+                        rightPadding: -3
+                        indicator.height: 32
+                        indicator.width: 32
+                        scale: 0.6
+                        text: qsTr("Basic")
+                    }
+
+                    Button {
+                        text: "Load"
+                        font.pointSize: applicationWindow.fontsize(12)
+                        implicitHeight: 25
+
+                        onClicked: {
+                            scriptLoadDialog.open();
+                        }
+                    }
+
+                    Button {
+                        text: "Save"
+                        font.pointSize: applicationWindow.fontsize(12)
+                        implicitHeight: 25
+
+                        onClicked: {
+                            scriptSaveDialog.open();
+                        }
+                    }
+
+                    Button {
+                        text: "Abort"
+                        font.pointSize: applicationWindow.fontsize(12)
+                        implicitHeight: 25
+
+                        onClicked: {
+                            script_viewer.scriptAbort();
+                        }
+                    }
+                }
+
+                Rectangle {
+                    ScrollView {
+                        anchors.fill: parent
+                        id: script_scrollview
+                        property ScrollBar hScrollBar: ScrollBar.horizontal
+                        property ScrollBar vScrollBar: ScrollBar.vertical
+
+                        TextArea {
+                            id: script_editor
+                            objectName: "script_editor"
+                            placeholderText: qsTr("Enter your ct-Bot script here")
+                            textMargin: 4
+                            font.pointSize: fontsize(10)
+                            font.family: "courier"
+                            readOnly: false
+                            selectByMouse: true
+                            clip: true
+                            //onTextChanged: cursorPosition = length
+                        }
+                    }
+
+                    width: 570
+                    implicitHeight: applicationWindow.height - 185
+                    border.color: "gray"
+                    border.width: 2
+                    Layout.alignment: Qt.AlignTop
+                }
+            }
+        }
+
+        RowLayout {
             // Console
             enabled: radio_v2.checked
 
             Label {
                 text: "not implemented."
-                font.pointSize: fontsize(16)
+                font.pointSize: fontsize(14)
                 padding: 20
                 leftPadding: 100
             }
@@ -547,7 +796,7 @@ ApplicationWindow {
 
     footer: TabBar {
         id: tabBar
-        font.pointSize: fontsize(12)
+        font.pointSize: fontsize(11)
         width: 615
         currentIndex: layout.currentIndex
 
@@ -572,8 +821,13 @@ ApplicationWindow {
         }
 
         TabButton {
-            text: qsTr("Console")
+            text: qsTr("Scripts")
             onClicked: layout.currentIndex = 4
+        }
+
+        TabButton {
+            text: qsTr("Console")
+            onClicked: layout.currentIndex = 5
             enabled: radio_v2.checked
         }
     }
