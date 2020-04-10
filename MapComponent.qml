@@ -1,0 +1,143 @@
+/*
+ * This file is part of the c't-Bot remote viewer tool.
+ * Copyright (c) 2020 Timo Sandmann
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import QtQuick 2.0
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.3
+import QtQuick.Dialogs 1.3
+
+import MapImage 1.0
+
+RowLayout {
+    Item {
+        width: 10
+    }
+
+    ColumnLayout {
+        spacing: 5
+        Layout.margins: 10
+        Layout.alignment: Qt.AlignTop
+
+        RowLayout {
+            id: mapViewer
+            objectName: "MapViewer"
+
+            signal mapClear()
+            signal mapFetch()
+            signal mapSave(string filename)
+
+            FileDialog {
+                id: saveFileDialog
+                selectExisting: false
+                defaultSuffix: "png"
+                nameFilters: [ "Image files (*.png)", "All files (*)" ]
+
+                onAccepted: {
+                    mapViewer.mapSave(saveFileDialog.fileUrl);
+                }
+            }
+
+            Label {
+                font.pointSize: fontsize(12)
+                font.bold: true
+                text: "Map"
+            }
+
+            Item {
+                width: 40
+            }
+
+            Button {
+                text: "Fetch"
+                font.pointSize: applicationWindow.fontsize(12)
+                implicitHeight: 25
+
+                onClicked: {
+                    parent.mapFetch();
+                }
+            }
+
+            Button {
+                text: "Clear"
+                font.pointSize: applicationWindow.fontsize(12)
+                implicitHeight: 25
+
+                onClicked: {
+                    parent.mapClear();
+                }
+            }
+
+            Button {
+                text: "Save to file"
+                font.pointSize: applicationWindow.fontsize(12)
+                implicitHeight: 25
+
+                onClicked: {
+                    saveFileDialog.open();
+                }
+            }
+
+        }
+
+        Rectangle {
+            Flickable {
+                id: map_flickable
+                implicitWidth: applicationWindow.width - 60
+                implicitHeight: applicationWindow.height - 175
+                contentWidth: map.width
+                contentHeight: map.height
+                clip: true
+                anchors.centerIn: parent
+
+                ScrollBar.horizontal: ScrollBar {
+                     policy: ScrollBar.AsNeeded
+                     height: 8
+                     horizontalPadding: 0
+                     verticalPadding: 0
+                }
+
+                ScrollBar.vertical: ScrollBar {
+                     policy: ScrollBar.AsNeeded
+                     width: 8
+                     horizontalPadding: 0
+                     verticalPadding: 0
+                }
+
+                MapImageItem {
+                    id: map
+                    objectName: "Map"
+                    width: 1536
+                    height: 1536
+                    rotation: 180
+
+                    function scroll_to(x, y) {
+                        map_flickable.contentX = x - map_flickable.implicitWidth / 2;
+                        map_flickable.contentY = y - map_flickable.implicitHeight / 2;
+                    }
+                }
+            }
+
+
+            width: applicationWindow.width - 50
+            height: applicationWindow.height - 165
+            border.color: "gray"
+            border.width: 2
+            Layout.alignment: Qt.AlignCenter
+            color: "gray"
+        }
+    }
+}

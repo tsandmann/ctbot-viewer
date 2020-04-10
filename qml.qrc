@@ -1,11 +1,19 @@
 <RCC>
     <qresource prefix="/">
-        <file>main.qml</file>
+        <file>Main.qml</file>
         <file>SensorViewer.qml</file>
         <file>ActorViewer.qml</file>
         <file>RemoteControl.qml</file>
         <file>RCButton.qml</file>
         <file>RemoteCallViewer.qml</file>
         <file>AutoSizingMenu.qml</file>
+        <file>MainComponent.qml</file>
+        <file>MenuComponent.qml</file>
+        <file>RemotecallComponent.qml</file>
+        <file>LogComponent.qml</file>
+        <file>MapComponent.qml</file>
+        <file>ScriptComponent.qml</file>
+        <file>ConsoleComponent.qml</file>
+        <file>TabComponent.qml</file>
     </qresource>
 </RCC>

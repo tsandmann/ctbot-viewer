@@ -115,14 +115,14 @@ int main(int argc, char* argv[]) {
     RCModel rcModel;
     rcModel.setList(p_rcList);
 
-    qmlRegisterType<MapImageItem>("mapimage", 1, 0, "MapImageItem");
+    qmlRegisterType<MapImageItem>("MapImage", 1, 0, "MapImageItem");
 
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty(QStringLiteral("sensorModel"), &sensorModel);
     engine.rootContext()->setContextProperty(QStringLiteral("actorModel"), &actorModel);
     engine.rootContext()->setContextProperty(QStringLiteral("remotecallModel"), &rcModel);
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
+    const QUrl url { QStringLiteral("qrc:/Main.qml") };
     QObject::connect(
         &engine, &QQmlApplicationEngine::objectCreated, &app,
         [url](QObject* obj, const QUrl& objUrl) {

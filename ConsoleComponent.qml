@@ -15,19 +15,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.10
-import QtQuick.Controls 2.3
+import QtQuick 2.0
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.3
 
-Menu {
-    width: {
-        var result = 0;
-        var padding = 0;
-        for (var i = 0; i < count; ++i) {
-            var item = itemAt(i);
-            result = Math.max(item.contentItem.implicitWidth, result);
-            padding = Math.max(item.horizontalPadding, padding);
-        }
+RowLayout {
+    enabled: main_viewer.v2.checked
 
-        return result + padding * 2;
+    Label {
+        text: "not implemented."
+        font.pointSize: fontsize(14)
+        padding: 20
+        leftPadding: 100
     }
 }
