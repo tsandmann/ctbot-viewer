@@ -19,6 +19,9 @@ import QtQuick 2.10
 import QtQuick.Controls 2.3
 
 Menu {
+    modal: true
+    dim: false
+
     width: {
         var result = 0;
         var padding = 0;

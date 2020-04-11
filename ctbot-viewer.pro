@@ -29,11 +29,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000 # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        actuatorviewer.cpp \
         command.cpp \
+        commandevaluator.cpp \
         main.cpp \
         map_image.cpp \
         remotecall_list.cpp \
         remotecall_model.cpp \
+        sensorviewer.cpp \
         value_list.cpp \
         value_model.cpp
 
@@ -51,10 +54,13 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    actuatorviewer.h \
     command.h \
+    commandevaluator.h \
     connect_button.h \
     map_image.h \
     remotecall_list.h \
     remotecall_model.h \
+    sensorviewer.h \
     value_list.h \
     value_model.h

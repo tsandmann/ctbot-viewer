@@ -19,7 +19,7 @@ import QtQuick 2.0
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 
-import Actors 1.0
+import Actuators 1.0
 
 Frame {
     ListView {
@@ -27,7 +27,7 @@ Frame {
         implicitHeight: contentHeight
         anchors.fill: parent
         clip: true
-        model: actorModel
+        model: actuatorModel
 
         delegate: RowLayout {
             width: parent.width
@@ -36,13 +36,13 @@ Frame {
             Label {
                 Layout.alignment: Qt.AlignLeft
                 text: model.name
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
             }
 
             Label {
                 Layout.alignment: Qt.AlignRight
                 text: model.value
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
             }
         }
     }

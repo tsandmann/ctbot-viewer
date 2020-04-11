@@ -20,7 +20,7 @@ import QtQuick.Controls 2.4
 
 TabBar {
     font.pointSize: fontsize(11)
-    width: 615
+    //width: applicationWindow.minimumWidth
     currentIndex: layout.currentIndex
 
     TabButton {
@@ -34,7 +34,7 @@ TabBar {
     }
 
     TabButton {
-        text: qsTr("Logs")
+        text: qsTr("Log")
         onClicked: layout.currentIndex = 2
     }
 

@@ -40,7 +40,7 @@
 
 
 class MapImageItem : public QQuickPaintedItem {
-Q_OBJECT
+    Q_OBJECT
     Q_PROPERTY(QImage image READ image WRITE setImage NOTIFY imageChanged)
 
 public:
@@ -53,7 +53,7 @@ public:
     MapImageItem(QQuickItem* parent = nullptr);
     ~MapImageItem();
 
-    Q_INVOKABLE void setImage(const QImage& image);
+    void setImage(const QImage& image);
 
     void paint(QPainter* painter);
 
@@ -65,7 +65,7 @@ public:
 
     void clear();
 
-    void commit();
+    Q_INVOKABLE void commit();
 
     void set_bot_x(const uint16_t new_pos) {
         bot_pos_.setX(new_pos);

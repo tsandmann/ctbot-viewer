@@ -65,7 +65,7 @@ MenuBar {
         }
 
         MenuItem {
-            text: qsTr("Logs")
+            text: qsTr("Log")
             font.pointSize: fontsize(12)
             horizontalPadding: 10
             onTriggered: layout.currentIndex = 2

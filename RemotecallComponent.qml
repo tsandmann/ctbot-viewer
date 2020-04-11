@@ -44,7 +44,7 @@ RowLayout {
 
             Button {
                 text: "Fetch List"
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
                 implicitHeight: 25
 
                 onClicked: {
@@ -55,7 +55,7 @@ RowLayout {
 
             Button {
                 text: "Clear List"
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
                 implicitHeight: 25
 
                 onClicked: {
@@ -66,7 +66,7 @@ RowLayout {
             Button {
                 id: remotecall_abort
                 text: "Abort"
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
                 implicitHeight: 25
 
                 onClicked: {

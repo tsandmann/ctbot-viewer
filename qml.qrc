@@ -2,7 +2,7 @@
     <qresource prefix="/">
         <file>Main.qml</file>
         <file>SensorViewer.qml</file>
-        <file>ActorViewer.qml</file>
+        <file>ActuatorViewer.qml</file>
         <file>RemoteControl.qml</file>
         <file>RCButton.qml</file>
         <file>RemoteCallViewer.qml</file>
@@ -15,5 +15,6 @@
         <file>ScriptComponent.qml</file>
         <file>ConsoleComponent.qml</file>
         <file>TabComponent.qml</file>
+        <file>MiniLogComponent.qml</file>
     </qresource>
 </RCC>

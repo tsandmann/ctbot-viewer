@@ -20,13 +20,9 @@ import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 
 RowLayout {
-    Item {
-        width: 10
-    }
-
     ColumnLayout {
-        spacing: 5
-        Layout.margins: 10
+        spacing: 3
+        Layout.margins: 0
         Layout.alignment: Qt.AlignTop
 
         RowLayout {
@@ -34,20 +30,6 @@ RowLayout {
                 font.pointSize: fontsize(12)
                 font.bold: true
                 text: "Log:"
-            }
-
-            Item {
-                width: 40
-            }
-
-            Button {
-                text: "Clear"
-                font.pointSize: fontsize(12)
-                implicitHeight: 25
-
-                onClicked: {
-                    log_viewer.text = ""
-                }
             }
         }
 
@@ -58,33 +40,37 @@ RowLayout {
                 property ScrollBar vScrollBar: ScrollBar.vertical
 
                 TextArea {
-                    id: log_viewer
-                    objectName: "log_viewer"
+                    id: mini_log_viewer
+                    objectName: "mini_log_viewer"
                     placeholderText: qsTr("Log")
-                    textMargin: 4
-                    font.pointSize: fontsize(10)
+                    textMargin: 3
+                    leftPadding: 3
+                    rightPadding: 3
+                    topPadding: 3
+                    bottomPadding: 3
+                    font.pointSize: fontsize(9)
                     font.family: "courier"
                     readOnly: true
                     selectByKeyboard: true
                     selectByMouse: Qt.platform.os != "ios"
                     clip: true
-                    onTextChanged: {
-                        cursorPosition = length
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onDoubleClicked: {
+                            mini_log_viewer.text = ""
+                        }
                     }
                 }
             }
 
-            width: applicationWindow.minimumWidth - 45
             border.color: "gray"
             border.width: 1
-            Layout.fillHeight: true
-            onHeightChanged: {
-                log_viewer.update();
+            implicitHeight: 165
+            Layout.fillWidth: true
+            onWidthChanged: {
+                mini_log_viewer.update();
             }
-        }
-
-        Item {
-            height: 10
         }
     }
 }

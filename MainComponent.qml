@@ -38,16 +38,16 @@ RowLayout {
         SensorViewer {}
 
         Item {
-            height: 20
+            height: 30
         }
 
         Label {
             font.pointSize: fontsize(12)
             font.bold: true
-            text: "Actors:"
+            text: "Actuators:"
         }
 
-        ActorViewer {}
+        ActuatorViewer {}
     }
 
     ColumnLayout {
@@ -183,61 +183,7 @@ RowLayout {
             height: 30
         }
 
-        Label {
-            font.pointSize: fontsize(12)
-            font.bold: true
-            text: "Viewer:"
-        }
-
-        GridLayout {
-            columns: 2
-            objectName: "Viewer"
-
-            signal connectClicked(string msg)
-
-            Button {
-                text: qsTr("Remote Calls")
-                font.pointSize: fontsize(12)
-                Layout.columnSpan: 2
-                Layout.preferredWidth: 200
-
-                onClicked: layout.currentIndex = 1
-            }
-
-            Button {
-                text: qsTr("Logs")
-                font.pointSize: fontsize(12)
-                Layout.preferredWidth: 97
-
-                onClicked: layout.currentIndex = 2
-            }
-
-            Button {
-                text: qsTr("Map")
-                font.pointSize: fontsize(12)
-                Layout.preferredWidth: 97
-
-                onClicked: layout.currentIndex = 3
-            }
-
-            Button {
-                text: qsTr("Scripts")
-                font.pointSize: fontsize(12)
-                Layout.preferredWidth: 97
-
-                onClicked: layout.currentIndex = 4
-            }
-
-            Button {
-                id: button_console
-                text: qsTr("Console")
-                font.pointSize: fontsize(12)
-                Layout.preferredWidth: 97
-                enabled: radio_v2.checked
-
-                onClicked: layout.currentIndex = 5
-            }
-        }
+        MiniLogComponent {}
     }
 
     ColumnLayout {

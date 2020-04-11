@@ -36,13 +36,13 @@ Frame {
             Label {
                 Layout.alignment: Qt.AlignLeft
                 text: model.name
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
             }
 
             Label {
                 Layout.alignment: Qt.AlignRight
                 text: model.value
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
             }
         }
     }

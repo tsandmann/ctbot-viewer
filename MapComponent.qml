@@ -54,7 +54,7 @@ RowLayout {
             Label {
                 font.pointSize: fontsize(12)
                 font.bold: true
-                text: "Map"
+                text: "Map:"
             }
 
             Item {
@@ -63,7 +63,7 @@ RowLayout {
 
             Button {
                 text: "Fetch"
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
                 implicitHeight: 25
 
                 onClicked: {
@@ -73,7 +73,7 @@ RowLayout {
 
             Button {
                 text: "Clear"
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
                 implicitHeight: 25
 
                 onClicked: {
@@ -83,14 +83,13 @@ RowLayout {
 
             Button {
                 text: "Save to file"
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
                 implicitHeight: 25
 
                 onClicked: {
                     saveFileDialog.open();
                 }
             }
-
         }
 
         Rectangle {
@@ -102,6 +101,7 @@ RowLayout {
                 contentHeight: map.height
                 clip: true
                 anchors.centerIn: parent
+                anchors.fill: parent
 
                 ScrollBar.horizontal: ScrollBar {
                      policy: ScrollBar.AsNeeded
@@ -131,13 +131,20 @@ RowLayout {
                 }
             }
 
-
-            width: applicationWindow.width - 50
-            height: applicationWindow.height - 165
             border.color: "gray"
             border.width: 2
             Layout.alignment: Qt.AlignCenter
+            Layout.fillHeight: true
+            Layout.fillWidth: true
             color: "gray"
         }
+
+        Item {
+            height: 10
+        }
+    }
+
+    Item {
+        width: 10
     }
 }

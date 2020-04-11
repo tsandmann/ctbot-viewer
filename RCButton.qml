@@ -23,7 +23,7 @@ Button {
     id: rcbutton
     Layout.preferredWidth: 35
     Layout.preferredHeight: 25
-    font.pointSize: applicationWindow.fontsize(10)
+    font.pointSize: fontsize(10)
 
     onClicked: {
         parent.rcButtonClicked(text, "");

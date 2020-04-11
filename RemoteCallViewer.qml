@@ -27,8 +27,9 @@ Frame {
     signal remoteCallClicked(string name, string parameter)
 
     ListView {
-        implicitWidth: 570
         implicitHeight: contentHeight > applicationWindow.height - 180 ? applicationWindow.height - 180 : contentHeight
+        implicitWidth: applicationWindow.minimumWidth - 45
+
         anchors.fill: parent
         clip: true
         model: remotecallModel
@@ -43,7 +44,7 @@ Frame {
                     id: rc_name
                     Layout.alignment: Qt.AlignLeft
                     text: model.name + "():"
-                    font.pointSize: applicationWindow.fontsize(12)
+                    font.pointSize: fontsize(12)
                     font.bold: true
                 }
 
@@ -55,7 +56,7 @@ Frame {
                             id: rc_par_name_1
                             Layout.alignment: Qt.AlignLeft
                             text: model.parameter1
-                            font.pointSize: applicationWindow.fontsize(12)
+                            font.pointSize: fontsize(12)
                         }
                         SpinBox {
                             id: rc_par_1
@@ -63,7 +64,7 @@ Frame {
                             to: 32767
                             value: 0
                             editable: true
-                            font.pointSize: applicationWindow.fontsize(12)
+                            font.pointSize: fontsize(12)
                             implicitWidth: 150
                             visible: rc_par_name_1.text != ""
                         }
@@ -79,7 +80,7 @@ Frame {
                             id: rc_par_name_2
                             Layout.alignment: Qt.AlignLeft
                             text: model.parameter2
-                            font.pointSize: applicationWindow.fontsize(12)
+                            font.pointSize: fontsize(12)
                         }
                         SpinBox {
                             id: rc_par_2
@@ -87,7 +88,7 @@ Frame {
                             to: 32767
                             value: 0
                             editable: true
-                            font.pointSize: applicationWindow.fontsize(12)
+                            font.pointSize: fontsize(12)
                             implicitWidth: 150
                             visible: rc_par_name_2.text != ""
                         }
@@ -103,7 +104,7 @@ Frame {
                             id: rc_par_name_3
                             Layout.alignment: Qt.AlignLeft
                             text: model.parameter3
-                            font.pointSize: applicationWindow.fontsize(12)
+                            font.pointSize: fontsize(12)
                         }
                         SpinBox {
                             id: rc_par_3
@@ -111,7 +112,7 @@ Frame {
                             to: 32767
                             value: 0
                             editable: true
-                            font.pointSize: applicationWindow.fontsize(12)
+                            font.pointSize: fontsize(12)
                             implicitWidth: 150
                             visible: rc_par_name_3.text != ""
                         }
@@ -124,13 +125,12 @@ Frame {
 
                     ColumnLayout {
                         Label {
-                            font.pointSize: applicationWindow.fontsize(12)
+                            font.pointSize: fontsize(12)
                         }
 
                         Button {
-                            //  objectName: rc_name.text + "_run"
                             text: "Run"
-                            font.pointSize: applicationWindow.fontsize(12)
+                            font.pointSize: fontsize(12)
                             font.bold: true
                             implicitWidth: 60
 

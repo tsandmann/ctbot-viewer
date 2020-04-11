@@ -65,7 +65,7 @@ RowLayout {
             Label {
                 font.pointSize: fontsize(12)
                 font.bold: true
-                text: "ct-Bot Script"
+                text: "ct-Bot Script:"
                 Layout.preferredWidth: 90
             }
 
@@ -89,7 +89,7 @@ RowLayout {
 
             Button {
                 text: "Send to bot"
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
                 implicitHeight: 25
 
                 onClicked: {
@@ -137,7 +137,7 @@ RowLayout {
 
             Button {
                 text: "Load"
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
                 implicitHeight: 25
 
                 onClicked: {
@@ -147,7 +147,7 @@ RowLayout {
 
             Button {
                 text: "Save"
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
                 implicitHeight: 25
 
                 onClicked: {
@@ -157,7 +157,7 @@ RowLayout {
 
             Button {
                 text: "Abort"
-                font.pointSize: applicationWindow.fontsize(12)
+                font.pointSize: fontsize(12)
                 implicitHeight: 25
 
                 onClicked: {
@@ -183,15 +183,25 @@ RowLayout {
                     readOnly: false
                     selectByMouse: true
                     clip: true
-                    //onTextChanged: cursorPosition = length
                 }
             }
 
-            width: 570
-            implicitHeight: applicationWindow.height - 185
             border.color: "gray"
-            border.width: 2
+            border.width: 1
             Layout.alignment: Qt.AlignTop
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            onHeightChanged: {
+                script_editor.update();
+            }
         }
+
+        Item {
+            height: 10
+        }
+    }
+
+    Item {
+        width: 10
     }
 }
