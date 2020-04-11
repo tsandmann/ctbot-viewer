@@ -1,6 +1,6 @@
 #include <QDebug>
 
-#include "commandevaluator.h"
+#include "command_evaluator.h"
 
 
 CommandEvaluator::CommandEvaluator() {}

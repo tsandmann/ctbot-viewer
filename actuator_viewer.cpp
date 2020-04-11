@@ -1,40 +1,34 @@
 #include <QString>
-#include <QQmlContext>
 #include <QRegularExpression>
 #include <QDebug>
 #include <iostream>
 
-#include "actuatorviewer.h"
-#include "commandevaluator.h"
+#include "actuator_viewer.h"
+#include "command_evaluator.h"
 #include "command.h"
 
 
-ActuatorViewer::ActuatorViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval) : p_engine_ { p_engine }, p_lcd_ {} {
+ActuatorViewer::ActuatorViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval) : ValueViewer { p_engine }, p_lcd_ {} {
     qmlRegisterType<ValueModel>("Actuators", 1, 0, "ActuatorModel");
     qmlRegisterUncreatableType<ValueList>("Actuators", 1, 0, "ValueList", QStringLiteral("Actuators should not be created in QML"));
 
-    actuator_list_.appendItem(QStringLiteral("Motor left"));
-    actuator_list_.appendItem(QStringLiteral("Motor right"));
-    actuator_list_.appendItem(QStringLiteral("LEDs"));
+    list_.appendItem(QStringLiteral("Motor left"));
+    list_.appendItem(QStringLiteral("Motor right"));
+    list_.appendItem(QStringLiteral("LEDs"));
 
-    actuator_model_.setList(&actuator_list_);
-    p_engine_->rootContext()->setContextProperty(QStringLiteral("actuatorModel"), &actuator_model_);
-
-    for (int i {}; i < actuator_model_.rowCount(); ++i) {
-        const auto& e { actuator_model_.data(actuator_model_.index(i, 0), ValueModel::Name) };
-        actuator_map_[e.toString()] = actuator_model_.index(i, 0);
-    }
+    update_map();
+    register_model(QStringLiteral("actuatorModel"));
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_AKT_MOT, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_AKT_MOT received: " << cmd << "\n";
-        actuator_model_.setData(actuator_map_["Motor left"], cmd.get_cmd_data_l(), ValueModel::Value);
-        actuator_model_.setData(actuator_map_["Motor right"], cmd.get_cmd_data_r(), ValueModel::Value);
+        model_.setData(map_["Motor left"], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_["Motor right"], cmd.get_cmd_data_r(), ValueModel::Value);
         return true;
     });
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_AKT_LED, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_AKT_LED received: " << cmd << std::endl;
-        actuator_model_.setData(actuator_map_["LEDs"], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_["LEDs"], cmd.get_cmd_data_l(), ValueModel::Value);
         return true;
     });
 
