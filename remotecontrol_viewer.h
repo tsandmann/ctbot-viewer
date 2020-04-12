@@ -16,45 +16,34 @@
  */
 
 /**
- * @file    remotecall_viewer.h
- * @brief   RemoteCall viewer component
+ * @file    remotecontrol_viewer.h
+ * @brief   IR remote control component
  * @author  Timo Sandmann
- * @date    11.04.2020
+ * @date    12.04.2020
  */
 
 #pragma once
 
 #include <QQmlApplicationEngine>
-#include <QList>
 #include <QString>
+#include <cstdint>
+#include <map>
 
-#include "remotecall_model.h"
-#include "remotecall_list.h"
 #include "connect_button.h"
 
 
 class QTcpSocket;
-class QQuickItem;
-class CommandEvaluator;
 
-class RemotecallViewer {
-    RCList* p_rcList_;
-    RCModel rc_model_;
+class RemoteControlViewer {
     QQmlApplicationEngine* p_engine_;
     QTcpSocket* p_socket_;
-    QObject* p_rc_viewer_;
-    QObject* p_current_label_;
-    ConnectButton* p_fetch_button_;
-    ConnectButton* p_clear_button_;
-    ConnectButton* p_abort_button_;
     ConnectButton* p_rc_button_;
-
-    static QQuickItem* find_item(const QList<QObject*>& nodes, const QString& name);
+    std::map<QString /*RC-Code*/, uint16_t /*CMD-Code*/> rc5_codes_;
 
 public:
-    RemotecallViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval);
+    RemoteControlViewer(QQmlApplicationEngine* p_engine, QTcpSocket* p_socket);
 
-    ~RemotecallViewer();
+    ~RemoteControlViewer();
 
     void register_buttons();
 };

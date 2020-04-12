@@ -24,19 +24,38 @@
 
 #pragma once
 
+#include <QQmlApplicationEngine>
+#include <QTcpSocket>
+#include <QByteArray>
 #include <map>
 #include <vector>
 #include <functional>
 
 #include "command.h"
+#include "connect_button.h"
+
 
 class CommandEvaluator {
+    QQmlApplicationEngine* p_engine_;
+    QTcpSocket socket_;
+    QByteArray in_buffer_;
+    bool connected_;
+    ConnectButton* p_connect_button_;
     std::map<ctbot::CommandCodes /*cmd*/, std::vector<std::function<bool(const ctbot::CommandBase&)>> /*functions*/> commands_;
 
+protected:
+    bool evaluate(const ctbot::CommandNoCRC* p_cmd) const;
+
 public:
-    CommandEvaluator();
+    CommandEvaluator(QQmlApplicationEngine* p_engine);
+
+    ~CommandEvaluator();
+
+    void register_buttons();
 
     void register_cmd(const ctbot::CommandCodes& cmd, std::function<bool(const ctbot::CommandBase&)>&& func);
 
-    bool evaluate(const ctbot::CommandNoCRC* p_cmd) const;
+    auto get_socket() {
+        return &socket_;
+    }
 };

@@ -45,7 +45,7 @@ class MapViewer {
     uint16_t last_block_;
 
 public:
-    MapViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval, QTcpSocket* p_socket);
+    MapViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval);
 
     ~MapViewer();
 

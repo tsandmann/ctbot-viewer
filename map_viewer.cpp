@@ -29,7 +29,7 @@
 #include "command_evaluator.h"
 
 
-MapViewer::MapViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval, QTcpSocket* p_socket) : p_engine_ { p_engine }, p_socket_ { p_socket },
+MapViewer::MapViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval) : p_engine_ { p_engine }, p_socket_ { command_eval.get_socket() },
     p_fetch_button_ {}, p_clear_button_ {}, p_save_button_ {}, p_map_ {}, receive_state_ {}, last_block_ {} {
     qmlRegisterType<MapImageItem>("MapImage", 1, 0, "MapImageItem");
 
