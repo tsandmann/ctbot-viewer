@@ -32,6 +32,7 @@ SOURCES += \
         actuator_viewer.cpp \
         command.cpp \
         command_evaluator.cpp \
+        log_viewer.cpp \
         main.cpp \
         map_image.cpp \
         map_viewer.cpp \
@@ -61,6 +62,7 @@ HEADERS += \
     command.h \
     command_evaluator.h \
     connect_button.h \
+    log_viewer.h \
     map_image.h \
     map_viewer.h \
     remotecall_list.h \

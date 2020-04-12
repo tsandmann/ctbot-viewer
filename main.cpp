@@ -40,6 +40,7 @@
 #include "actuator_viewer.h"
 #include "remotecall_viewer.h"
 #include "map_viewer.h"
+#include "log_viewer.h"
 #include "command_evaluator.h"
 
 #include "command.h"
@@ -48,7 +49,7 @@
 
 int main(int argc, char* argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QGuiApplication app(argc, argv);
+    QGuiApplication app { argc, argv };
     QQmlApplicationEngine engine;
 
     CommandEvaluator command_eval_;
@@ -57,27 +58,22 @@ int main(int argc, char* argv[]) {
     SensorViewer sensor_viewer { &engine, command_eval_ };
     ActuatorViewer actuator_viewer { &engine, command_eval_ };
     RemotecallViewer remotecall_viewer { &engine, command_eval_, &socket };
+    LogViewer log_viewer { &engine, command_eval_ };
     MapViewer map_viewer { &engine, command_eval_, &socket };
 
 
     const QUrl url { QStringLiteral("qrc:/Main.qml") };
-    QObject::connect(
-        &engine, &QQmlApplicationEngine::objectCreated, &app,
-        [url](QObject* obj, const QUrl& objUrl) {
-            if (!obj && url == objUrl) {
-                QCoreApplication::exit(-1);
-            }
-        },
-        Qt::QueuedConnection
-    );
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &app, [url](QObject* obj, const QUrl& objUrl) {
+        if (!obj && url == objUrl) {
+            QCoreApplication::exit(-1);
+        }
+    }, Qt::QueuedConnection);
     engine.load(url);
 
     remotecall_viewer.register_buttons();
     map_viewer.register_buttons();
 
 
-    QObject* p_log = engine.rootObjects().first()->findChild<QObject*>("log_viewer");
-    QObject* p_mini_log = engine.rootObjects().first()->findChild<QObject*>("mini_log_viewer");
     QObject* p_script = engine.rootObjects().first()->findChild<QObject*>("script_viewer");
 
 
@@ -100,32 +96,6 @@ int main(int argc, char* argv[]) {
     });
 
 
-
-
-    command_eval_.register_cmd(ctbot::CommandCodes::CMD_LOG, [&](const ctbot::CommandBase& cmd) {
-        // std::cout << "CMD_LOG received: " << cmd << "\n";
-
-        if (!p_log && !p_mini_log) {
-            return false;
-        }
-
-        QString data { QString::fromUtf8(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int>(cmd.get_payload_size())) };
-        data.replace(QRegularExpression("[\001-\011]"), ".");
-        data.replace(QRegularExpression("[\013-\037]"), ".");
-        data.replace(QRegularExpression("[\177-\377]"), "#");
-
-        if (p_log) {
-            QMetaObject::invokeMethod(p_log, "append", Qt::DirectConnection, Q_ARG(QString, data));
-        }
-
-        if (p_mini_log) {
-            const auto pos { p_mini_log->property("length").toInt() };
-            QMetaObject::invokeMethod(p_mini_log, "append", Qt::DirectConnection, Q_ARG(QString, data));
-            p_mini_log->setProperty("cursorPosition", pos + 1);
-        }
-
-        return true;
-    });
 
     bool connected { false };
 

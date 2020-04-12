@@ -16,39 +16,26 @@
  */
 
 /**
- * @file    map_viewer.h
- * @brief   Map viewer component
+ * @file    log_viewer.h
+ * @brief   Log viewer component
  * @author  Timo Sandmann
- * @date    11.04.2020
+ * @date    12.04.2020
  */
 
 #pragma once
 
 #include <QQmlApplicationEngine>
-#include <cstdint>
 
 #include "connect_button.h"
 
 
-class QTcpSocket;
 class CommandEvaluator;
-class MapImageItem;
 
-class MapViewer {
+class LogViewer {
     QQmlApplicationEngine* p_engine_;
-    QTcpSocket* p_socket_;
-    ConnectButton* p_fetch_button_;
-    ConnectButton* p_clear_button_;
-    ConnectButton* p_save_button_;
-    MapImageItem* p_map_;
-    unsigned receive_state_;
-    uint16_t last_block_;
+    QObject* p_log_;
+    QObject* p_minilog_;
 
 public:
-    MapViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval, QTcpSocket* p_socket);
-
-    ~MapViewer();
-
-    void register_buttons();
+    LogViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval);
 };
-
