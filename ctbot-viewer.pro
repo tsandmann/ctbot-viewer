@@ -34,6 +34,7 @@ SOURCES += \
         command_evaluator.cpp \
         main.cpp \
         map_image.cpp \
+        map_viewer.cpp \
         remotecall_list.cpp \
         remotecall_model.cpp \
         remotecall_viewer.cpp \
@@ -61,6 +62,7 @@ HEADERS += \
     command_evaluator.h \
     connect_button.h \
     map_image.h \
+    map_viewer.h \
     remotecall_list.h \
     remotecall_model.h \
     remotecall_viewer.h \

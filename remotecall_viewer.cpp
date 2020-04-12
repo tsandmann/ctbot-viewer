@@ -111,11 +111,11 @@ void RemotecallViewer::register_buttons() {
         p_rcList_ = new RCList;
         rc_model_.setList(p_rcList_);
 
-        auto entry = find_item(p_engine_->rootObjects(), "RemoteCallViewer");
+        auto entry { find_item(p_engine_->rootObjects(), "RemoteCallViewer") }; // FIXME: store in class?
         if (entry) {
             entry->setProperty("enabled", true);
         }
-        auto e = find_item(p_engine_->rootObjects(), "CurrentRemoteCallLabel");
+        auto e { find_item(p_engine_->rootObjects(), "CurrentRemoteCallLabel") };
         if (e) {
             e->setProperty("text", "Active Remote Call: none");
         }
@@ -129,11 +129,11 @@ void RemotecallViewer::register_buttons() {
             p_socket_->write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
         }
 
-        auto entry = find_item(p_engine_->rootObjects(), "RemoteCallViewer");
+        auto entry { find_item(p_engine_->rootObjects(), "RemoteCallViewer") }; // FIXME: store in class?
         if (entry) {
             entry->setProperty("enabled", true);
         }
-        auto e = find_item(p_engine_->rootObjects(), "CurrentRemoteCallLabel");
+        auto e { find_item(p_engine_->rootObjects(), "CurrentRemoteCallLabel") };
         if (e) {
             e->setProperty("text", "Active Remote Call: none");
         }
@@ -174,11 +174,11 @@ void RemotecallViewer::register_buttons() {
             qDebug() << "sent" << sent << "bytes.";
         }
 
-        auto entry = find_item(p_engine_->rootObjects(), "RemoteCallViewer");
+        auto entry { find_item(p_engine_->rootObjects(), "RemoteCallViewer") }; // FIXME: store in class?
         if (entry) {
             entry->setProperty("enabled", false);
         }
-        auto e = find_item(p_engine_->rootObjects(), "CurrentRemoteCallLabel");
+        auto e { find_item(p_engine_->rootObjects(), "CurrentRemoteCallLabel") };
         if (e) {
             e->setProperty("text", "Active Remote Call: " + name);
         }

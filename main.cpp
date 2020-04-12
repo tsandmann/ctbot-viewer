@@ -39,11 +39,11 @@
 #include "sensor_viewer.h"
 #include "actuator_viewer.h"
 #include "remotecall_viewer.h"
+#include "map_viewer.h"
 #include "command_evaluator.h"
 
 #include "command.h"
 #include "connect_button.h"
-#include "map_image.h"
 
 
 int main(int argc, char* argv[]) {
@@ -57,9 +57,8 @@ int main(int argc, char* argv[]) {
     SensorViewer sensor_viewer { &engine, command_eval_ };
     ActuatorViewer actuator_viewer { &engine, command_eval_ };
     RemotecallViewer remotecall_viewer { &engine, command_eval_, &socket };
+    MapViewer map_viewer { &engine, command_eval_, &socket };
 
-
-    qmlRegisterType<MapImageItem>("MapImage", 1, 0, "MapImageItem");
 
     const QUrl url { QStringLiteral("qrc:/Main.qml") };
     QObject::connect(
@@ -74,13 +73,13 @@ int main(int argc, char* argv[]) {
     engine.load(url);
 
     remotecall_viewer.register_buttons();
+    map_viewer.register_buttons();
 
 
     QObject* p_log = engine.rootObjects().first()->findChild<QObject*>("log_viewer");
     QObject* p_mini_log = engine.rootObjects().first()->findChild<QObject*>("mini_log_viewer");
     QObject* p_script = engine.rootObjects().first()->findChild<QObject*>("script_viewer");
 
-    MapImageItem* p_map { engine.rootObjects().first()->findChild<MapImageItem*>("Map") };
 
     command_eval_.register_cmd(ctbot::CommandCodes::CMD_WELCOME, [](const ctbot::CommandBase&) {
         // std::cout << "CMD_WELCOME received: " << cmd << "\n";
@@ -101,148 +100,7 @@ int main(int argc, char* argv[]) {
     });
 
 
-    command_eval_.register_cmd(ctbot::CommandCodes::CMD_MAP, [&](const ctbot::CommandBase& cmd) {
-        static unsigned receive_state {};
-        static uint16_t last_block {};
 
-        // std::cout << "CMD_MAP received: " << cmd << "\n";
-
-        if (!p_map) {
-            return false;
-        }
-
-        const auto block = cmd.get_cmd_data_l(); // 16 Bit Adresse des Map-Blocks
-        switch (cmd.get_cmd_subcode()) {
-        case ctbot::CommandCodes::CMD_SUB_MAP_DATA_1: {
-            if (receive_state != 0) {
-                receive_state = 0;
-                return false;
-            }
-            p_map->set_bot_y(MapImageItem::MAP_PIXEL_SIZE_ - cmd.get_cmd_data_r()); // Bot-Position, X-Komponente, wird im Bild in Y-Richtung gezaehlt
-            p_map->update_map(cmd.get_payload().data(), block, 0, 7);
-            receive_state = 1;
-            last_block = block;
-            break;
-        }
-
-        case ctbot::CommandCodes::CMD_SUB_MAP_DATA_2: {
-            if (receive_state != 1 || last_block != block) {
-                receive_state = 0;
-                return false;
-            }
-            p_map->set_bot_x(MapImageItem::MAP_PIXEL_SIZE_ - cmd.get_cmd_data_r()); // Bot-Position, Y-Komponente, wird im Bild in X-Richtung gezaehlt
-            p_map->update_map(cmd.get_payload().data(), block, 8, 15);
-            receive_state = 2;
-            break;
-        }
-
-        case ctbot::CommandCodes::CMD_SUB_MAP_DATA_3: {
-            if (receive_state != 2 || last_block != block) {
-                receive_state = 0;
-                return false;
-            }
-            p_map->set_bot_heading(cmd.get_cmd_data_r());
-            p_map->update_map(cmd.get_payload().data(), block, 16, 23);
-            receive_state = 3;
-            break;
-        }
-
-        case ctbot::CommandCodes::CMD_SUB_MAP_DATA_4: {
-            static QPoint last_bot_pos {};
-
-            if (receive_state != 3 || last_block != block) {
-                receive_state = 0;
-                return false;
-            }
-            p_map->update_map(cmd.get_payload().data(), block, 24, 31);
-            p_map->commit();
-            const auto bot_pos { p_map->get_bot_pos() };
-            if ((last_bot_pos - bot_pos).manhattanLength() > 10) {
-                last_bot_pos = bot_pos;
-
-                QMetaObject::invokeMethod(p_map, "scroll_to", Q_ARG(QVariant, bot_pos.x()), Q_ARG(QVariant, bot_pos.y()));
-            }
-            receive_state = 0;
-            break;
-        }
-
-        case ctbot::CommandCodes::CMD_SUB_MAP_LINE: {
-            if (cmd.get_payload_size() < 8) {
-                return false;
-            }
-
-            QColor color;
-            switch (block) {
-            case 0:
-                color.setRgb(0, 255, 0);
-                break;
-
-            case 1:
-                color.setRgb(255, 0, 0);
-                break;
-
-            default:
-                color.setRgb(0, 0, 0);
-                break;
-            }
-
-            const auto y1 { cmd.get_payload()[0] | cmd.get_payload()[1] << 8 };
-            const auto x1 { cmd.get_payload()[2] | cmd.get_payload()[3] << 8 };
-            const auto y2 { cmd.get_payload()[4] | cmd.get_payload()[5] << 8 };
-            const auto x2 { cmd.get_payload()[6] | cmd.get_payload()[7] << 8 };
-
-            p_map->draw_line(QPoint { x1, y1 }, QPoint { x2, y2 }, color);
-            p_map->commit();
-            break;
-        }
-
-        case ctbot::CommandCodes::CMD_SUB_MAP_CIRCLE: {
-            if (cmd.get_payload_size() < 4) {
-                return false;
-            }
-
-            QColor color;
-            switch (block) {
-            case 0:
-                color.setRgb(0, 255, 0);
-                break;
-
-            case 1:
-                color.setRgb(255, 0, 0);
-                break;
-
-            default:
-                color.setRgb(0, 0, 0);
-                break;
-            }
-
-            const auto radius { cmd.get_cmd_data_r() };
-            const auto y { cmd.get_payload()[0] | cmd.get_payload()[1] << 8 };
-            const auto x { cmd.get_payload()[2] | cmd.get_payload()[3] << 8 };
-
-            p_map->draw_cicle(QPoint { x, y }, radius, color);
-            p_map->commit();
-            break;
-        }
-
-        case ctbot::CommandCodes::CMD_SUB_MAP_CLEAR_LINES: {
-            p_map->clear_lines(block);
-            p_map->commit();
-            break;
-        }
-
-        case ctbot::CommandCodes::CMD_SUB_MAP_CLEAR_CIRCLES: {
-            p_map->clear_circles(block);
-            p_map->commit();
-            break;
-        }
-
-        default:
-            return false;
-        }
-
-        return true;
-    });
 
     command_eval_.register_cmd(ctbot::CommandCodes::CMD_LOG, [&](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_LOG received: " << cmd << "\n";
@@ -383,39 +241,6 @@ int main(int argc, char* argv[]) {
     QObject::connect(
         engine.rootObjects().first()->findChild<QObject*>("RCButton"), SIGNAL(rcButtonClicked(QString, QString)), &rc_button, SLOT(cppSlot(QString, QString)));
 
-    ConnectButton map_fetch { [&](QString, QString) {
-        if (!p_map) {
-            return;
-        }
-
-        ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_MAP, ctbot::CommandCodes::CMD_SUB_MAP_REQUEST, 0, 0, ctbot::CommandBase::ADDR_SIM,
-            ctbot::CommandBase::ADDR_BROADCAST };
-        if (socket.isOpen()) {
-            socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
-        }
-    } };
-    QObject::connect(engine.rootObjects().first()->findChild<QObject*>("MapViewer"), SIGNAL(mapFetch()), &map_fetch, SLOT(cppSlot()));
-
-    ConnectButton map_clear { [&](QString, QString) {
-        if (!p_map) {
-            return;
-        }
-        p_map->clear();
-        p_map->set_bot_x(0);
-        p_map->set_bot_y(0);
-        p_map->set_bot_heading(0);
-        p_map->commit();
-    } };
-    QObject::connect(engine.rootObjects().first()->findChild<QObject*>("MapViewer"), SIGNAL(mapClear()), &map_clear, SLOT(cppSlot()));
-
-    ConnectButton map_save { [&](QString filename, QString) {
-        if (!p_map) {
-            return;
-        }
-
-        p_map->save_to_file(filename);
-    } };
-    QObject::connect(engine.rootObjects().first()->findChild<QObject*>("MapViewer"), SIGNAL(mapSave(QString)), &map_save, SLOT(cppSlot(QString)));
 
     ConnectButton scripts_load { [&](QString filename, QString) {
         if (!p_script) {
