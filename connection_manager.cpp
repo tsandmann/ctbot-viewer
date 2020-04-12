@@ -115,13 +115,16 @@ ConnectionManager::ConnectionManager(QQmlApplicationEngine* p_engine) : p_engine
         return true;
     });
 
-    register_cmd(ctbot::CommandCodes::CMD_SHUTDOWN, [&](const ctbot::CommandBase&) {
+    register_cmd(ctbot::CommandCodes::CMD_SHUTDOWN, [this](const ctbot::CommandBase&) {
         // std::cout << "CMD_SHUTDOWN received: " << cmd << "\n";
-        socket_.close();
-        auto p_hostname { p_engine->rootObjects().at(0)->findChild<QObject*>("Hostname") };
+        auto p_hostname { p_engine_->rootObjects().at(0)->findChild<QObject*>("Hostname") };
         if (p_hostname) {
             QMetaObject::invokeMethod(p_hostname, "disconnected", Q_ARG(QVariant, ""));
         }
+
+        socket_.close();
+        connected_ = false;
+
         return true;
     });
 }
