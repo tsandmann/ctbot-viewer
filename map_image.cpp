@@ -25,9 +25,10 @@
 #include "map_image.h"
 
 
-MapImageItem::MapImageItem(QQuickItem* parent) : QQuickPaintedItem { parent }, current_image_ { MAP_PIXEL_SIZE_, MAP_PIXEL_SIZE_, QImage::Format_Indexed8 },
-    min_ { MAP_PIXEL_SIZE_ / 2, MAP_PIXEL_SIZE_ / 2 }, max_ { MAP_PIXEL_SIZE_ / 2, MAP_PIXEL_SIZE_ / 2 }, p_update_timer_ {}, p_update_thread_ {}, needs_update_ {},
-    bot_pen_ { QColor { 255, 0, 0} }, bot_brush_ { QColor { 255, 0, 0 }, Qt::SolidPattern } {
+MapImageItem::MapImageItem(QQuickItem* parent)
+    : QQuickPaintedItem { parent }, current_image_ { MAP_PIXEL_SIZE_, MAP_PIXEL_SIZE_, QImage::Format_Indexed8 },
+      min_ { MAP_PIXEL_SIZE_ / 2, MAP_PIXEL_SIZE_ / 2 }, max_ { MAP_PIXEL_SIZE_ / 2, MAP_PIXEL_SIZE_ / 2 }, p_update_timer_ {}, p_update_thread_ {},
+      needs_update_ {}, bot_pen_ { QColor { 255, 0, 0 } }, bot_brush_ { QColor { 255, 0, 0 }, Qt::SolidPattern } {
     QVector<QRgb> table;
     for (int i {}; i < 256; ++i) {
         table.push_back(qRgb(i, i, i));
@@ -44,7 +45,6 @@ MapImageItem::MapImageItem(QQuickItem* parent) : QQuickPaintedItem { parent }, c
         if (needs_update_) {
             needs_update_ = false;
             MapImageItem::update();
-
         }
     });
     p_update_timer_->connect(p_update_thread_, SIGNAL(started()), SLOT(start()));
@@ -75,7 +75,8 @@ void MapImageItem::paint(QPainter* painter) {
 
     if (!bot_pos_.isNull()) {
         const QPointF pos { static_cast<qreal>(MAP_PIXEL_SIZE_ - bot_pos_.x()), static_cast<qreal>(MAP_PIXEL_SIZE_ - bot_pos_.y()) };
-        const QRectF rect { pos - QPointF { MAP_RESOULTION_ * 0.12 / 2. , MAP_RESOULTION_ * 0.12 / 2. }, pos + QPointF { MAP_RESOULTION_ * 0.12 / 2., MAP_RESOULTION_ * 0.12 / 2. } };
+        const QRectF rect { pos - QPointF { MAP_RESOULTION_ * 0.12 / 2., MAP_RESOULTION_ * 0.12 / 2. },
+            pos + QPointF { MAP_RESOULTION_ * 0.12 / 2., MAP_RESOULTION_ * 0.12 / 2. } };
         QPainterPath path { pos };
         path.arcTo(rect, bot_heading_ - 50., 280.);
 
@@ -135,8 +136,10 @@ bool MapImageItem::save_to_file(const QString& filename) const {
 }
 
 void MapImageItem::update_map(const uint8_t* data, const size_t block, const size_t from, const size_t to) {
-    const auto x { ((block * (MAP_SECTION_SIZE_ * 2)) % MAP_MACROBLOCK_SIZE_ + (block / MAP_MACROBLOCK_SIZE_) * MAP_MACROBLOCK_SIZE_) % MAP_PIXEL_SIZE_ }; // 2 sections per block in X orientation of map
-    const auto y { (((block / MAP_SECTION_SIZE_) * MAP_SECTION_SIZE_) % MAP_MACROBLOCK_SIZE_) + (block / MAP_PIXEL_SIZE_) * MAP_MACROBLOCK_SIZE_ }; // 1 section per block in Y orientation of map
+    const auto x { ((block * (MAP_SECTION_SIZE_ * 2)) % MAP_MACROBLOCK_SIZE_ + (block / MAP_MACROBLOCK_SIZE_) * MAP_MACROBLOCK_SIZE_)
+        % MAP_PIXEL_SIZE_ }; // 2 sections per block in X orientation of map
+    const auto y { (((block / MAP_SECTION_SIZE_) * MAP_SECTION_SIZE_) % MAP_MACROBLOCK_SIZE_)
+        + (block / MAP_PIXEL_SIZE_) * MAP_MACROBLOCK_SIZE_ }; // 1 section per block in Y orientation of map
 
     /* copy received data to map-image */
     size_t pic_x {}, pic_y {};

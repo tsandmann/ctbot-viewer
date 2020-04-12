@@ -28,12 +28,12 @@
 #include "command.h"
 
 
-RemoteControlViewer::RemoteControlViewer(QQmlApplicationEngine* p_engine, QTcpSocket* p_socket) : p_engine_ { p_engine }, p_socket_ { p_socket }, p_rc_button_ {},
-    rc5_codes_ { { "Power", 0x118c }, { "1", 0x1181 }, { "2", 0x1182 }, { "3", 0x1183 }, { "4", 0x1184 },
-    { "5", 0x1185 }, { "6", 0x1186 }, { "7", 0x1187 }, { "8", 0x1188 }, { "9", 0x1189 }, { "10", 0x1180 }, { "11", 0x118a }, { "12", 0x11a3 },
-    { "Gr", 0x01ba }, { "Re", 0x01bd }, { "Ye", 0x01b1 }, { "Bl", 0x01b0 }, { "I/II", 0x11ab }, { "TV", 0x11b8 }, { "Gr", 0x01ba }, { "||", 0x11a9 },
-    { "<<", 0x11b2 }, { "\u25B6", 0x11b5 }, { ">>", 0x11b4 }, { "\u25A0", 0x11b6 }, { "\u25CF", 0x11ab }, { "CH*P/C", 0x11bf }, { "V+", 0x1190 }, { "M", 0x01bf },
-    { "C+", 0x11a0 }, { "V-", 0x1191 }, { "C-", 0x11a1 } } {}
+RemoteControlViewer::RemoteControlViewer(QQmlApplicationEngine* p_engine, QTcpSocket* p_socket)
+    : p_engine_ { p_engine }, p_socket_ { p_socket }, p_rc_button_ {}, rc5_codes_ { { "Power", 0x118c }, { "1", 0x1181 }, { "2", 0x1182 }, { "3", 0x1183 },
+          { "4", 0x1184 }, { "5", 0x1185 }, { "6", 0x1186 }, { "7", 0x1187 }, { "8", 0x1188 }, { "9", 0x1189 }, { "10", 0x1180 }, { "11", 0x118a },
+          { "12", 0x11a3 }, { "Gr", 0x01ba }, { "Re", 0x01bd }, { "Ye", 0x01b1 }, { "Bl", 0x01b0 }, { "I/II", 0x11ab }, { "TV", 0x11b8 }, { "Gr", 0x01ba },
+          { "||", 0x11a9 }, { "<<", 0x11b2 }, { "\u25B6", 0x11b5 }, { ">>", 0x11b4 }, { "\u25A0", 0x11b6 }, { "\u25CF", 0x11ab }, { "CH*P/C", 0x11bf },
+          { "V+", 0x1190 }, { "M", 0x01bf }, { "C+", 0x11a0 }, { "V-", 0x1191 }, { "C-", 0x11a1 } } {}
 
 RemoteControlViewer::~RemoteControlViewer() {
     delete p_rc_button_;
@@ -61,5 +61,6 @@ void RemoteControlViewer::register_buttons() {
             // qDebug() << "RemoteControlViewer: sent" << sent << "bytes.";
         }
     } };
-    QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("RCButton"), SIGNAL(rcButtonClicked(QString, QString)), p_rc_button_, SLOT(cppSlot(QString, QString)));
+    QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("RCButton"), SIGNAL(rcButtonClicked(QString, QString)), p_rc_button_,
+        SLOT(cppSlot(QString, QString)));
 }

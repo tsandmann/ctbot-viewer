@@ -31,8 +31,9 @@
 #include "connection_manager.h"
 
 
-RemotecallViewer::RemotecallViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval) : p_rcList_ { new RCList },
-        p_engine_ { p_engine }, p_socket_ { command_eval.get_socket() }, p_rc_viewer_ {}, p_current_label_ {}, p_fetch_button_{}, p_clear_button_ {}, p_abort_button_ {}, p_rc_button_ {} {
+RemotecallViewer::RemotecallViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval)
+    : p_rcList_ { new RCList }, p_engine_ { p_engine }, p_socket_ { command_eval.get_socket() }, p_rc_viewer_ {}, p_current_label_ {}, p_fetch_button_ {},
+      p_clear_button_ {}, p_abort_button_ {}, p_rc_button_ {} {
     qmlRegisterType<RCModel>("RemoteCalls", 1, 0, "RemotecallModel");
     qmlRegisterUncreatableType<RCList>("RemoteCalls", 1, 0, "RCList", QStringLiteral("RemoteCalls should not be created in QML"));
 

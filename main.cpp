@@ -51,11 +51,14 @@ int main(int argc, char* argv[]) {
     ScriptEditor script_editor { &engine, connection.get_socket() };
 
     const QUrl main_qlm { QStringLiteral("qrc:/Main.qml") };
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &app, [main_qlm](QObject* p_object, const QUrl& object_url) {
-        if (!p_object && main_qlm == object_url) {
-            QCoreApplication::exit(-1);
-        }
-    }, Qt::QueuedConnection);
+    QObject::connect(
+        &engine, &QQmlApplicationEngine::objectCreated, &app,
+        [main_qlm](QObject* p_object, const QUrl& object_url) {
+            if (!p_object && main_qlm == object_url) {
+                QCoreApplication::exit(-1);
+            }
+        },
+        Qt::QueuedConnection);
     engine.load(main_qlm);
 
     connection.register_buttons();

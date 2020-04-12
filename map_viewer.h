@@ -51,4 +51,3 @@ public:
 
     void register_buttons();
 };
-

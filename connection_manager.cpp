@@ -140,7 +140,8 @@ void ConnectionManager::register_buttons() {
             QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QVariant, hostname));
         }
     } };
-    QObject::connect(p_engine_->rootObjects().at(0)->findChild<QObject*>("Hostname"), SIGNAL(connectClicked(QString, QString)), p_connect_button_, SLOT(cppSlot(QString, QString)));
+    QObject::connect(p_engine_->rootObjects().at(0)->findChild<QObject*>("Hostname"), SIGNAL(connectClicked(QString, QString)), p_connect_button_,
+        SLOT(cppSlot(QString, QString)));
 }
 
 void ConnectionManager::register_cmd(const ctbot::CommandCodes& cmd, std::function<bool(const ctbot::CommandBase&)>&& func) {

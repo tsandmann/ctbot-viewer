@@ -30,8 +30,9 @@
 #include "command.h"
 
 
-ScriptEditor::ScriptEditor(QQmlApplicationEngine* p_engine, QTcpSocket* p_socket) : p_engine_ { p_engine }, p_socket_ { p_socket },
-    p_script_ {}, p_editor_ {}, p_type_ {}, p_execute_ {}, p_filename_ {}, p_load_button_ {}, p_save_button_ {}, p_send_button_ {}, p_abort_button_ {} {}
+ScriptEditor::ScriptEditor(QQmlApplicationEngine* p_engine, QTcpSocket* p_socket)
+    : p_engine_ { p_engine }, p_socket_ { p_socket }, p_script_ {}, p_editor_ {}, p_type_ {}, p_execute_ {}, p_filename_ {}, p_load_button_ {},
+      p_save_button_ {}, p_send_button_ {}, p_abort_button_ {} {}
 
 ScriptEditor::~ScriptEditor() {
     delete p_abort_button_;
@@ -112,8 +113,8 @@ void ScriptEditor::register_buttons() {
             return;
         }
 
-        ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_PREPARE, static_cast<int16_t>(type), content_length, ctbot::CommandBase::ADDR_SIM,
-            ctbot::CommandBase::ADDR_BROADCAST };
+        ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_PREPARE, static_cast<int16_t>(type), content_length,
+            ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
         cmd.add_payload(remote_filename.constData(), remote_filename.length());
 
         qint64 sent { p_socket_->write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData)) };
@@ -126,8 +127,8 @@ void ScriptEditor::register_buttons() {
         sent = 0;
         int16_t i {};
         for (; i < content_length / 64; ++i) {
-            ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_DATA, static_cast<int16_t>(type), static_cast<int16_t>(i * 64),
-                ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
+            ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_DATA, static_cast<int16_t>(type),
+                static_cast<int16_t>(i * 64), ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
             cmd.add_payload(&content_array.constData()[i * 64], 64);
             sent += p_socket_->write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
             sent += p_socket_->write(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int64_t>(cmd.get_payload_size()));
@@ -140,8 +141,8 @@ void ScriptEditor::register_buttons() {
         // qDebug() << "to_send=" << to_send;
 
         if (to_send) {
-            ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_DATA, static_cast<int16_t>(type), static_cast<int16_t>(i * 64),
-                ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
+            ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_DATA, static_cast<int16_t>(type),
+                static_cast<int16_t>(i * 64), ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
             cmd.add_payload(&content_array.constData()[i * 64], to_send);
             sent += p_socket_->write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
             sent += p_socket_->write(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int64_t>(cmd.get_payload_size()));
@@ -159,7 +160,6 @@ void ScriptEditor::register_buttons() {
 
             qDebug() << "script started.";
         }
-
     } };
     QObject::connect(p_script_, SIGNAL(scriptSend()), p_send_button_, SLOT(cppSlot()));
 
