@@ -39,6 +39,7 @@ SOURCES += \
         remotecall_list.cpp \
         remotecall_model.cpp \
         remotecall_viewer.cpp \
+        script_editor.cpp \
         sensor_viewer.cpp \
         value_list.cpp \
         value_model.cpp \
@@ -68,6 +69,7 @@ HEADERS += \
     remotecall_list.h \
     remotecall_model.h \
     remotecall_viewer.h \
+    script_editor.h \
     sensor_viewer.h \
     value_list.h \
     value_model.h \

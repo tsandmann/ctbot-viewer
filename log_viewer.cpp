@@ -22,7 +22,6 @@
  * @date    12.04.2020
  */
 
-#include <QTcpSocket>
 #include <QString>
 #include <QRegularExpression>
 

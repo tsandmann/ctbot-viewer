@@ -39,8 +39,9 @@
 #include "sensor_viewer.h"
 #include "actuator_viewer.h"
 #include "remotecall_viewer.h"
-#include "map_viewer.h"
 #include "log_viewer.h"
+#include "map_viewer.h"
+#include "script_editor.h"
 #include "command_evaluator.h"
 
 #include "command.h"
@@ -60,6 +61,7 @@ int main(int argc, char* argv[]) {
     RemotecallViewer remotecall_viewer { &engine, command_eval_, &socket };
     LogViewer log_viewer { &engine, command_eval_ };
     MapViewer map_viewer { &engine, command_eval_, &socket };
+    ScriptEditor script_editor { &engine, &socket };
 
 
     const QUrl url { QStringLiteral("qrc:/Main.qml") };
@@ -72,9 +74,7 @@ int main(int argc, char* argv[]) {
 
     remotecall_viewer.register_buttons();
     map_viewer.register_buttons();
-
-
-    QObject* p_script = engine.rootObjects().first()->findChild<QObject*>("script_viewer");
+    script_editor.register_buttons();
 
 
     command_eval_.register_cmd(ctbot::CommandCodes::CMD_WELCOME, [](const ctbot::CommandBase&) {
@@ -211,151 +211,6 @@ int main(int argc, char* argv[]) {
     QObject::connect(
         engine.rootObjects().first()->findChild<QObject*>("RCButton"), SIGNAL(rcButtonClicked(QString, QString)), &rc_button, SLOT(cppSlot(QString, QString)));
 
-
-    ConnectButton scripts_load { [&](QString filename, QString) {
-        if (!p_script) {
-            return;
-        }
-        auto p_editor{ p_script->findChild<QQuickItem*>("script_editor") };
-        if (!p_editor) {
-            return;
-        }
-
-        QUrl url { filename };
-        QFile file { url.toLocalFile() };
-        if (!file.open(QIODevice::ReadOnly)) {
-            return;
-        }
-        QTextStream stream { &file };
-        QString text;
-        while (!stream.atEnd()) {
-            text.append(stream.readLine());
-            text.append("\n");
-        }
-        file.close();
-
-        p_editor->setProperty("text", text);
-
-        qDebug() << "script loaded from: " << url.toLocalFile();
-    } };
-    QObject::connect(p_script, SIGNAL(scriptLoad(QString)), &scripts_load, SLOT(cppSlot(QString)));
-
-    ConnectButton scripts_save { [&](QString filename, QString) {
-        if (!p_script) {
-            return;
-        }
-        auto p_editor{ p_script->findChild<QQuickItem*>("script_editor") };
-        if (!p_editor) {
-            return;
-        }
-
-        QUrl url { filename };
-        QFile file { url.toLocalFile() };
-        if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-            return;
-        }
-        QTextStream stream { &file };
-        const QString text { p_editor->property("text").toString() };
-        stream << text;
-        file.close();
-
-        qDebug() << "script saved to: " << url.toLocalFile();
-    } };
-    QObject::connect(p_script, SIGNAL(scriptSave(QString)), &scripts_save, SLOT(cppSlot(QString)));
-
-    ConnectButton scripts_send { [&](QString, QString) {
-        if (!p_script || !socket.isOpen()) {
-            return;
-        }
-
-        auto p_type { p_script->findChild<QQuickItem*>("scripts_abl") };
-        auto p_execute { p_script->findChild<QQuickItem*>("script_execute") };
-        auto p_filename { p_script->findChild<QQuickItem*>("script_remote_filename") };
-        auto p_content { p_script->findChild<QQuickItem*>("script_editor") };
-
-        if (!p_type || !p_execute || !p_filename || !p_content) {
-            return;
-        }
-
-        const bool type { p_type->property("checked").toBool() }; // false: basic, true: abl
-        const bool execute { p_execute->property("checked").toBool() };
-        const QByteArray remote_filename { p_filename->property("text").toString().toLatin1() };
-        const QByteArray content_array { p_content->property("text").toString().toLatin1() };
-        const auto content_length { static_cast<int16_t>(content_array.length()) };
-
-        // qDebug() << "type=" << type << "execute=" << execute << "filename=" << remote_filename << "length=" << content_length;
-        // qDebug() << "content=" << content_array;
-
-        if (remote_filename.length() < 5) {
-            return;
-        }
-
-        ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_PREPARE, static_cast<int16_t>(type), content_length, ctbot::CommandBase::ADDR_SIM,
-            ctbot::CommandBase::ADDR_BROADCAST };
-        cmd.add_payload(remote_filename.constData(), remote_filename.length());
-
-        qint64 sent { socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData)) };
-        sent += socket.write(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int64_t>(cmd.get_payload_size()));
-        socket.flush();
-
-        // qDebug() << "script prepared, sent=" << sent;
-        QThread::usleep(75 * 3'000);
-
-        sent = 0;
-        int16_t i {};
-        for (; i < content_length / 64; ++i) {
-            ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_DATA, static_cast<int16_t>(type), static_cast<int16_t>(i * 64),
-                ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
-            cmd.add_payload(&content_array.constData()[i * 64], 64);
-            sent += socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
-            sent += socket.write(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int64_t>(cmd.get_payload_size()));
-            socket.flush();
-
-            QThread::usleep(75 * 1'000);
-        }
-
-        const auto to_send { content_length % 64 };
-        // qDebug() << "to_send=" << to_send;
-
-        if (to_send) {
-            ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_DATA, static_cast<int16_t>(type), static_cast<int16_t>(i * 64),
-                ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
-            cmd.add_payload(&content_array.constData()[i * 64], to_send);
-            sent += socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
-            sent += socket.write(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int64_t>(cmd.get_payload_size()));
-            socket.flush();
-
-            QThread::usleep(75 * 1'000);
-        }
-
-        qDebug() << "script sent," << sent << "bytes.";
-
-        if (execute) {
-            ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_START, static_cast<int16_t>(type), 0,
-                ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
-            socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
-
-            qDebug() << "script started.";
-        }
-
-    } };
-    QObject::connect(p_script, SIGNAL(scriptSend()), &scripts_send, SLOT(cppSlot()));
-
-    ConnectButton scripts_abort { [&](QString, QString) {
-        auto p_type { p_script->findChild<QQuickItem*>("scripts_abl") };
-        if (!p_type || !socket.isOpen()) {
-            return;
-        }
-
-        const bool type { p_type->property("checked").toBool() }; // false: basic, true: abl
-
-        ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_PROGRAM, ctbot::CommandCodes::CMD_SUB_PROGRAM_STOP, static_cast<int16_t>(type), 0,
-            ctbot::CommandBase::ADDR_SIM, ctbot::CommandBase::ADDR_BROADCAST };
-        socket.write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
-
-        qDebug() << "script aborted.";
-    } };
-    QObject::connect(p_script, SIGNAL(scriptAbort()), &scripts_abort, SLOT(cppSlot()));
 
     return app.exec();
 }

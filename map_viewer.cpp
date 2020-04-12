@@ -183,14 +183,12 @@ MapViewer::~MapViewer() {
 }
 
 void MapViewer::register_buttons() {
-    p_fetch_button_ = new ConnectButton { [this](QString, QString) {
-        if (!p_map_) {
-            p_map_ = p_engine_->rootObjects().first()->findChild<MapImageItem*>("Map");
-            if (!p_map_) {
-                return;
-            }
-        }
+    p_map_ = p_engine_->rootObjects().first()->findChild<MapImageItem*>("Map");
+    if (!p_map_) {
+        return;
+    }
 
+    p_fetch_button_ = new ConnectButton { [this](QString, QString) {
         ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_MAP, ctbot::CommandCodes::CMD_SUB_MAP_REQUEST, 0, 0, ctbot::CommandBase::ADDR_SIM,
             ctbot::CommandBase::ADDR_BROADCAST };
         if (p_socket_->isOpen()) {
@@ -200,12 +198,6 @@ void MapViewer::register_buttons() {
     QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("MapViewer"), SIGNAL(mapFetch()), p_fetch_button_, SLOT(cppSlot()));
 
     p_clear_button_ = new ConnectButton { [this](QString, QString) {
-        if (!p_map_) {
-            p_map_ = p_engine_->rootObjects().first()->findChild<MapImageItem*>("Map");
-            if (!p_map_) {
-                return;
-            }
-        }
         p_map_->clear();
         p_map_->set_bot_x(0);
         p_map_->set_bot_y(0);
@@ -215,13 +207,6 @@ void MapViewer::register_buttons() {
     QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("MapViewer"), SIGNAL(mapClear()), p_clear_button_, SLOT(cppSlot()));
 
     p_save_button_ = new ConnectButton { [this](QString filename, QString) {
-        if (!p_map_) {
-            p_map_ = p_engine_->rootObjects().first()->findChild<MapImageItem*>("Map");
-            if (!p_map_) {
-                return;
-            }
-        }
-
         p_map_->save_to_file(filename);
     } };
     QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("MapViewer"), SIGNAL(mapSave(QString)), p_save_button_, SLOT(cppSlot(QString)));

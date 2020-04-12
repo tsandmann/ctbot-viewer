@@ -16,45 +16,39 @@
  */
 
 /**
- * @file    remotecall_viewer.h
- * @brief   RemoteCall viewer component
+ * @file    script_editor.h
+ * @brief   Script editor component
  * @author  Timo Sandmann
- * @date    11.04.2020
+ * @date    12.04.2020
  */
 
 #pragma once
 
 #include <QQmlApplicationEngine>
-#include <QList>
-#include <QString>
 
-#include "remotecall_model.h"
-#include "remotecall_list.h"
 #include "connect_button.h"
 
 
 class QTcpSocket;
-class QQuickItem;
-class CommandEvaluator;
 
-class RemotecallViewer {
-    RCList* p_rcList_;
-    RCModel rc_model_;
+class ScriptEditor {
     QQmlApplicationEngine* p_engine_;
     QTcpSocket* p_socket_;
-    QObject* p_rc_viewer_;
-    QObject* p_current_label_;
-    ConnectButton* p_fetch_button_;
-    ConnectButton* p_clear_button_;
-    ConnectButton* p_abort_button_;
-    ConnectButton* p_rc_button_;
+    QObject* p_script_;
+    QObject* p_editor_;
+    QObject* p_type_;
+    QObject* p_execute_;
+    QObject* p_filename_;
 
-    static QQuickItem* find_item(const QList<QObject*>& nodes, const QString& name);
+    ConnectButton* p_load_button_;
+    ConnectButton* p_save_button_;
+    ConnectButton* p_send_button_;
+    ConnectButton* p_abort_button_;
 
 public:
-    RemotecallViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval, QTcpSocket* p_socket);
+    ScriptEditor(QQmlApplicationEngine* p_engine, QTcpSocket* p_socket);
 
-    ~RemotecallViewer();
+    ~ScriptEditor();
 
     void register_buttons();
 };

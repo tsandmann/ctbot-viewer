@@ -32,7 +32,7 @@
 
 
 RemotecallViewer::RemotecallViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval, QTcpSocket* p_socket) : p_rcList_ { new RCList },
-        p_engine_ { p_engine }, p_socket_ { p_socket }, p_fetch_button_{}, p_clear_button_ {}, p_abort_button_ {}, p_rc_button_ {} {
+        p_engine_ { p_engine }, p_socket_ { p_socket }, p_rc_viewer_ {}, p_current_label_ {}, p_fetch_button_{}, p_clear_button_ {}, p_abort_button_ {}, p_rc_button_ {} {
     qmlRegisterType<RCModel>("RemoteCalls", 1, 0, "RemotecallModel");
     qmlRegisterUncreatableType<RCList>("RemoteCalls", 1, 0, "RCList", QStringLiteral("RemoteCalls should not be created in QML"));
 
@@ -95,6 +95,12 @@ RemotecallViewer::~RemotecallViewer() {
 }
 
 void RemotecallViewer::register_buttons() {
+    p_rc_viewer_ = find_item(p_engine_->rootObjects(), "RemoteCallViewer");
+    p_current_label_ = find_item(p_engine_->rootObjects(), "CurrentRemoteCallLabel");
+    if (!p_rc_viewer_ || !p_current_label_) {
+        return;
+    }
+
     p_fetch_button_ = new ConnectButton { [this](QString, QString) {
         ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_REMOTE_CALL, ctbot::CommandCodes::CMD_SUB_REMOTE_CALL_LIST, 0, 0, ctbot::CommandBase::ADDR_SIM,
             ctbot::CommandBase::ADDR_BROADCAST };
@@ -111,14 +117,8 @@ void RemotecallViewer::register_buttons() {
         p_rcList_ = new RCList;
         rc_model_.setList(p_rcList_);
 
-        auto entry { find_item(p_engine_->rootObjects(), "RemoteCallViewer") }; // FIXME: store in class?
-        if (entry) {
-            entry->setProperty("enabled", true);
-        }
-        auto e { find_item(p_engine_->rootObjects(), "CurrentRemoteCallLabel") };
-        if (e) {
-            e->setProperty("text", "Active Remote Call: none");
-        }
+        p_rc_viewer_->setProperty("enabled", true);
+        p_current_label_->setProperty("text", "Active Remote Call: none");
     } };
     QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("RemoteCallActions"), SIGNAL(remoteCallClear()), p_clear_button_, SLOT(cppSlot()));
 
@@ -129,14 +129,8 @@ void RemotecallViewer::register_buttons() {
             p_socket_->write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
         }
 
-        auto entry { find_item(p_engine_->rootObjects(), "RemoteCallViewer") }; // FIXME: store in class?
-        if (entry) {
-            entry->setProperty("enabled", true);
-        }
-        auto e { find_item(p_engine_->rootObjects(), "CurrentRemoteCallLabel") };
-        if (e) {
-            e->setProperty("text", "Active Remote Call: none");
-        }
+        p_rc_viewer_->setProperty("enabled", true);
+        p_current_label_->setProperty("text", "Active Remote Call: none");
     } };
     QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("RemoteCallActions"), SIGNAL(remoteCallAbort()), p_abort_button_, SLOT(cppSlot()));
 
@@ -174,14 +168,8 @@ void RemotecallViewer::register_buttons() {
             qDebug() << "sent" << sent << "bytes.";
         }
 
-        auto entry { find_item(p_engine_->rootObjects(), "RemoteCallViewer") }; // FIXME: store in class?
-        if (entry) {
-            entry->setProperty("enabled", false);
-        }
-        auto e { find_item(p_engine_->rootObjects(), "CurrentRemoteCallLabel") };
-        if (e) {
-            e->setProperty("text", "Active Remote Call: " + name);
-        }
+        p_rc_viewer_->setProperty("enabled", false);
+        p_current_label_->setProperty("text", "Active Remote Call: " + name);
     } };
     QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("RemoteCallViewer"), SIGNAL(remoteCallClicked(QString, QString)), p_rc_button_,
         SLOT(cppSlot(QString, QString)));
