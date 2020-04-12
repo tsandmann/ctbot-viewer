@@ -26,10 +26,10 @@
 #include <QRegularExpression>
 
 #include "log_viewer.h"
-#include "command_evaluator.h"
+#include "connection_manager.h"
 
 
-LogViewer::LogViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval) : p_engine_ { p_engine }, p_log_ {}, p_minilog_ {} {
+LogViewer::LogViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval) : p_engine_ { p_engine }, p_log_ {}, p_minilog_ {} {
     command_eval.register_cmd(ctbot::CommandCodes::CMD_LOG, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_LOG received: " << cmd << "\n";
 

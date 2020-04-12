@@ -29,7 +29,7 @@
 #include "connect_button.h"
 
 
-class CommandEvaluator;
+class ConnectionManager;
 
 class LogViewer {
     QQmlApplicationEngine* p_engine_;
@@ -37,5 +37,5 @@ class LogViewer {
     QObject* p_minilog_;
 
 public:
-    LogViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval);
+    LogViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval);
 };

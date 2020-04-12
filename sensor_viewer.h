@@ -27,9 +27,9 @@
 #include "value_viewer.h"
 
 
-class CommandEvaluator;
+class ConnectionManager;
 
 class SensorViewer : public ValueViewer {
 public:
-    SensorViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval);
+    SensorViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval);
 };

@@ -26,10 +26,10 @@
 
 #include "map_viewer.h"
 #include "map_image.h"
-#include "command_evaluator.h"
+#include "connection_manager.h"
 
 
-MapViewer::MapViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval) : p_engine_ { p_engine }, p_socket_ { command_eval.get_socket() },
+MapViewer::MapViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval) : p_engine_ { p_engine }, p_socket_ { command_eval.get_socket() },
     p_fetch_button_ {}, p_clear_button_ {}, p_save_button_ {}, p_map_ {}, receive_state_ {}, last_block_ {} {
     qmlRegisterType<MapImageItem>("MapImage", 1, 0, "MapImageItem");
 

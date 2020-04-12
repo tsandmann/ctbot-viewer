@@ -25,7 +25,7 @@
 #include <QGuiApplication>
 #include <QString>
 
-#include "command_evaluator.h"
+#include "connection_manager.h"
 #include "sensor_viewer.h"
 #include "actuator_viewer.h"
 #include "remotecontrol_viewer.h"
@@ -40,26 +40,25 @@ int main(int argc, char* argv[]) {
     QGuiApplication app { argc, argv };
     QQmlApplicationEngine engine;
 
-    CommandEvaluator command_eval_ { &engine };
+    ConnectionManager connection { &engine };
 
-    SensorViewer sensor_viewer { &engine, command_eval_ };
-    ActuatorViewer actuator_viewer { &engine, command_eval_ };
-    RemoteControlViewer rc5_viewer { &engine, command_eval_.get_socket() };
-    RemotecallViewer remotecall_viewer { &engine, command_eval_ };
-    LogViewer log_viewer { &engine, command_eval_ };
-    MapViewer map_viewer { &engine, command_eval_ };
-    ScriptEditor script_editor { &engine, command_eval_.get_socket() };
+    SensorViewer sensor_viewer { &engine, connection };
+    ActuatorViewer actuator_viewer { &engine, connection };
+    RemoteControlViewer rc5_viewer { &engine, connection.get_socket() };
+    RemotecallViewer remotecall_viewer { &engine, connection };
+    LogViewer log_viewer { &engine, connection };
+    MapViewer map_viewer { &engine, connection };
+    ScriptEditor script_editor { &engine, connection.get_socket() };
 
-
-    const QUrl url { QStringLiteral("qrc:/Main.qml") };
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &app, [url](QObject* obj, const QUrl& objUrl) {
-        if (!obj && url == objUrl) {
+    const QUrl main_qlm { QStringLiteral("qrc:/Main.qml") };
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &app, [main_qlm](QObject* p_object, const QUrl& object_url) {
+        if (!p_object && main_qlm == object_url) {
             QCoreApplication::exit(-1);
         }
     }, Qt::QueuedConnection);
-    engine.load(url);
+    engine.load(main_qlm);
 
-    command_eval_.register_buttons();
+    connection.register_buttons();
     rc5_viewer.register_buttons();
     remotecall_viewer.register_buttons();
     map_viewer.register_buttons();

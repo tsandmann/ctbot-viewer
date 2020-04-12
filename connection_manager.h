@@ -16,8 +16,8 @@
  */
 
 /**
- * @file    command_evaluator.h
- * @brief   Command management for ct-Bot commands
+ * @file    connection_manager.h
+ * @brief   Connection and ct-Bot command management
  * @author  Timo Sandmann
  * @date    11.04.2020
  */
@@ -35,7 +35,7 @@
 #include "connect_button.h"
 
 
-class CommandEvaluator {
+class ConnectionManager {
     QQmlApplicationEngine* p_engine_;
     QTcpSocket socket_;
     QByteArray in_buffer_;
@@ -44,12 +44,12 @@ class CommandEvaluator {
     std::map<ctbot::CommandCodes /*cmd*/, std::vector<std::function<bool(const ctbot::CommandBase&)>> /*functions*/> commands_;
 
 protected:
-    bool evaluate(const ctbot::CommandNoCRC* p_cmd) const;
+    bool evaluate_cmd(const ctbot::CommandNoCRC* p_cmd) const;
 
 public:
-    CommandEvaluator(QQmlApplicationEngine* p_engine);
+    ConnectionManager(QQmlApplicationEngine* p_engine);
 
-    ~CommandEvaluator();
+    ~ConnectionManager();
 
     void register_buttons();
 

@@ -35,7 +35,7 @@
 
 class QTcpSocket;
 class QQuickItem;
-class CommandEvaluator;
+class ConnectionManager;
 
 class RemotecallViewer {
     RCList* p_rcList_;
@@ -52,7 +52,7 @@ class RemotecallViewer {
     static QQuickItem* find_item(const QList<QObject*>& nodes, const QString& name);
 
 public:
-    RemotecallViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval);
+    RemotecallViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval);
 
     ~RemotecallViewer();
 

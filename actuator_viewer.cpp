@@ -28,11 +28,11 @@
 #include <iostream>
 
 #include "actuator_viewer.h"
-#include "command_evaluator.h"
+#include "connection_manager.h"
 #include "command.h"
 
 
-ActuatorViewer::ActuatorViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval) : ValueViewer { p_engine }, p_lcd_ {} {
+ActuatorViewer::ActuatorViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval) : ValueViewer { p_engine }, p_lcd_ {} {
     qmlRegisterType<ValueModel>("Actuators", 1, 0, "ActuatorModel");
     qmlRegisterUncreatableType<ValueList>("Actuators", 1, 0, "ValueList", QStringLiteral("Actuators should not be created in QML"));
 

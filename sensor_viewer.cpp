@@ -28,11 +28,11 @@
 #include <iostream>
 
 #include "sensor_viewer.h"
-#include "command_evaluator.h"
+#include "connection_manager.h"
 #include "command.h"
 
 
-SensorViewer::SensorViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval) : ValueViewer { p_engine } {
+SensorViewer::SensorViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval) : ValueViewer { p_engine } {
     qmlRegisterType<ValueModel>("Sensors", 1, 0, "SensorModel");
     qmlRegisterUncreatableType<ValueList>("Sensors", 1, 0, "ValueList", QStringLiteral("Sensors should not be created in QML"));
 

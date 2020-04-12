@@ -31,7 +31,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000 # disables all the APIs depreca
 SOURCES += \
         actuator_viewer.cpp \
         command.cpp \
-        command_evaluator.cpp \
+        connection_manager.cpp \
         log_viewer.cpp \
         main.cpp \
         map_image.cpp \
@@ -62,8 +62,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     actuator_viewer.h \
     command.h \
-    command_evaluator.h \
     connect_button.h \
+    connection_manager.h \
     log_viewer.h \
     map_image.h \
     map_viewer.h \

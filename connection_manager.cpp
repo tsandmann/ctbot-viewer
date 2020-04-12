@@ -16,8 +16,8 @@
  */
 
 /**
- * @file    command_evaluator.cpp
- * @brief   Command management for ct-Bot commands
+ * @file    connection_manager.cpp
+ * @brief   Connection and ct-Bot command management
  * @author  Timo Sandmann
  * @date    11.04.2020
  */
@@ -28,10 +28,10 @@
 #include <QDebug>
 #include <iostream>
 
-#include "command_evaluator.h"
+#include "connection_manager.h"
 
 
-CommandEvaluator::CommandEvaluator(QQmlApplicationEngine* p_engine) : p_engine_ { p_engine }, connected_ {}, p_connect_button_ {} {
+ConnectionManager::ConnectionManager(QQmlApplicationEngine* p_engine) : p_engine_ { p_engine }, connected_ {}, p_connect_button_ {} {
     QObject::connect(&socket_, &QTcpSocket::readyRead, [this]() {
         if (socket_.bytesAvailable()) {
             in_buffer_.append(socket_.readAll());
@@ -41,7 +41,7 @@ CommandEvaluator::CommandEvaluator(QQmlApplicationEngine* p_engine) : p_engine_ 
                 try {
                     p_cmd = std::make_unique<ctbot::CommandNoCRC>(in_buffer_);
                 } catch (const std::runtime_error& e) {
-                    qDebug() << "invalid command received: " << e.what();
+                    qDebug() << "ConnectionManager: invalid command received: " << e.what();
                     return;
                 }
 
@@ -65,20 +65,20 @@ CommandEvaluator::CommandEvaluator(QQmlApplicationEngine* p_engine) : p_engine_ 
                     }
 
                     if (!p_cmd->append_payload(in_buffer_, p_cmd->get_payload_size())) {
-                        qDebug() << "could not receive payload of cmd:";
+                        qDebug() << "ConnectionManager: could not receive payload of cmd:";
                         std::cout << *p_cmd << std::endl;
                         return;
                     }
                 }
 
-                evaluate(p_cmd.get());
+                evaluate_cmd(p_cmd.get());
             }
         }
     });
 
     QObject::connect(&socket_, &QTcpSocket::connected, [this]() {
         socket_.setSocketOption(QAbstractSocket::LowDelayOption, 1);
-        qDebug() << "CommandEvaluator: Connected to " << socket_.peerName() << ":" << socket_.peerPort();
+        qDebug() << "ConnectionManager: Connected to " << socket_.peerName() << ":" << socket_.peerPort();
         auto p_hostname { p_engine_->rootObjects().at(0)->findChild<QObject*>("Hostname") };
         if (p_hostname) {
             QMetaObject::invokeMethod(p_hostname, "connected", Q_ARG(QVariant, socket_.peerName()));
@@ -87,7 +87,7 @@ CommandEvaluator::CommandEvaluator(QQmlApplicationEngine* p_engine) : p_engine_ 
     });
 
     QObject::connect(&socket_, &QTcpSocket::disconnected, [this]() {
-        qDebug() << "CommandEvaluator: Connection closed.";
+        qDebug() << "ConnectionManager: Connection closed.";
         auto p_hostname { p_engine_->rootObjects().at(0)->findChild<QObject*>("Hostname") };
         if (p_hostname) {
             QMetaObject::invokeMethod(p_hostname, "disconnected", Q_ARG(QVariant, ""));
@@ -96,7 +96,7 @@ CommandEvaluator::CommandEvaluator(QQmlApplicationEngine* p_engine) : p_engine_ 
     });
 
     QObject::connect(&socket_, QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error), [this](QAbstractSocket::SocketError socketError) {
-        qDebug() << "CommandEvaluator: Connection to " << socket_.peerName() << " failed:" << socketError;
+        qDebug() << "ConnectionManager: Connection to " << socket_.peerName() << " failed:" << socketError;
         auto p_hostname { p_engine_->rootObjects().at(0)->findChild<QObject*>("Hostname") };
         if (p_hostname) {
             QMetaObject::invokeMethod(p_hostname, "disconnected", Q_ARG(QVariant, socket_.peerName()));
@@ -126,11 +126,11 @@ CommandEvaluator::CommandEvaluator(QQmlApplicationEngine* p_engine) : p_engine_ 
     });
 }
 
-CommandEvaluator::~CommandEvaluator() {
+ConnectionManager::~ConnectionManager() {
     delete p_connect_button_;
 }
 
-void CommandEvaluator::register_buttons() {
+void ConnectionManager::register_buttons() {
     p_connect_button_ = new ConnectButton { [this](QString hostname, QString port) {
         auto object { p_engine_->rootObjects().at(0)->findChild<QObject*>("Hostname") };
         if (!connected_) {
@@ -143,11 +143,11 @@ void CommandEvaluator::register_buttons() {
     QObject::connect(p_engine_->rootObjects().at(0)->findChild<QObject*>("Hostname"), SIGNAL(connectClicked(QString, QString)), p_connect_button_, SLOT(cppSlot(QString, QString)));
 }
 
-void CommandEvaluator::register_cmd(const ctbot::CommandCodes& cmd, std::function<bool(const ctbot::CommandBase&)>&& func) {
+void ConnectionManager::register_cmd(const ctbot::CommandCodes& cmd, std::function<bool(const ctbot::CommandBase&)>&& func) {
     commands_[cmd].emplace_back(func);
 }
 
-bool CommandEvaluator::evaluate(const ctbot::CommandNoCRC* p_cmd) const {
+bool ConnectionManager::evaluate_cmd(const ctbot::CommandNoCRC* p_cmd) const {
     try {
         bool result { true };
         for (auto& func : commands_.at(p_cmd->get_cmd_code())) {
@@ -155,7 +155,7 @@ bool CommandEvaluator::evaluate(const ctbot::CommandNoCRC* p_cmd) const {
         }
         return result;
     } catch (const std::out_of_range&) {
-        qDebug() << "CommandEvaluator::evaluate(): CMD code '" << static_cast<char>(p_cmd->get_cmd_code_uint()) << "' not registered:";
+        qDebug() << "ConnectionManager::evaluate_cmd(): CMD code '" << static_cast<char>(p_cmd->get_cmd_code_uint()) << "' not registered:";
         std::cout << *p_cmd << std::endl;
         return false;
     }

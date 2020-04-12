@@ -31,7 +31,7 @@
 
 
 class QTcpSocket;
-class CommandEvaluator;
+class ConnectionManager;
 class MapImageItem;
 
 class MapViewer {
@@ -45,7 +45,7 @@ class MapViewer {
     uint16_t last_block_;
 
 public:
-    MapViewer(QQmlApplicationEngine* p_engine, CommandEvaluator& command_eval);
+    MapViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval);
 
     ~MapViewer();
 
