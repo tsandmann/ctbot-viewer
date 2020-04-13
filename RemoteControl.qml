@@ -92,6 +92,7 @@ Frame {
 
         RCButton {
             text: qsTr("I/II")
+            padding: 0
         }
 
         RCButton {

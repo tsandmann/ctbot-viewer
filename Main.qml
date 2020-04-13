@@ -34,6 +34,10 @@ ApplicationWindow {
             return size * 4 / 3;
         }
 
+        if (Qt.platform.os == "windows") {
+            return size;
+        }
+
         return size * 0.85;
     }
 
@@ -51,7 +55,7 @@ ApplicationWindow {
             id: main_viewer
         }
 
-        RemotecallComponent {}
+        RemoteCallComponent {}
 
         LogComponent {}
 

@@ -9,7 +9,7 @@
         <file>AutoSizingMenu.qml</file>
         <file>MainComponent.qml</file>
         <file>MenuComponent.qml</file>
-        <file>RemotecallComponent.qml</file>
+        <file>RemoteCallComponent.qml</file>
         <file>LogComponent.qml</file>
         <file>MapComponent.qml</file>
         <file>ScriptComponent.qml</file>
