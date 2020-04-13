@@ -24,9 +24,9 @@ ApplicationWindow {
     id: applicationWindow
     visible: true
     height: 605
-    width: 615
+    width: 625
     minimumHeight: 605
-    minimumWidth: 615
+    minimumWidth: 625
     title: qsTr("ct-Bot Remote Viewer 0.5")
 
     function fontsize(size) {
