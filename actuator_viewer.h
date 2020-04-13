@@ -31,6 +31,7 @@ class ConnectionManager;
 
 class ActuatorViewer : public ValueViewer {
     QObject* p_lcd_;
+    char lcd_text_[4][21];
 
 public:
     ActuatorViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval);

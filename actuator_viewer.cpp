@@ -25,6 +25,7 @@
 #include <QString>
 #include <QRegularExpression>
 #include <QDebug>
+#include <cstring>
 #include <iostream>
 
 #include "actuator_viewer.h"
@@ -59,9 +60,6 @@ ActuatorViewer::ActuatorViewer(QQmlApplicationEngine* p_engine, ConnectionManage
     command_eval.register_cmd(ctbot::CommandCodes::CMD_AKT_LCD, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_AKT_LCD received: " << cmd << "\n";
 
-        // FIXME: just a test implementation!
-        static char text[4][21];
-
         if (!p_lcd_) {
             p_lcd_ = p_engine_->rootObjects().first()->findChild<QObject*>("LCD");
             if (!p_lcd_) {
@@ -72,19 +70,19 @@ ActuatorViewer::ActuatorViewer(QQmlApplicationEngine* p_engine, ConnectionManage
         switch (cmd.get_cmd_subcode()) {
             case ctbot::CommandCodes::CMD_SUB_LCD_CLEAR: {
                 // qDebug() << "Display CLEAR received.";
-                std::memset(&text[0][0], ' ', sizeof(text));
-                text[0][20] = 0;
-                text[1][20] = 0;
-                text[2][20] = 0;
-                text[3][20] = 0;
+                std::memset(&lcd_text_[0][0], ' ', sizeof(lcd_text_));
+                lcd_text_[0][20] = 0;
+                lcd_text_[1][20] = 0;
+                lcd_text_[2][20] = 0;
+                lcd_text_[3][20] = 0;
 
-                QString data = text[0];
+                QString data = lcd_text_[0];
                 data += "\n";
-                data += text[1];
+                data += lcd_text_[1];
                 data += "\n";
-                data += text[2];
+                data += lcd_text_[2];
                 data += "\n";
-                data += text[3];
+                data += lcd_text_[3];
 
                 p_lcd_->setProperty("text", data);
 
@@ -120,16 +118,16 @@ ActuatorViewer::ActuatorViewer(QQmlApplicationEngine* p_engine, ConnectionManage
                     return false;
                 }
 
-                std::strncpy(&text[row][col], reinterpret_cast<const char*>(cmd.get_payload().data()), len);
-                text[row][col + len] = 0;
+                std::strncpy(&lcd_text_[row][col], reinterpret_cast<const char*>(cmd.get_payload().data()), len);
+                lcd_text_[row][col + len] = 0;
 
-                QString data = text[0];
+                QString data = lcd_text_[0];
                 data += "\n";
-                data += text[1];
+                data += lcd_text_[1];
                 data += "\n";
-                data += text[2];
+                data += lcd_text_[2];
                 data += "\n";
-                data += text[3];
+                data += lcd_text_[3];
                 data.replace(QRegularExpression("[\001-\011]"), ".");
                 data.replace(QRegularExpression("[\013-\037]"), ".");
                 data.replace(QRegularExpression("[\177-\377]"), "#");
