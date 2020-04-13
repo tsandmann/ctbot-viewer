@@ -116,22 +116,22 @@ RowLayout {
                 RadioButton {
                     id: radio_v1
                     checked: true
-                    font.pointSize: fontsize(16)
+                    font.pointSize: fontsize(15)
                     leftPadding: -10
                     indicator.height: 32
                     indicator.width: 32
                     scale: 0.7
-                    text: qsTr("v 1")
+                    text: qsTr("ct-Bot")
                 }
 
                 RadioButton {
                     id: radio_v2
-                    font.pointSize: fontsize(16)
+                    font.pointSize: fontsize(15)
                     leftPadding: -10
                     indicator.height: 32
                     indicator.width: 32
                     scale: 0.7
-                    text: qsTr("v 2")
+                    text: qsTr("ct-Bot v2")
                 }
             }
 

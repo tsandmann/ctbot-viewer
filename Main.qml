@@ -31,10 +31,10 @@ ApplicationWindow {
 
     function fontsize(size) {
         if (Qt.platform.os == "osx" || Qt.platform.os == "ios") {
-            return size * 4 / 3
+            return size * 4 / 3;
         }
 
-        return size * 0.8
+        return size * 0.85;
     }
 
     menuBar: MenuComponent {
