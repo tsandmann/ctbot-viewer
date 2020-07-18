@@ -27,6 +27,7 @@ ApplicationWindow {
     width: 625
     minimumHeight: 605
     minimumWidth: 625
+    font.family: "Helvetica";
     title: qsTr("ct-Bot Remote Viewer 0.5")
 
     function fontsize(size) {
@@ -34,11 +35,13 @@ ApplicationWindow {
             return size * 4 / 3;
         }
 
-        if (Qt.platform.os == "windows") {
-            return size;
-        }
+        return size;
 
-        return size * 0.85;
+//        if (Qt.platform.os == "windows") {
+//            return size;
+//        }
+
+//        return size * 0.85;
     }
 
     menuBar: MenuComponent {

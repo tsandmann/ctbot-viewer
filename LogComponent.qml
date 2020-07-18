@@ -63,7 +63,7 @@ RowLayout {
                     placeholderText: qsTr("Log")
                     textMargin: 4
                     font.pointSize: fontsize(10)
-                    font.family: "courier"
+                    font.family: "Droid Sans Mono"
                     readOnly: true
                     selectByKeyboard: true
                     selectByMouse: Qt.platform.os != "ios"

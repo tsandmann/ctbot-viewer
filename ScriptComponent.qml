@@ -179,7 +179,7 @@ RowLayout {
                     placeholderText: qsTr("Enter your ct-Bot script here")
                     textMargin: 4
                     font.pointSize: fontsize(10)
-                    font.family: "courier"
+                    font.family: "Droid Sans Mono"
                     readOnly: false
                     selectByMouse: true
                     clip: true

@@ -49,7 +49,7 @@ RowLayout {
                     topPadding: 3
                     bottomPadding: 3
                     font.pointSize: fontsize(9)
-                    font.family: "courier"
+                    font.family: "Droid Sans Mono"
                     readOnly: true
                     selectByKeyboard: true
                     selectByMouse: Qt.platform.os != "ios"

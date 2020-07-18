@@ -168,7 +168,7 @@ RowLayout {
                 text: ""
                 textMargin: 4
                 font.pointSize: fontsize(12)
-                font.family: "courier"
+                font.family: "Droid Sans Mono"
                 readOnly: true
                 selectByMouse: true
             }
