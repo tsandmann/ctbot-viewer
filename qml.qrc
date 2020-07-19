@@ -16,5 +16,6 @@
         <file>ConsoleComponent.qml</file>
         <file>TabComponent.qml</file>
         <file>MiniLogComponent.qml</file>
+        <file>fonts/PTMono-Regular.ttf</file>
     </qresource>
 </RCC>

@@ -20,6 +20,8 @@ import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 
 RowLayout {
+    FontLoader { id: ptMonoFont; source: "qrc:/fonts/PTMono-Regular.ttf" }
+
     Item {
         width: 10
     }
@@ -63,7 +65,7 @@ RowLayout {
                     placeholderText: qsTr("Log")
                     textMargin: 4
                     font.pointSize: fontsize(10)
-                    font.family: "Droid Sans Mono"
+                    font.family: ptMonoFont.name
                     readOnly: true
                     selectByKeyboard: true
                     selectByMouse: Qt.platform.os != "ios"

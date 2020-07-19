@@ -28,7 +28,7 @@ ApplicationWindow {
     minimumHeight: 605
     minimumWidth: 625
     font.family: "Helvetica";
-    title: qsTr("ct-Bot Remote Viewer 0.5.1")
+    title: qsTr("ct-Bot Remote Viewer 0.5.2")
 
     function fontsize(size) {
         if (Qt.platform.os == "osx" || Qt.platform.os == "ios") {

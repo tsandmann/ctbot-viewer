@@ -24,6 +24,8 @@ RowLayout {
     property alias hostname : hostname
     property alias port : port
 
+    FontLoader { id: ptMonoFont; source: "qrc:/fonts/PTMono-Regular.ttf" }
+
     ColumnLayout {
         spacing: 2
         Layout.margins: 10
@@ -69,6 +71,7 @@ RowLayout {
                 id: hostname
                 objectName: "Hostname"
                 focus: true
+                selectByMouse: Qt.platform.os != "ios"
                 Layout.preferredWidth: 135
                 placeholderText: qsTr("Hostname")
                 font.pointSize: fontsize(12)
@@ -99,6 +102,7 @@ RowLayout {
                 id: port
                 objectName: "Port"
                 text: radio_v1.checked ? "10002" : "23"
+                selectByMouse: Qt.platform.os != "ios"
                 focus: true
                 Layout.preferredWidth: 65
                 placeholderText: qsTr("Port")
@@ -168,13 +172,13 @@ RowLayout {
                 text: ""
                 textMargin: 4
                 font.pointSize: fontsize(12)
-                font.family: "Droid Sans Mono"
+                font.family: ptMonoFont.name
                 readOnly: true
                 selectByMouse: true
             }
 
             width: 200
-            height: 70
+            height: 80
             border.color: "gray"
             border.width: 1
         }

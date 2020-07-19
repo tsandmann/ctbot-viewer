@@ -21,6 +21,8 @@ import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.3
 
 RowLayout {
+    FontLoader { id: ptMonoFont; source: "qrc:/fonts/PTMono-Regular.ttf" }
+
     Item {
         width: 10
     }
@@ -78,7 +80,8 @@ RowLayout {
                 objectName: "script_remote_filename"
                 text: "prog1.txt"
                 focus: true
-                Layout.preferredHeight: 25
+                selectByMouse: Qt.platform.os != "ios"
+                Layout.preferredHeight: 26
                 Layout.preferredWidth: 205
                 placeholderText: qsTr("Remote filename")
                 font.pointSize: fontsize(10)
@@ -179,10 +182,11 @@ RowLayout {
                     placeholderText: qsTr("Enter your ct-Bot script here")
                     textMargin: 4
                     font.pointSize: fontsize(10)
-                    font.family: "Droid Sans Mono"
+                    font.family: ptMonoFont.name
                     readOnly: false
                     selectByMouse: true
                     clip: true
+                    tabStopDistance: 16
                 }
             }
 
