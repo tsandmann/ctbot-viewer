@@ -12,7 +12,7 @@ Consider this as experimental code. **If it breaks, you get to keep both pieces.
 
 1. Download release for Linux, macOS or Windows [here][release]
 1. Prepare and launch...
-    * for Linux as [AppImage](AppImage):
+    * for Linux as [AppImage][AppImage]:
         1. Create a local application directory, if not existing: `mkdir ~/Applications`
         1. Move downloaded application to app directory: `mv ~/Downloads/ct-Bot_Viewer_*-x86_64.AppImage ~/Applications/`
         1. Launch the application: `ct-Bot_Viewer_X-x86_64.AppImage` by double-clicking.
