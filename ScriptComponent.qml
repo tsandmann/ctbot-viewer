@@ -106,8 +106,8 @@ RowLayout {
                 checked: true
                 font.pointSize: fontsize(16)
                 leftPadding: -10
-                indicator.height: 32
-                indicator.width: 32
+                indicator.height: 30
+                indicator.width: 30
                 scale: 0.7
                 text: qsTr("Execute")
             }

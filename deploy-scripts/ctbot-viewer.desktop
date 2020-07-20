@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=ct-Bot Viewer
+Comment=Telemetry viewer for c't-Bots
+Exec=ctbot-viewer
+Icon=ctbot
+Categories=Development;
+

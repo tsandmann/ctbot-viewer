@@ -72,7 +72,7 @@ RowLayout {
                 objectName: "Hostname"
                 focus: true
                 selectByMouse: Qt.platform.os != "ios"
-                Layout.preferredWidth: 135
+                Layout.preferredWidth: 142
                 placeholderText: qsTr("Hostname")
                 font.pointSize: fontsize(12)
                 onAccepted: connectClicked(hostname.text, port.text);
@@ -177,14 +177,14 @@ RowLayout {
                 selectByMouse: true
             }
 
-            width: 200
+            width: 212
             height: 80
             border.color: "gray"
             border.width: 1
         }
 
         Item {
-            height: 30
+            height: 25
         }
 
         MiniLogComponent {}
