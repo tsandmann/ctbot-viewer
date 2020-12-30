@@ -1,8 +1,10 @@
-# c't-Bot remote viewer
+# ct-Bot remote viewer
 
 ## Summary
 
-This is a very basic remote viewer for the [c't-Bot][ctBot] based on the [Qt widget toolkit][qt]. It is licensed under the terms of the [GPLv3 license](LICENSE.md).
+This is a very basic remote viewer for the [ct-Bot][ctBot] based on the [Qt widget toolkit][qt]. It is licensed under the terms of the [GPLv3 license](LICENSE.md).
+
+<a href="images/ctbot-viewer.png" target="_blank"><img src="images/ctbot-viewer.png" width="800"></a>
 
 ### Notice
 
