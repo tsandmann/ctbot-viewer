@@ -37,7 +37,7 @@ Frame {
             implicitHeight: contentHeight
             anchors.fill: parent
             clip: true
-            model: sensorModel
+            model: actuatorModel
             visible: main_viewer.v1.checked
 
             delegate: RowLayout {
