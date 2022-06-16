@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <QString>
 #include <QRegularExpression>
 #include <QDebug>
+
 #include <cstring>
 #include <iostream>
 
@@ -33,7 +34,7 @@
 #include "command.h"
 
 
-ActuatorViewer::ActuatorViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval) : ValueViewer { p_engine }, p_lcd_ {} {
+ActuatorViewerV1::ActuatorViewerV1(QQmlApplicationEngine* p_engine, ConnectionManagerV1& command_eval) : ValueViewer { p_engine }, p_lcd_ {} {
     qmlRegisterType<ValueModel>("Actuators", 1, 0, "ActuatorModel");
     qmlRegisterUncreatableType<ValueList>("Actuators", 1, 0, "ValueList", QStringLiteral("Actuators should not be created in QML"));
 
@@ -61,7 +62,8 @@ ActuatorViewer::ActuatorViewer(QQmlApplicationEngine* p_engine, ConnectionManage
         // std::cout << "CMD_AKT_LCD received: " << cmd << "\n";
 
         if (!p_lcd_) {
-            p_lcd_ = p_engine_->rootObjects().first()->findChild<QObject*>("LCD");
+            auto root { p_engine_->rootObjects() };
+            p_lcd_ = root.first()->findChild<QObject*>("LCD");
             if (!p_lcd_) {
                 return false;
             }
@@ -121,6 +123,10 @@ ActuatorViewer::ActuatorViewer(QQmlApplicationEngine* p_engine, ConnectionManage
                 std::strncpy(&lcd_text_[row][col], reinterpret_cast<const char*>(cmd.get_payload().data()), len);
                 lcd_text_[row][col + len] = 0;
 
+                static const auto regex1 { QRegularExpression("[\001-\011]") };
+                static const auto regex2 { QRegularExpression("[\013-\037]") };
+                static const auto regex3 { QRegularExpression("[\177-\377]") };
+
                 QString data = lcd_text_[0];
                 data += "\n";
                 data += lcd_text_[1];
@@ -128,9 +134,9 @@ ActuatorViewer::ActuatorViewer(QQmlApplicationEngine* p_engine, ConnectionManage
                 data += lcd_text_[2];
                 data += "\n";
                 data += lcd_text_[3];
-                data.replace(QRegularExpression("[\001-\011]"), ".");
-                data.replace(QRegularExpression("[\013-\037]"), ".");
-                data.replace(QRegularExpression("[\177-\377]"), "#");
+                data.replace(regex1, ".");
+                data.replace(regex2, ".");
+                data.replace(regex3, "#");
                 // qDebug() << "data = " << data;
 
                 p_lcd_->setProperty("text", data);
@@ -140,5 +146,54 @@ ActuatorViewer::ActuatorViewer(QQmlApplicationEngine* p_engine, ConnectionManage
 
             default: return false;
         }
+    });
+}
+
+
+ActuatorViewerV2::ActuatorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval) : ValueViewer { p_engine } {
+    qmlRegisterType<ValueModel>("Actuators", 1, 0, "ActuatorModel");
+    qmlRegisterUncreatableType<ValueList>("Actuators", 1, 0, "ValueList", QStringLiteral("Actuators should not be created in QML"));
+
+    list_.appendItem(QStringLiteral("Motor left"));
+    list_.appendItem(QStringLiteral("Motor right"));
+    list_.appendItem(QStringLiteral("Servo 1"));
+    list_.appendItem(QStringLiteral("Servo 2"));
+    list_.appendItem(QStringLiteral("LEDs"));
+
+    update_map();
+    register_model(QStringLiteral("actuatorModelV2"));
+
+    command_eval.register_cmd("actuators", [this, &command_eval](const std::string_view& str) {
+        if (command_eval.get_version() != command_eval.version_active()) {
+            return false;
+        }
+
+        if (!str.length()) {
+            return false;
+        }
+
+        static const std::regex motor_regex { R"(motor: (\d*) (\d*)[\r\n]{1,2})" };
+        static const std::regex servo1_regex { R"(servo1: (\d*)[\r\n]{1,2})" };
+        static const std::regex servo2_regex { R"(servo2: (\d*)[\r\n]{1,2})" };
+        static const std::regex led_regex { R"(leds: (\d*)[\r\n]{1,2})" };
+
+        int16_t values[2];
+        if (parse(str, motor_regex, values[0], values[1])) {
+            model_.setData(map_["Motor left"], values[0], ValueModel::Value);
+            model_.setData(map_["Motor right"], values[1], ValueModel::Value);
+        }
+
+        if (parse(str, servo1_regex, values[0])) {
+            model_.setData(map_["Servo 1"], values[0], ValueModel::Value);
+        }
+
+        if (parse(str, servo2_regex, values[0])) {
+            model_.setData(map_["Servo 2"], values[0], ValueModel::Value);
+        }
+
+        if (parse(str, led_regex, values[0])) {
+            model_.setData(map_["LEDs"], values[0], ValueModel::Value);
+        }
+        return true;
     });
 }

@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,16 +34,16 @@
 
 class QTcpSocket;
 
-class RemoteControlViewer {
+class RemoteControlViewerV1 {
     QQmlApplicationEngine* p_engine_;
     QTcpSocket* p_socket_;
     ConnectButton* p_rc_button_;
     std::map<QString /*RC-Code*/, uint16_t /*CMD-Code*/> rc5_codes_;
 
 public:
-    RemoteControlViewer(QQmlApplicationEngine* p_engine, QTcpSocket* p_socket);
+    RemoteControlViewerV1(QQmlApplicationEngine* p_engine, QTcpSocket* p_socket);
 
-    ~RemoteControlViewer();
+    ~RemoteControlViewerV1();
 
     void register_buttons();
 };

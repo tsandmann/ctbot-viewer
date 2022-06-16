@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 #include "connection_manager.h"
 
 
-MapViewer::MapViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval)
+MapViewer::MapViewer(QQmlApplicationEngine* p_engine, ConnectionManagerV1& command_eval)
     : p_engine_ { p_engine }, p_socket_ { command_eval.get_socket() }, p_fetch_button_ {}, p_clear_button_ {}, p_save_button_ {}, p_map_ {}, receive_state_ {},
       last_block_ {} {
     qmlRegisterType<MapImageItem>("MapImage", 1, 0, "MapImageItem");
@@ -38,7 +38,8 @@ MapViewer::MapViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command
         // std::cout << "CMD_MAP received: " << cmd << "\n";
 
         if (!p_map_) {
-            p_map_ = p_engine_->rootObjects().first()->findChild<MapImageItem*>("Map");
+            auto root { p_engine_->rootObjects() };
+            p_map_ = root.first()->findChild<MapImageItem*>("Map");
             if (!p_map_) {
                 return false;
             }
@@ -171,7 +172,8 @@ MapViewer::~MapViewer() {
 }
 
 void MapViewer::register_buttons() {
-    p_map_ = p_engine_->rootObjects().first()->findChild<MapImageItem*>("Map");
+    auto root { p_engine_->rootObjects() };
+    p_map_ = root.first()->findChild<MapImageItem*>("Map");
     if (!p_map_) {
         return;
     }
@@ -183,7 +185,7 @@ void MapViewer::register_buttons() {
             p_socket_->write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
         }
     } };
-    QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("MapViewer"), SIGNAL(mapFetch()), p_fetch_button_, SLOT(cppSlot()));
+    QObject::connect(root.first()->findChild<QObject*>("MapViewer"), SIGNAL(mapFetch()), p_fetch_button_, SLOT(cppSlot()));
 
     p_clear_button_ = new ConnectButton { [this](QString, QString) {
         p_map_->clear();
@@ -192,8 +194,8 @@ void MapViewer::register_buttons() {
         p_map_->set_bot_heading(0);
         p_map_->commit();
     } };
-    QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("MapViewer"), SIGNAL(mapClear()), p_clear_button_, SLOT(cppSlot()));
+    QObject::connect(root.first()->findChild<QObject*>("MapViewer"), SIGNAL(mapClear()), p_clear_button_, SLOT(cppSlot()));
 
     p_save_button_ = new ConnectButton { [this](QString filename, QString) { p_map_->save_to_file(filename); } };
-    QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("MapViewer"), SIGNAL(mapSave(QString)), p_save_button_, SLOT(cppSlot(QString)));
+    QObject::connect(root.first()->findChild<QObject*>("MapViewer"), SIGNAL(mapSave(QString)), p_save_button_, SLOT(cppSlot(QString)));
 }

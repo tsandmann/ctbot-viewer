@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include <QQuickItem>
 #include <QTcpSocket>
 #include <QThread>
+#include <QFile>
 
 #include "script_editor.h"
 #include "command.h"
@@ -42,7 +43,8 @@ ScriptEditor::~ScriptEditor() {
 }
 
 void ScriptEditor::register_buttons() {
-    p_script_ = p_engine_->rootObjects().first()->findChild<QObject*>("script_viewer");
+    auto root { p_engine_->rootObjects() };
+    p_script_ = root.first()->findChild<QObject*>("script_viewer");
     if (!p_script_) {
         return;
     }

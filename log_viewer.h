@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,13 +29,23 @@
 #include "connect_button.h"
 
 
-class ConnectionManager;
+class ConnectionManagerV1;
+class ConnectionManagerV2;
 
-class LogViewer {
+class LogViewerV1 {
     QQmlApplicationEngine* p_engine_;
     QObject* p_log_;
     QObject* p_minilog_;
 
 public:
-    LogViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval);
+    LogViewerV1(QQmlApplicationEngine* p_engine, ConnectionManagerV1& command_eval);
+};
+
+class LogViewerV2 {
+    QQmlApplicationEngine* p_engine_;
+    QObject* p_log_;
+    QObject* p_minilog_;
+
+public:
+    LogViewerV2(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval);
 };

@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 #include "connection_manager.h"
 
 
-RemotecallViewer::RemotecallViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval)
+RemotecallViewer::RemotecallViewer(QQmlApplicationEngine* p_engine, ConnectionManagerV1& command_eval)
     : p_rcList_ { new RCList }, p_engine_ { p_engine }, p_socket_ { command_eval.get_socket() }, p_rc_viewer_ {}, p_current_label_ {}, p_fetch_button_ {},
       p_clear_button_ {}, p_abort_button_ {}, p_rc_button_ {} {
     qmlRegisterType<RCModel>("RemoteCalls", 1, 0, "RemotecallModel");
@@ -109,7 +109,8 @@ void RemotecallViewer::register_buttons() {
             p_socket_->write(reinterpret_cast<const char*>(&cmd.get_cmd()), sizeof(ctbot::CommandData));
         }
     } };
-    QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("RemoteCallActions"), SIGNAL(remoteCallFetch()), p_fetch_button_, SLOT(cppSlot()));
+    auto root { p_engine_->rootObjects() };
+    QObject::connect(root.first()->findChild<QObject*>("RemoteCallActions"), SIGNAL(remoteCallFetch()), p_fetch_button_, SLOT(cppSlot()));
 
 
     p_clear_button_ = new ConnectButton { [this](QString, QString) {
@@ -121,7 +122,7 @@ void RemotecallViewer::register_buttons() {
         p_rc_viewer_->setProperty("enabled", true);
         p_current_label_->setProperty("text", "Active Remote Call: none");
     } };
-    QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("RemoteCallActions"), SIGNAL(remoteCallClear()), p_clear_button_, SLOT(cppSlot()));
+    QObject::connect(root.first()->findChild<QObject*>("RemoteCallActions"), SIGNAL(remoteCallClear()), p_clear_button_, SLOT(cppSlot()));
 
     p_abort_button_ = new ConnectButton { [this](QString, QString) {
         ctbot::CommandNoCRC cmd { ctbot::CommandCodes::CMD_REMOTE_CALL, ctbot::CommandCodes::CMD_SUB_REMOTE_CALL_ABORT, 0, 0, ctbot::CommandBase::ADDR_SIM,
@@ -133,7 +134,7 @@ void RemotecallViewer::register_buttons() {
         p_rc_viewer_->setProperty("enabled", true);
         p_current_label_->setProperty("text", "Active Remote Call: none");
     } };
-    QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("RemoteCallActions"), SIGNAL(remoteCallAbort()), p_abort_button_, SLOT(cppSlot()));
+    QObject::connect(root.first()->findChild<QObject*>("RemoteCallActions"), SIGNAL(remoteCallAbort()), p_abort_button_, SLOT(cppSlot()));
 
 
     p_rc_button_ = new ConnectButton { [this](QString name, QString parameter) {
@@ -143,10 +144,10 @@ void RemotecallViewer::register_buttons() {
             ctbot::CommandBase::ADDR_BROADCAST };
 
         QByteArray payload;
-        payload.append(name.replace("():", ""));
+        payload.append(name.replace("():", "").toUtf8());
         payload.append('\0');
 
-        const QStringList par_list { parameter.split(',', QString::SkipEmptyParts) };
+        const QStringList par_list { parameter.split(',', Qt::SkipEmptyParts) };
         uint32_t par[] { static_cast<uint32_t>(par_list.at(0).toLong()), static_cast<uint32_t>(par_list.at(1).toLong()),
             static_cast<uint32_t>(par_list.at(2).toLong()) };
 
@@ -172,8 +173,8 @@ void RemotecallViewer::register_buttons() {
         p_rc_viewer_->setProperty("enabled", false);
         p_current_label_->setProperty("text", "Active Remote Call: " + name);
     } };
-    QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("RemoteCallViewer"), SIGNAL(remoteCallClicked(QString, QString)), p_rc_button_,
-        SLOT(cppSlot(QString, QString)));
+    QObject::connect(root.first()->findChild<QObject*>("RemoteCallViewer"), SIGNAL(remoteCallClicked(QString,QString)), p_rc_button_,
+        SLOT(cppSlot(QString,QString)));
 }
 
 QQuickItem* RemotecallViewer::find_item(const QList<QObject*>& nodes, const QString& name) {

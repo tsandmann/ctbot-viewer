@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,74 +15,90 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.0
-import QtQuick.Controls 2.4
+import QtQuick
+import QtQuick.Controls
 
 MenuBar {
     property alias connect_menu : connect
+    property alias shutdown_menu : shutdown
 
-    font.pointSize: fontsize(12)
     width: parent.width
 
-    AutoSizingMenu {
+    Menu {
         title: qsTr("Viewer")
 
         MenuItem {
             id: connect
             text: qsTr("Connect")
-            font.pointSize: fontsize(12)
             horizontalPadding: 10
+
             onTriggered: {
                 main_viewer.hostname.connectClicked(main_viewer.hostname.text, main_viewer.port.text);
             }
         }
 
         MenuItem {
-            text: qsTr("Exit")
-            font.pointSize: fontsize(12)
+            id: shutdown
+            text: qsTr("Shutdown")
             horizontalPadding: 10
+            enabled: false
+
+            onTriggered: {
+                main_viewer.shutdown_button.shutdownClicked("", "");
+            }
+        }
+
+        MenuItem {
+            text: qsTr("Exit")
+            horizontalPadding: 10
+
             onTriggered: {
                 Qt.quit();
             }
         }
     }
 
-    AutoSizingMenu {
+    Menu {
         title: qsTr("Components")
 
         MenuItem {
             text: qsTr("Main")
-            font.pointSize: fontsize(12)
             horizontalPadding: 10
             onTriggered: layout.currentIndex = 0
         }
 
         MenuItem {
-            text: qsTr("Remote Calls")
-            font.pointSize: fontsize(12)
-            horizontalPadding: 10
-            onTriggered: layout.currentIndex = 1
-        }
-
-        MenuItem {
             text: qsTr("Log")
-            font.pointSize: fontsize(12)
             horizontalPadding: 10
             onTriggered: layout.currentIndex = 2
         }
 
         MenuItem {
+            text: qsTr("Remote Calls")
+            horizontalPadding: 10
+            onTriggered: layout.currentIndex = 1
+            enabled: main_viewer.v1.checked
+        }
+
+        MenuItem {
             text: qsTr("Map")
-            font.pointSize: fontsize(12)
             horizontalPadding: 10
             onTriggered: layout.currentIndex = 3
+            enabled: main_viewer.v1.checked
         }
 
         MenuItem {
             text: qsTr("Scripts")
-            font.pointSize: fontsize(12)
             horizontalPadding: 10
             onTriggered: layout.currentIndex = 4
+            enabled: main_viewer.v1.checked
+        }
+
+        MenuItem {
+            text: qsTr("Console")
+            horizontalPadding: 10
+            onTriggered: layout.currentIndex = 5
+            enabled: main_viewer.v2.checked
         }
     }
 }

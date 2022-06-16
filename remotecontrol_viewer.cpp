@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,22 +28,22 @@
 #include "command.h"
 
 
-RemoteControlViewer::RemoteControlViewer(QQmlApplicationEngine* p_engine, QTcpSocket* p_socket)
+RemoteControlViewerV1::RemoteControlViewerV1(QQmlApplicationEngine* p_engine, QTcpSocket* p_socket)
     : p_engine_ { p_engine }, p_socket_ { p_socket }, p_rc_button_ {}, rc5_codes_ { { "Power", 0x118c }, { "1", 0x1181 }, { "2", 0x1182 }, { "3", 0x1183 },
           { "4", 0x1184 }, { "5", 0x1185 }, { "6", 0x1186 }, { "7", 0x1187 }, { "8", 0x1188 }, { "9", 0x1189 }, { "10", 0x1180 }, { "11", 0x118a },
           { "12", 0x11a3 }, { "Gr", 0x01ba }, { "Re", 0x01bd }, { "Ye", 0x01b1 }, { "Bl", 0x01b0 }, { "I/II", 0x11ab }, { "TV", 0x11b8 }, { "Gr", 0x01ba },
-          { "||", 0x11a9 }, { "<<", 0x11b2 }, { "\u25B6", 0x11b5 }, { ">>", 0x11b4 }, { "\u25A0", 0x11b6 }, { "\u25CF", 0x11ab }, { "CH*P/C", 0x11bf },
+          { "||", 0x11a9 }, { "<<", 0x11b2 }, { "\u25B6", 0x11b5 }, { ">>", 0x11b4 }, { "\u2B1B", 0x11b6 }, { "\u25CF", 0x11b7 }, { "CH*P/C", 0x11bf },
           { "V+", 0x1190 }, { "M", 0x01bf }, { "C+", 0x11a0 }, { "V-", 0x1191 }, { "C-", 0x11a1 } } {}
 
-RemoteControlViewer::~RemoteControlViewer() {
+RemoteControlViewerV1::~RemoteControlViewerV1() {
     delete p_rc_button_;
 }
 
-void RemoteControlViewer::register_buttons() {
+void RemoteControlViewerV1::register_buttons() {
     p_rc_button_ = new ConnectButton { [this](QString button, QString) {
         const auto it { rc5_codes_.find(button) };
         if (it == rc5_codes_.end()) {
-            qDebug() << "RemoteControlViewer: unknown RC button pressed.";
+            qDebug() << "RemoteControlViewerV1: unknown RC button pressed.";
             return;
         }
 
@@ -59,8 +59,10 @@ void RemoteControlViewer::register_buttons() {
                 sent += p_socket_->write(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int64_t>(cmd.get_payload_size()));
             }
             // qDebug() << "RemoteControlViewer: sent" << sent << "bytes.";
+            static_cast<void>(sent);
         }
     } };
-    QObject::connect(p_engine_->rootObjects().first()->findChild<QObject*>("RCButton"), SIGNAL(rcButtonClicked(QString, QString)), p_rc_button_,
-        SLOT(cppSlot(QString, QString)));
+    auto root { p_engine_->rootObjects() };
+    QObject::connect(root.first()->findChild<QObject*>("RCButton"), SIGNAL(rcButtonClicked(QString,QString)), p_rc_button_,
+        SLOT(cppSlot(QString,QString)));
 }

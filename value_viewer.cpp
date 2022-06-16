@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,9 @@
 
 #include <QQmlContext>
 
+#include <charconv>
+#include <cstdlib>
+
 #include "value_viewer.h"
 
 
@@ -40,4 +43,63 @@ void ValueViewer::update_map() {
 
 void ValueViewer::register_model(const QString& modelname) {
     p_engine_->rootContext()->setContextProperty(modelname, &model_);
+}
+
+bool ValueViewer::parse(const std::string_view& str, const std::regex& regex, int16_t& value) const {
+    std::match_results<std::string_view::const_iterator> matches;
+    if (std::regex_search(str.cbegin(), str.cend(), matches, regex)) {
+        auto [ptr, ec] { std::from_chars(matches[1].str().c_str(), matches[1].str().c_str() + matches[1].str().size(), value) };
+        if (ec != std::errc()) {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
+bool ValueViewer::parse(const std::string_view& str, const std::regex& regex, int16_t& left, int16_t& right) const {
+    std::match_results<std::string_view::const_iterator> matches;
+    if (std::regex_search(str.cbegin(), str.cend(), matches, regex)) {
+        {
+            auto [ptr, ec] { std::from_chars(matches[1].str().c_str(), matches[1].str().c_str() + matches[1].str().size(), left) };
+            if (ec != std::errc()) {
+                return false;
+            }
+        }
+        {
+            auto [ptr, ec] { std::from_chars(matches[2].str().c_str(), matches[2].str().c_str() + matches[2].str().size(), right) };
+            if (ec != std::errc()) {
+                return false;
+            }
+        }
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
+bool ValueViewer::parse(const std::string_view& str, const std::regex& regex, float& value) const {
+    std::match_results<std::string_view::const_iterator> matches;
+    if (std::regex_search(str.cbegin(), str.cend(), matches, regex)) {
+        value = std::strtof(matches[1].str().c_str(), nullptr);
+    } else {
+        return false;
+    }
+
+    return true;
+}
+
+bool ValueViewer::parse(const std::string_view& str, const std::regex& regex, float& value1, float& value2) const {
+    std::match_results<std::string_view::const_iterator> matches;
+    if (std::regex_search(str.cbegin(), str.cend(), matches, regex)) {
+        value1 = std::strtof(matches[1].str().c_str(), nullptr);
+        value2 = std::strtof(matches[2].str().c_str(), nullptr);
+    } else {
+        return false;
+    }
+
+    return true;
 }

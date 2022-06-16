@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.0
-import QtQuick.Controls 2.4
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 RowLayout {
     ColumnLayout {
@@ -33,8 +33,8 @@ RowLayout {
             signal remoteCallAbort()
 
             Label {
-                font.pointSize: fontsize(12)
                 font.bold: true
+                font.styleName: "Bold"
                 text: "Remote Calls:"
             }
 
@@ -44,8 +44,6 @@ RowLayout {
 
             Button {
                 text: "Fetch List"
-                font.pointSize: fontsize(12)
-                implicitHeight: 25
 
                 onClicked: {
                     parent.remoteCallClear();
@@ -55,8 +53,6 @@ RowLayout {
 
             Button {
                 text: "Clear List"
-                font.pointSize: fontsize(12)
-                implicitHeight: 25
 
                 onClicked: {
                     parent.remoteCallClear();
@@ -66,8 +62,6 @@ RowLayout {
             Button {
                 id: remotecall_abort
                 text: "Abort"
-                font.pointSize: fontsize(12)
-                implicitHeight: 25
 
                 onClicked: {
                     parent.remoteCallAbort();
@@ -77,18 +71,22 @@ RowLayout {
 
         RemoteCallViewer {
             id: remotecall_viewer
+            visible: remotecall_viewer.implicitHeight < 100 ? false : true
         }
 
         Label {
-            font.pointSize: fontsize(12)
             text: "No remote call list received."
             visible: remotecall_viewer.implicitHeight < 100 ? true : false
         }
 
+        Item {
+            height: 10
+        }
+
         Label {
             objectName: "CurrentRemoteCallLabel"
-            font.pointSize: fontsize(12)
             font.bold: true
+            font.styleName: "Bold"
             text: "Active Remote Call: none"
             visible: remotecall_viewer.implicitHeight < 100 ? false : true
         }

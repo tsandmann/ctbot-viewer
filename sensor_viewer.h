@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,9 +27,15 @@
 #include "value_viewer.h"
 
 
-class ConnectionManager;
+class ConnectionManagerV1;
+class ConnectionManagerV2;
 
-class SensorViewer : public ValueViewer {
+class SensorViewerV1 : public ValueViewer {
 public:
-    SensorViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval);
+    SensorViewerV1(QQmlApplicationEngine* p_engine, ConnectionManagerV1& command_eval);
+};
+
+class SensorViewerV2 : public ValueViewer {
+public:
+    SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval);
 };

@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,20 +15,28 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.0
-import QtQuick.Controls 2.4
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 import RemoteCalls 1.0
 
 Frame {
     id: remotecall_viewer
     objectName: "RemoteCallViewer"
+
+    background: Rectangle {
+        color: "#353637"
+        border.color: "#d5d8dc"
+        border.width: 1
+        radius: 2
+    }
+
     signal remoteCallClicked(string name, string parameter)
 
     ListView {
-        implicitHeight: contentHeight > applicationWindow.height - 180 ? applicationWindow.height - 180 : contentHeight
-        implicitWidth: applicationWindow.minimumWidth - 45
+        implicitHeight: contentHeight > applicationWindow.height - 240 ? applicationWindow.height - 240 : contentHeight
+        implicitWidth: applicationWindow.minimumWidth - 44
 
         anchors.fill: parent
         clip: true
@@ -44,8 +52,8 @@ Frame {
                     id: rc_name
                     Layout.alignment: Qt.AlignLeft
                     text: model.name + "():"
-                    font.pointSize: fontsize(12)
                     font.bold: true
+                    font.styleName: "Bold"
                 }
 
                 RowLayout {
@@ -56,7 +64,6 @@ Frame {
                             id: rc_par_name_1
                             Layout.alignment: Qt.AlignLeft
                             text: model.parameter1
-                            font.pointSize: fontsize(12)
                         }
                         SpinBox {
                             id: rc_par_1
@@ -64,15 +71,21 @@ Frame {
                             to: 32767
                             value: 0
                             editable: true
-                            font.pointSize: fontsize(12)
                             implicitWidth: 150
-                            visible: rc_par_name_1.text != ""
+                            visible: rc_par_name_1.text !== ""
+
+                            background: Rectangle {
+                                color: "transparent"
+                                border.color: "#d5d8dc"
+                                border.width: 1
+                                radius: 4
+                            }
                         }
                     }
 
                     Item {
                         width: 20
-                        visible: rc_par_name_1.text != ""
+                        visible: rc_par_name_1.text !== ""
                     }
 
                     ColumnLayout {
@@ -80,7 +93,6 @@ Frame {
                             id: rc_par_name_2
                             Layout.alignment: Qt.AlignLeft
                             text: model.parameter2
-                            font.pointSize: fontsize(12)
                         }
                         SpinBox {
                             id: rc_par_2
@@ -88,15 +100,21 @@ Frame {
                             to: 32767
                             value: 0
                             editable: true
-                            font.pointSize: fontsize(12)
                             implicitWidth: 150
-                            visible: rc_par_name_2.text != ""
+                            visible: rc_par_name_2.text !== ""
+
+                            background: Rectangle {
+                                color: "transparent"
+                                border.color: "#d5d8dc"
+                                border.width: 1
+                                radius: 4
+                            }
                         }
                     }
 
                     Item {
                         width: 20
-                        visible: rc_par_name_2.text != ""
+                        visible: rc_par_name_2.text !== ""
                     }
 
                     ColumnLayout {
@@ -104,34 +122,38 @@ Frame {
                             id: rc_par_name_3
                             Layout.alignment: Qt.AlignLeft
                             text: model.parameter3
-                            font.pointSize: fontsize(12)
                         }
+
                         SpinBox {
                             id: rc_par_3
                             from: -32768
                             to: 32767
                             value: 0
                             editable: true
-                            font.pointSize: fontsize(12)
                             implicitWidth: 150
-                            visible: rc_par_name_3.text != ""
+                            visible: rc_par_name_3.text !== ""
+
+                            background: Rectangle {
+                                color: "transparent"
+                                border.color: "#d5d8dc"
+                                border.width: 1
+                                radius: 4
+                            }
                         }
                     }
 
                     Item {
                         width: 20
-                        visible: rc_par_name_3.text != ""
+                        visible: rc_par_name_3.text !== ""
                     }
 
                     ColumnLayout {
-                        Label {
-                            font.pointSize: fontsize(12)
-                        }
+                        Label {}
 
                         Button {
                             text: "Run"
-                            font.pointSize: fontsize(12)
                             font.bold: true
+                            font.styleName: "Bold"
                             implicitWidth: 60
 
                             onClicked: {
@@ -142,7 +164,7 @@ Frame {
                 }
 
                 Item {
-                    height: 20
+                    height: 10
                 }
             }
         }

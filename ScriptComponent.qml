@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,18 +15,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.0
-import QtQuick.Controls 2.4
-import QtQuick.Layouts 1.3
-import QtQuick.Dialogs 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Dialogs
 
 RowLayout {
-    FontLoader { id: ptMonoFont; source: "qrc:/fonts/PTMono-Regular.ttf" }
-
-    Item {
-        width: 10
-    }
-
     ColumnLayout {
         spacing: 5
         Layout.margins: 10
@@ -42,37 +36,37 @@ RowLayout {
 
         FileDialog {
             id: scriptLoadDialog
-            selectExisting: true
+            fileMode: FileDialog.OpenFile
             defaultSuffix: "txt"
             nameFilters: [ "Script files (*.txt)", "All files (*)" ]
 
             onAccepted: {
-                script_viewer.scriptLoad(scriptLoadDialog.fileUrl);
+                script_viewer.scriptLoad(scriptLoadDialog.selectedFile);
             }
         }
 
         FileDialog {
             id: scriptSaveDialog
-            selectExisting: false
+            fileMode: FileDialog.SaveFile
             defaultSuffix: "txt"
             nameFilters: [ "Script files (*.txt)", "All files (*)" ]
 
             onAccepted: {
-                script_viewer.scriptSave(scriptSaveDialog.fileUrl);
+                script_viewer.scriptSave(scriptSaveDialog.selectedFile);
             }
         }
 
         RowLayout {
 
             Label {
-                font.pointSize: fontsize(12)
                 font.bold: true
+                font.styleName: "Bold"
                 text: "ct-Bot Script:"
                 Layout.preferredWidth: 90
             }
 
             Item {
-                width: 40
+                width: 20
             }
 
             TextField {
@@ -80,11 +74,10 @@ RowLayout {
                 objectName: "script_remote_filename"
                 text: "prog1.txt"
                 focus: true
-                selectByMouse: Qt.platform.os != "ios"
-                Layout.preferredHeight: 26
+                selectByMouse: Qt.platform.os !== "ios"
                 Layout.preferredWidth: 205
                 placeholderText: qsTr("Remote filename")
-                font.pointSize: fontsize(10)
+
                 onAccepted: {
                     script_viewer.scriptSend();
                 }
@@ -92,8 +85,6 @@ RowLayout {
 
             Button {
                 text: "Send to bot"
-                font.pointSize: fontsize(12)
-                implicitHeight: 25
 
                 onClicked: {
                     script_viewer.scriptSend();
@@ -104,11 +95,6 @@ RowLayout {
                 id: script_execute
                 objectName: "script_execute"
                 checked: true
-                font.pointSize: fontsize(16)
-                leftPadding: -10
-                indicator.height: 30
-                indicator.width: 30
-                scale: 0.7
                 text: qsTr("Execute")
             }
         }
@@ -118,30 +104,16 @@ RowLayout {
                 id: scripts_abl
                 objectName: "scripts_abl"
                 checked: true
-                font.pointSize: fontsize(16)
-                leftPadding: -15
-                rightPadding: -10
-                indicator.height: 32
-                indicator.width: 32
-                scale: 0.6
                 text: qsTr("ABL")
             }
 
             RadioButton {
                 id: scripts_basic
-                font.pointSize: fontsize(16)
-                leftPadding: -10
-                rightPadding: -3
-                indicator.height: 32
-                indicator.width: 32
-                scale: 0.6
                 text: qsTr("Basic")
             }
 
             Button {
                 text: "Load"
-                font.pointSize: fontsize(12)
-                implicitHeight: 25
 
                 onClicked: {
                     scriptLoadDialog.open();
@@ -150,8 +122,6 @@ RowLayout {
 
             Button {
                 text: "Save"
-                font.pointSize: fontsize(12)
-                implicitHeight: 25
 
                 onClicked: {
                     scriptSaveDialog.open();
@@ -160,8 +130,6 @@ RowLayout {
 
             Button {
                 text: "Abort"
-                font.pointSize: fontsize(12)
-                implicitHeight: 25
 
                 onClicked: {
                     script_viewer.scriptAbort();
@@ -180,32 +148,35 @@ RowLayout {
                     id: script_editor
                     objectName: "script_editor"
                     placeholderText: qsTr("Enter your ct-Bot script here")
-                    textMargin: 4
-                    font.pointSize: fontsize(10)
+                    textMargin: 10
+                    leftPadding: 10
+                    rightPadding: 10
+                    font.pixelSize: 15
                     font.family: ptMonoFont.name
+                    color: "white"
                     readOnly: false
                     selectByMouse: true
                     clip: true
                     tabStopDistance: 16
+
+                    background: Rectangle {
+                        color: "#353637"
+                        border.color: "#d5d8dc"
+                        border.width: 1
+                    }
+
                 }
             }
 
-            border.color: "gray"
+            border.color: "#d5d8dc"
             border.width: 1
             Layout.alignment: Qt.AlignTop
             Layout.fillHeight: true
             Layout.fillWidth: true
+
             onHeightChanged: {
                 script_editor.update();
             }
         }
-
-        Item {
-            height: 10
-        }
-    }
-
-    Item {
-        width: 10
     }
 }

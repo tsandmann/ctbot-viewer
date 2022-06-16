@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@
 
 class QTcpSocket;
 class QQuickItem;
-class ConnectionManager;
+class ConnectionManagerV1;
 
 class RemotecallViewer {
     RCList* p_rcList_;
@@ -52,7 +52,7 @@ class RemotecallViewer {
     static QQuickItem* find_item(const QList<QObject*>& nodes, const QString& name);
 
 public:
-    RemotecallViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval);
+    RemotecallViewer(QQmlApplicationEngine* p_engine, ConnectionManagerV1& command_eval);
 
     ~RemotecallViewer();
 

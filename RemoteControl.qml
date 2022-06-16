@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +15,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.0
-import QtQuick.Controls 2.4
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 Frame {
+    background: Rectangle {
+        color: "transparent"
+        border.color: "#d5d8dc"
+        border.width: 1
+    }
+
     GridLayout {
         id: grid
         objectName: "RCButton"
@@ -99,15 +105,6 @@ Frame {
             text: qsTr("TV")
         }
 
-        Repeater {
-            model: 3
-
-            Item {
-                width: 35
-                height: 25
-            }
-        }
-
         Item {
             width: 35
         }
@@ -138,20 +135,11 @@ Frame {
 
 
         RCButton {
-            text: qsTr("\u25A0")
+            text: qsTr("\u2B1B")
         }
 
         Item {
             width: 35
-        }
-
-        Repeater {
-            model: 3
-
-            Item {
-                width: 35
-                height: 25
-            }
         }
 
         RCButton {
@@ -162,15 +150,6 @@ Frame {
             text: qsTr("CH*P/C")
             Layout.preferredWidth: 75
             Layout.columnSpan: 2
-        }
-
-        Repeater {
-            model: 3
-
-            Item {
-                width: 35
-                height: 10
-            }
         }
 
         RCButton {

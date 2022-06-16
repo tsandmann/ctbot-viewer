@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,8 @@
 #include <QModelIndex>
 #include <QQmlApplicationEngine>
 
+#include <regex>
+
 #include "value_model.h"
 #include "value_list.h"
 
@@ -42,6 +44,10 @@ protected:
 
     void update_map();
     void register_model(const QString& modelname);
+    bool parse(const std::string_view& str, const std::regex& regex, int16_t& value) const;
+    bool parse(const std::string_view& str, const std::regex& regex, int16_t& left, int16_t& right) const;
+    bool parse(const std::string_view& str, const std::regex& regex, float& value) const;
+    bool parse(const std::string_view& str, const std::regex& regex, float& value1, float& value2) const;
 
 public:
     ValueViewer(QQmlApplicationEngine* p_engine);

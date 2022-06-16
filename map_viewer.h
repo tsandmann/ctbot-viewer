@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 
 
 class QTcpSocket;
-class ConnectionManager;
+class ConnectionManagerV1;
 class MapImageItem;
 
 class MapViewer {
@@ -45,7 +45,7 @@ class MapViewer {
     uint16_t last_block_;
 
 public:
-    MapViewer(QQmlApplicationEngine* p_engine, ConnectionManager& command_eval);
+    MapViewer(QQmlApplicationEngine* p_engine, ConnectionManagerV1& command_eval);
 
     ~MapViewer();
 

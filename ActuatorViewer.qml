@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,34 +15,68 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import QtQuick 2.0
-import QtQuick.Controls 2.4
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 import Actuators 1.0
 
 Frame {
-    ListView {
-        implicitWidth: 180
-        implicitHeight: contentHeight
-        anchors.fill: parent
-        clip: true
-        model: actuatorModel
+    background: Rectangle {
+        color: "transparent"
+        border.color: "#d5d8dc"
+        border.width: 1
+    }
 
-        delegate: RowLayout {
-            width: parent.width
-            spacing: 2
+    RowLayout {
+        spacing: 0
+        Layout.margins: 0
 
-            Label {
-                Layout.alignment: Qt.AlignLeft
-                text: model.name
-                font.pointSize: fontsize(12)
+        ListView {
+            implicitWidth: 180
+            implicitHeight: contentHeight
+            anchors.fill: parent
+            clip: true
+            model: sensorModel
+            visible: main_viewer.v1.checked
+
+            delegate: RowLayout {
+                width: parent.width
+                spacing: 2
+
+                Label {
+                    Layout.alignment: Qt.AlignLeft
+                    text: model.name
+                }
+
+                Label {
+                    Layout.alignment: Qt.AlignRight
+                    text: model.value
+                }
             }
+        }
 
-            Label {
-                Layout.alignment: Qt.AlignRight
-                text: model.value
-                font.pointSize: fontsize(12)
+        ListView {
+            implicitWidth: 180
+            implicitHeight: contentHeight
+            anchors.fill: parent
+            clip: true
+            model: actuatorModelV2
+            visible: main_viewer.v2.checked
+
+            delegate: RowLayout {
+                width: parent.width
+                spacing: 2
+
+                Label {
+                    Layout.alignment: Qt.AlignLeft
+                    text: model.name
+                }
+
+                Label {
+                    Layout.alignment: Qt.AlignRight
+                    text: model.value
+                }
             }
         }
     }

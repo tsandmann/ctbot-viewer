@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,7 +64,7 @@ bool CommandBase::append_payload(QByteArray& buf, const size_t len) {
     }
 
     payload_.reserve(n);
-    payload_.assign(buf.begin(), buf.begin() + static_cast<const ptrdiff_t>(n));
+    payload_.assign(buf.begin(), buf.begin() + static_cast<ptrdiff_t>(n));
     buf.remove(0, static_cast<int>(n));
 
     return true;

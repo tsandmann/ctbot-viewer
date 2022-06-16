@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@
 #include <QDebug>
 
 #include "value_model.h"
-#include "value_list.h"
 
 
 ValueModel::ValueModel(QObject* parent) : QAbstractListModel { parent }, list_ {} {}

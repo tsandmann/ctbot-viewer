@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,12 +26,14 @@
 
 #include <QAbstractListModel>
 
+#include "value_list.h"
+
 
 class ValueList;
 
 class ValueModel : public QAbstractListModel {
     Q_OBJECT
-    Q_PROPERTY(ValueList* list READ list WRITE setList)
+    Q_PROPERTY(ValueList* list READ list WRITE setList NOTIFY listChanged)
 
 public:
     explicit ValueModel(QObject* parent = nullptr);
@@ -53,6 +55,9 @@ public:
     ValueList* list() const;
 
     void setList(ValueList* list);
+
+signals:
+    void listChanged();
 
 private:
     ValueList* list_;

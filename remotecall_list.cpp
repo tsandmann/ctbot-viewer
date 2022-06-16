@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ bool RCList::setItemAt(int index, const RCItem& item) {
 void RCList::appendItem(const QString& name, const QString& parameter_info) {
     emit preItemAppended();
 
-    const QStringList par_list { parameter_info.split(',', QString::SkipEmptyParts) };
+    const QStringList par_list { parameter_info.split(',', Qt::SkipEmptyParts) };
 
     RCItem item;
     item.name = name;

@@ -1,6 +1,6 @@
 /*
  * This file is part of the c't-Bot remote viewer tool.
- * Copyright (c) 2020 Timo Sandmann
+ * Copyright (c) 2020-2022 Timo Sandmann
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
  */
 
 #include <QGuiApplication>
+#include <QQuickStyle>
 #include <QString>
 
 #include "connection_manager.h"
@@ -33,27 +34,32 @@
 #include "log_viewer.h"
 #include "map_viewer.h"
 #include "script_editor.h"
+#include "bot_console.h"
 
 
 int main(int argc, char* argv[]) {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app { argc, argv };
+    app.setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
+
     QQmlApplicationEngine engine;
 
-    ConnectionManager connection { &engine };
+    ConnectionManagerV1 connection_v1 { &engine };
+    ConnectionManagerV2 connection_v2 { &engine };
 
-    SensorViewer sensor_viewer { &engine, connection };
-    ActuatorViewer actuator_viewer { &engine, connection };
-    RemoteControlViewer rc5_viewer { &engine, connection.get_socket() };
-    RemotecallViewer remotecall_viewer { &engine, connection };
-    LogViewer log_viewer { &engine, connection };
-    MapViewer map_viewer { &engine, connection };
-    ScriptEditor script_editor { &engine, connection.get_socket() };
+    SensorViewerV1 sensor_viewer_v1 { &engine, connection_v1 };
+    SensorViewerV2 sensor_viewer_v2 { &engine, connection_v2 };
+    ActuatorViewerV1 actuator_viewer_v1 { &engine, connection_v1 };
+    ActuatorViewerV2 actuator_viewer_v2 { &engine, connection_v2 };
+    RemoteControlViewerV1 rc5_viewer_v1 { &engine, connection_v1.get_socket() };
+    RemotecallViewer remotecall_viewer { &engine, connection_v1 };
+    LogViewerV1 log_viewer_v1 { &engine, connection_v1 };
+    LogViewerV2 log_viewer_v2 { &engine, connection_v2 };
+    MapViewer map_viewer { &engine, connection_v1 };
+    ScriptEditor script_editor { &engine, connection_v1.get_socket() };
+    BotConsole bot_console { &engine, connection_v2 };
 
     const QUrl main_qlm { QStringLiteral("qrc:/Main.qml") };
-    QObject::connect(
-        &engine, &QQmlApplicationEngine::objectCreated, &app,
-        [main_qlm](QObject* p_object, const QUrl& object_url) {
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated, &app, [main_qlm](QObject* p_object, const QUrl& object_url) {
             if (!p_object && main_qlm == object_url) {
                 QCoreApplication::exit(-1);
             }
@@ -61,11 +67,13 @@ int main(int argc, char* argv[]) {
         Qt::QueuedConnection);
     engine.load(main_qlm);
 
-    connection.register_buttons();
-    rc5_viewer.register_buttons();
+    connection_v1.register_buttons();
+    connection_v2.register_buttons();
+    rc5_viewer_v1.register_buttons();
     remotecall_viewer.register_buttons();
     map_viewer.register_buttons();
     script_editor.register_buttons();
+    bot_console.register_buttons();
 
     return app.exec();
 }

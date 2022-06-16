@@ -16,30 +16,29 @@
  */
 
 /**
- * @file    actuator_viewer.h
- * @brief   Actuator viewer component
+ * @file    bot_console.h
+ * @brief   Bot console component
  * @author  Timo Sandmann
- * @date    11.04.2020
+ * @date    06.06.2022
  */
 
 #pragma once
 
-#include "value_viewer.h"
+#include <QQmlApplicationEngine>
+
+#include "connect_button.h"
 
 
-class ConnectionManagerV1;
 class ConnectionManagerV2;
 
-class ActuatorViewerV1 : public ValueViewer {
-    QObject* p_lcd_;
-    char lcd_text_[4][21];
+class BotConsole {
+    QQmlApplicationEngine* p_engine_;
+    ConnectionManagerV2& conn_manager_;
+    QObject* p_console_;
+    ConnectButton* p_cmd_button_;
 
 public:
-    ActuatorViewerV1(QQmlApplicationEngine* p_engine, ConnectionManagerV1& command_eval);
-};
+    BotConsole(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval);
 
-
-class ActuatorViewerV2 : public ValueViewer {
-public:
-    ActuatorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval);
+    void register_buttons();
 };
