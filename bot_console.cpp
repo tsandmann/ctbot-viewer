@@ -86,6 +86,10 @@ BotConsole::BotConsole(QQmlApplicationEngine* p_engine, ConnectionManagerV2& com
 
 void BotConsole::register_buttons() {
     p_cmd_button_ = new ConnectButton { [this](QString cmd, QString) {
+        if (p_console_) {
+            QMetaObject::invokeMethod(p_console_, "add", Qt::DirectConnection, Q_ARG(QVariant, "% "));
+        }
+
         cmd += "\r\n";
         conn_manager_.get_socket()->write(cmd.toUtf8(), cmd.length());
 

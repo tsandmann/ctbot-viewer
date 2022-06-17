@@ -29,14 +29,14 @@ TabBar {
 
     TabButton {
         text: qsTr("Log")
-        onClicked: layout.currentIndex = 2
+        onClicked: layout.currentIndex = 1
     }
 
     TabButton {
         text: qsTr("Remote Calls")
 //        width: Math.max(contentItem.implicitWidth + leftPadding + rightPadding, main_tab.width)
         width: contentItem.implicitWidth + leftPadding + rightPadding
-        onClicked: layout.currentIndex = 1
+        onClicked: layout.currentIndex = 2
         enabled: main_viewer.v1.checked
     }
 

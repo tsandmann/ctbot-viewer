@@ -70,13 +70,13 @@ MenuBar {
         MenuItem {
             text: qsTr("Log")
             horizontalPadding: 10
-            onTriggered: layout.currentIndex = 2
+            onTriggered: layout.currentIndex = 1
         }
 
         MenuItem {
             text: qsTr("Remote Calls")
             horizontalPadding: 10
-            onTriggered: layout.currentIndex = 1
+            onTriggered: layout.currentIndex = 2
             enabled: main_viewer.v1.checked
         }
 
