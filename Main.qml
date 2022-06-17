@@ -35,7 +35,7 @@ ApplicationWindow {
     minimumWidth: 666
     maximumWidth: 666
     font: defaultFont.font
-    title: qsTr("ct-Bot Remote Viewer 0.6.1")
+    title: qsTr("ct-Bot Remote Viewer 0.6.2")
 
     Material.theme: Material.Dark
     Material.accent: Material.Green

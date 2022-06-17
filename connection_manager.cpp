@@ -36,7 +36,7 @@
 
 
 ConnectionManagerBase::ConnectionManagerBase(QQmlApplicationEngine* p_engine)
-    : p_connect_button_ {}, p_shutdown_button_ {}, p_engine_ { p_engine }, connected_ {} {
+    : p_connect_button_ {}, p_engine_ { p_engine }, connected_ {}, p_shutdown_button_ {} {
     QObject::connect(&socket_, &QTcpSocket::readyRead, p_engine_, [this]() {
         if (socket_.bytesAvailable()) {
             // qDebug() << "socket_.bytesAvailable()=" << socket_.bytesAvailable();
@@ -271,7 +271,7 @@ bool ConnectionManagerV2::process_incoming() {
         // qDebug() << "ConnectionManagerV2::process_incoming(): input is: " << in_buffer_;
 
         std::match_results<std::string_view::const_iterator> matches;
-        while (std::regex_search(in_buffer_.begin(), in_buffer_.end(), matches, cmd_regex)) {
+        while (std::regex_search(in_buffer_.cbegin(), in_buffer_.cend(), matches, cmd_regex)) {
             // qDebug() << "ConnectionManagerV2::evaluate_cmd(): Match found:";
             // for (size_t i { 1 }; i < matches.size(); ++i) {
             //     qDebug() << i << ":" << QString::fromStdString(matches[i].str());

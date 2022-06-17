@@ -101,7 +101,6 @@ LogViewerV2::LogViewerV2(QQmlApplicationEngine* p_engine, ConnectionManagerV2& c
 
         std::string input { str };
 
-        size_t last_pos {};
         std::match_results<std::string::const_iterator> matches;
         while (std::regex_search(input, matches, log_regex)) {
             // qDebug() << "LogViewerV2: Match found:";

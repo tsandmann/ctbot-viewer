@@ -26,6 +26,7 @@
 
 #include <charconv>
 #include <cstdlib>
+#include <clocale>
 
 #include "value_viewer.h"
 
@@ -84,7 +85,10 @@ bool ValueViewer::parse(const std::string_view& str, const std::regex& regex, in
 bool ValueViewer::parse(const std::string_view& str, const std::regex& regex, float& value) const {
     std::match_results<std::string_view::const_iterator> matches;
     if (std::regex_search(str.cbegin(), str.cend(), matches, regex)) {
+        const char* old_locale { std::setlocale(LC_ALL, nullptr) };
+        std::setlocale(LC_ALL, "C");
         value = std::strtof(matches[1].str().c_str(), nullptr);
+        std::setlocale(LC_ALL, old_locale);
     } else {
         return false;
     }
@@ -95,8 +99,11 @@ bool ValueViewer::parse(const std::string_view& str, const std::regex& regex, fl
 bool ValueViewer::parse(const std::string_view& str, const std::regex& regex, float& value1, float& value2) const {
     std::match_results<std::string_view::const_iterator> matches;
     if (std::regex_search(str.cbegin(), str.cend(), matches, regex)) {
+        const char* old_locale { std::setlocale(LC_ALL, nullptr) };
+        std::setlocale(LC_ALL, "C");
         value1 = std::strtof(matches[1].str().c_str(), nullptr);
         value2 = std::strtof(matches[2].str().c_str(), nullptr);
+        std::setlocale(LC_ALL, old_locale);
     } else {
         return false;
     }

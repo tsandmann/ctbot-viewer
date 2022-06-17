@@ -201,7 +201,7 @@ SensorViewerV2::SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManage
         if (parse(str, bat_regex, bat[0], bat[1])) {
             model_.setData(map_["Battery"], static_cast<int>(bat[0] * 1'000.f), ValueModel::Value);
             model_.setData(map_["Battery (per cell)"], static_cast<int>(bat[1] * 1'000.f), ValueModel::Value);
-            // qDebug() << "Bat=" << bat;
+            // qDebug() << "Bat=" << bat[0] << " " << bat[1];
         }
 
         return true;
