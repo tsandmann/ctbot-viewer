@@ -17,6 +17,7 @@ Consider this as experimental code. **If it breaks, you get to keep both pieces.
     * for Linux as [AppImage][AppImage]:
         1. Create a local application directory, if not existing: `mkdir ~/Applications`
         1. Move downloaded application to app directory: `mv ~/Downloads/ct-Bot_Viewer_*-x86_64.AppImage ~/Applications/`
+        1. Make the application executable: `chmod +x ~/Applications/ct-Bot_Viewer_*-x86_64.AppImage`
         1. Launch the application: `ct-Bot_Viewer_X-x86_64.AppImage` by double-clicking.
     * for Linux:
         1. Create a directory: `mkdir ctbot-viewer`
@@ -34,7 +35,7 @@ Consider this as experimental code. **If it breaks, you get to keep both pieces.
 
 ### Using Qt Creator IDE
 
-Open `ctbot-viewer.pro` with [Qt Creator][qt-creator] and build the project. You will need at least Qt version 5.12.
+Open `ctbot-viewer.pro` with [Qt Creator][qt-creator] and build the project. You will need at least Qt version 6.2.
 
 ### Using make on command-line
 
@@ -46,5 +47,5 @@ Open `ctbot-viewer.pro` with [Qt Creator][qt-creator] and build the project. You
 [ctBot]: https://www.ct-bot.de
 [release]: https://github.com/tsandmann/ctbot-viewer/releases
 [qt]: https://en.wikipedia.org/wiki/Qt_(software)
-[AppImage]: https://appimage.org
+[AppImage]: https://docs.appimage.org
 [qt-creator]: https://de.wikipedia.org/wiki/Qt_Creator
