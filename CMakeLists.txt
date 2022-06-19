@@ -17,8 +17,10 @@ set(INSTALL_EXAMPLEDIR "${INSTALL_EXAMPLESDIR}")
 
 find_package(Qt6 COMPONENTS Core)
 find_package(Qt6 COMPONENTS Gui)
+find_package(Qt6 COMPONENTS Qml)
 find_package(Qt6 COMPONENTS Quick)
 find_package(Qt6 COMPONENTS QuickControls2)
+find_package(Qt6 COMPONENTS Widgets)
 
 qt_add_executable(ctbot-viewer WIN32 MACOSX_BUNDLE
     actuator_viewer.cpp actuator_viewer.h
@@ -49,8 +51,10 @@ target_compile_definitions(ctbot-viewer PUBLIC
 target_link_libraries(ctbot-viewer PUBLIC
     Qt::Core
     Qt::Gui
+    Qt::Qml
     Qt::Quick
     Qt::QuickControls2
+    Qt::Widgets
 )
 
 set_property(TARGET ctbot-viewer  PROPERTY CXX_STANDARD 20)

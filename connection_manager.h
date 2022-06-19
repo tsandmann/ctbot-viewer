@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include <QQmlApplicationEngine>
 #include <QTcpSocket>
 #include <QByteArray>
 
@@ -37,10 +36,14 @@
 #include "connect_button.h"
 
 
+class QQmlApplicationEngine;
+
 class ConnectionManagerBase {
     ConnectButton* p_connect_button_;
 
 protected:
+    static constexpr bool DEBUG_ { false };
+
     QQmlApplicationEngine* p_engine_;
     QTcpSocket socket_;
     QByteArray in_buffer_;

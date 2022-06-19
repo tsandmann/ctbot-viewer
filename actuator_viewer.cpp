@@ -22,6 +22,7 @@
  * @date    11.04.2020
  */
 
+#include <QQmlApplicationEngine>
 #include <QString>
 #include <QRegularExpression>
 #include <QDebug>
@@ -163,7 +164,7 @@ ActuatorViewerV2::ActuatorViewerV2(QQmlApplicationEngine* p_engine, ConnectionMa
     update_map();
     register_model(QStringLiteral("actuatorModelV2"));
 
-    command_eval.register_cmd("actuators", [this, &command_eval](const std::string_view& str) {
+    command_eval.register_cmd("act", [this, &command_eval](const std::string_view& str) {
         if (command_eval.get_version() != command_eval.version_active()) {
             return false;
         }
@@ -172,10 +173,10 @@ ActuatorViewerV2::ActuatorViewerV2(QQmlApplicationEngine* p_engine, ConnectionMa
             return false;
         }
 
-        static const std::regex motor_regex { R"(motor: (\d*) (\d*)[\r\n]{1,2})" };
-        static const std::regex servo1_regex { R"(servo1: (\d*)[\r\n]{1,2})" };
-        static const std::regex servo2_regex { R"(servo2: (\d*)[\r\n]{1,2})" };
-        static const std::regex led_regex { R"(leds: (\d*)[\r\n]{1,2})" };
+        static const std::regex motor_regex { R"(motor: (\d*) (\d*))" };
+        static const std::regex servo1_regex { R"(servo1: (\d*))" };
+        static const std::regex servo2_regex { R"(servo2: (\d*))" };
+        static const std::regex led_regex { R"(leds: (\d*))" };
 
         int16_t values[2];
         if (parse(str, motor_regex, values[0], values[1])) {

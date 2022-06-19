@@ -44,3 +44,4 @@ Thumbs.db
 /build*
 /deploy
 /*.AppImage
+/CMakeLists.txt.user

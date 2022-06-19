@@ -22,6 +22,7 @@
  * @date    11.04.2020
  */
 
+#include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickItem>
 #include <QTcpSocket>

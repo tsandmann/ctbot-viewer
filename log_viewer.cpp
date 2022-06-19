@@ -22,10 +22,9 @@
  * @date    12.04.2020
  */
 
+#include <QQmlApplicationEngine>
 #include <QString>
 #include <QRegularExpression>
-
-#include <regex>
 
 #include "log_viewer.h"
 #include "connection_manager.h"
@@ -59,14 +58,15 @@ LogViewerV1::LogViewerV1(QQmlApplicationEngine* p_engine, ConnectionManagerV1& c
         data.replace(regex1, ".");
         data.replace(regex2, ".");
         data.replace(regex3, "#");
+        data.append("\r\n");
 
         if (p_log_) {
-            QMetaObject::invokeMethod(p_log_, "append", Qt::DirectConnection, Q_ARG(QString, data));
+            QMetaObject::invokeMethod(p_log_, "add", Qt::DirectConnection, Q_ARG(QVariant, data));
         }
 
         if (p_minilog_) {
+            QMetaObject::invokeMethod(p_minilog_, "add", Qt::DirectConnection, Q_ARG(QVariant, data));
             const auto pos { p_minilog_->property("length").toInt() };
-            QMetaObject::invokeMethod(p_minilog_, "append", Qt::DirectConnection, Q_ARG(QString, data));
             p_minilog_->setProperty("cursorPosition", pos + 1);
         }
 
@@ -77,9 +77,7 @@ LogViewerV1::LogViewerV1(QQmlApplicationEngine* p_engine, ConnectionManagerV1& c
 
 LogViewerV2::LogViewerV2(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval) : p_engine_ { p_engine }, p_log_ {}, p_minilog_ {} {
     command_eval.register_cmd("log", [this, &command_eval](const std::string_view& str) {
-        static const std::regex log_regex { R"((.*\r?\n?)(</log>\r\n<log>\r\n))" };
-
-        static const QRegularExpression regex1 { QRegularExpression("[\001-\007]") }; // FIXME: use std::regex only
+        static const QRegularExpression regex1 { QRegularExpression("[\001-\007]") };
         static const QRegularExpression regex2 { QRegularExpression("[\016-\037]") };
         static const QRegularExpression regex3 { QRegularExpression("[\177-\377]") };
 
@@ -101,30 +99,8 @@ LogViewerV2::LogViewerV2(QQmlApplicationEngine* p_engine, ConnectionManagerV2& c
 
         std::string input { str };
 
-        std::match_results<std::string::const_iterator> matches;
-        while (std::regex_search(input, matches, log_regex)) {
-            // qDebug() << "LogViewerV2: Match found:";
-            // for (size_t i { 0 }; i < matches.size(); ++i) {
-            //     qDebug() << i << ":" << QString::fromStdString(matches[i].str());
-            // }
-
-            QString data { QString::fromStdString(matches[1].str()) };
-            data.replace(regex1, ".");
-            data.replace(regex2, ".");
-            data.replace(regex3, "#");
-
-            if (p_log_) {
-                QMetaObject::invokeMethod(p_log_, "add", Qt::DirectConnection, Q_ARG(QVariant, data));
-            }
-
-            if (p_minilog_) {
-                QMetaObject::invokeMethod(p_minilog_, "add", Qt::DirectConnection, Q_ARG(QVariant, data));
-                const auto pos { p_minilog_->property("length").toInt() };
-                p_minilog_->setProperty("cursorPosition", pos + 1);
-            }
-
-            input.erase(0, matches[0].str().length());
-            // qDebug() << "\t" << QString::fromStdString(input);
+        if (DEBUG_) {
+            qDebug() << "LogViewerV2: input=" << QString::fromStdString(input);
         }
 
         QString data { QString::fromStdString(input) };

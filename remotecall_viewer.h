@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include <QQmlApplicationEngine>
 #include <QList>
 #include <QString>
 
@@ -33,6 +32,7 @@
 #include "connect_button.h"
 
 
+class QQmlApplicationEngine;
 class QTcpSocket;
 class QQuickItem;
 class ConnectionManagerV1;

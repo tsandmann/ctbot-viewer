@@ -19,6 +19,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Dialogs
+import Qt.labs.platform
 
 import MapImage 1.0
 

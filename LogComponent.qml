@@ -19,6 +19,8 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
+// FIXME: check box for enable autoscrolling
+
 RowLayout {
     ColumnLayout {
         spacing: 5
@@ -43,10 +45,21 @@ RowLayout {
                     log_viewer.text = ""
                 }
             }
+
+            Item {
+                width: 20
+            }
+
+            CheckBox {
+                id: autoscroll
+                checked: true
+                text: qsTr("Auto scroll")
+            }
         }
 
         Rectangle {
             ScrollView {
+                id: scrollview
                 anchors.fill: parent
                 property ScrollBar hScrollBar: ScrollBar.horizontal
                 property ScrollBar vScrollBar: ScrollBar.vertical
@@ -66,12 +79,12 @@ RowLayout {
                     selectByMouse: Qt.platform.os !== "ios"
                     clip: true
 
-                    onTextChanged: {
-                        cursorPosition = length
-                    }
-
                     function add(text) {
+                        var old_pos = scrollview.contentItem.contentY;
                         log_viewer.insert(log_viewer.length, text);
+                        if (!autoscroll.checked) {
+                            scrollview.contentItem.contentY = old_pos;
+                        }
                     }
 
                     background: Rectangle {

@@ -22,6 +22,7 @@
  * @date    11.04.2020
  */
 
+#include <QQmlApplicationEngine>
 #include <QString>
 #include <QQmlContext>
 #include <QDebug>
@@ -148,7 +149,7 @@ SensorViewerV2::SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManage
     update_map();
     register_model(QStringLiteral("sensorModelV2"));
 
-    command_eval.register_cmd("sensors", [this, &command_eval](const std::string_view& str) {
+    command_eval.register_cmd("sens", [this, &command_eval](const std::string_view& str) {
         // qDebug() << "SENSORS received: " << QString::fromUtf8(str.data(), str.size());
 
         if (command_eval.get_version() != command_eval.version_active()) {
@@ -159,12 +160,12 @@ SensorViewerV2::SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManage
             return false;
         }
 
-        static const std::regex dist_regex { R"(dist: (\d*) (\d*)[\r\n]{1,2})" };
-        static const std::regex enc_regex { R"(enc: (\d*) (\d*)[\r\n]{1,2})" };
-        static const std::regex border_regex { R"(border: (\d*) (\d*)[\r\n]{1,2})" };
-        static const std::regex line_regex { R"(line: (\d*) (\d*)[\r\n]{1,2})" };
-        static const std::regex trans_regex { R"(trans: (\d*) (\d*)[\r\n]{1,2})" };
-        static const std::regex bat_regex { R"(bat: (\d*\.\d*) (\d*\.\d*)[\r\n]{1,2})" };
+        static const std::regex dist_regex { R"(dist: (\d*) (\d*))" };
+        static const std::regex enc_regex { R"(enc: (\d*) (\d*))" };
+        static const std::regex border_regex { R"(border: (\d*) (\d*))" };
+        static const std::regex line_regex { R"(line: (\d*) (\d*))" };
+        static const std::regex trans_regex { R"(trans: (\d*) (\d*))" };
+        static const std::regex bat_regex { R"(bat: (\d*\.\d*) (\d*\.\d*))" };
 
         int16_t values[2];
         if (parse(str, dist_regex, values[0], values[1])) {

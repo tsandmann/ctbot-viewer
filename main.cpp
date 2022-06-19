@@ -23,6 +23,8 @@
  */
 
 #include <QGuiApplication>
+#include <QApplication>
+#include <QQmlApplicationEngine>
 #include <QQuickStyle>
 #include <QString>
 
@@ -38,7 +40,7 @@
 
 
 int main(int argc, char* argv[]) {
-    QGuiApplication app { argc, argv };
+    QApplication app { argc, argv };
     app.setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 
     QQmlApplicationEngine engine;
@@ -50,7 +52,8 @@ int main(int argc, char* argv[]) {
     SensorViewerV2 sensor_viewer_v2 { &engine, connection_v2 };
     ActuatorViewerV1 actuator_viewer_v1 { &engine, connection_v1 };
     ActuatorViewerV2 actuator_viewer_v2 { &engine, connection_v2 };
-    RemoteControlViewerV1 rc5_viewer_v1 { &engine, connection_v1.get_socket() };
+    RemoteControlViewerV1 rc5_viewer_v1 { &engine, connection_v1 };
+    RemoteControlViewerV2 rc5_viewer_v2 { &engine, connection_v2 };
     RemotecallViewer remotecall_viewer { &engine, connection_v1 };
     LogViewerV1 log_viewer_v1 { &engine, connection_v1 };
     LogViewerV2 log_viewer_v2 { &engine, connection_v2 };
@@ -65,11 +68,13 @@ int main(int argc, char* argv[]) {
             }
         },
         Qt::QueuedConnection);
+
     engine.load(main_qlm);
 
     connection_v1.register_buttons();
     connection_v2.register_buttons();
     rc5_viewer_v1.register_buttons();
+    rc5_viewer_v2.register_buttons();
     remotecall_viewer.register_buttons();
     map_viewer.register_buttons();
     script_editor.register_buttons();

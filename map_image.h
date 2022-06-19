@@ -28,6 +28,7 @@
 #include <atomic>
 #include <deque>
 #include <tuple>
+
 #include <QQuickPaintedItem>
 #include <QQuickItem>
 #include <QPainter>

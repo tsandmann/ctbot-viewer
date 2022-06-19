@@ -22,6 +22,7 @@
  * @date    11.04.2020
  */
 
+#include <QQmlApplicationEngine>
 #include <QObject>
 #include <QCoreApplication>
 #include <QQmlProperty>
@@ -37,15 +38,6 @@
 
 ConnectionManagerBase::ConnectionManagerBase(QQmlApplicationEngine* p_engine)
     : p_connect_button_ {}, p_engine_ { p_engine }, connected_ {}, p_shutdown_button_ {} {
-    QObject::connect(&socket_, &QTcpSocket::readyRead, p_engine_, [this]() {
-        if (socket_.bytesAvailable()) {
-            // qDebug() << "socket_.bytesAvailable()=" << socket_.bytesAvailable();
-            in_buffer_.append(socket_.readAll());
-
-            process_incoming();
-        }
-    });
-
     QObject::connect(&socket_, &QTcpSocket::connected, p_engine_, [this]() {
         socket_.setSocketOption(QAbstractSocket::LowDelayOption, 1);
         qDebug() << "ConnectionManagerBase: Connected to " << socket_.peerName() << ":" << socket_.peerPort();
@@ -74,6 +66,7 @@ ConnectionManagerBase::ConnectionManagerBase(QQmlApplicationEngine* p_engine)
         if (p_hostname) {
             QMetaObject::invokeMethod(p_hostname, "disconnected", Q_ARG(QVariant, socket_.peerName()));
         }
+
         connected_ = false;
     });
 }
@@ -105,12 +98,22 @@ void ConnectionManagerBase::register_buttons() {
             QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QVariant, hostname));
         }
     } };
+
     QObject::connect(p_engine_->rootObjects().at(0)->findChild<QObject*>("Hostname"), SIGNAL(connectClicked(QString, QString)), p_connect_button_,
         SLOT(cppSlot(QString, QString)));
 }
 
 
 ConnectionManagerV1::ConnectionManagerV1(QQmlApplicationEngine* p_engine) : ConnectionManagerBase { p_engine } {
+    QObject::connect(&socket_, &QTcpSocket::readyRead, p_engine_, [this]() {
+        if (socket_.bytesAvailable()) {
+            // qDebug() << "socket_.bytesAvailable()=" << socket_.bytesAvailable();
+            in_buffer_.append(socket_.readAll());
+
+            process_incoming();
+        }
+    });
+
     register_cmd(ctbot::CommandCodes::CMD_WELCOME, [](const ctbot::CommandBase&) {
         // std::cout << "CMD_WELCOME received: " << cmd << "\n";
         return true;
@@ -163,6 +166,7 @@ void ConnectionManagerV1::register_buttons() {
         socket_.close();
         connected_ = false;
     } };
+
     QObject::connect(p_engine_->rootObjects().at(0)->findChild<QObject*>("ShutdownButton"), SIGNAL(shutdownClicked()), p_shutdown_button_, SLOT(cppSlot()));
 }
 
@@ -183,8 +187,8 @@ bool ConnectionManagerV1::process_incoming() {
         if (p_cmd->get_payload_size()) {
             const int len { static_cast<int>(p_cmd->get_payload_size()) };
             size_t n {};
-            while (in_buffer_.size() < len) { // FIXME: improve?
-                QCoreApplication::processEvents(); // FIXME: usefull?
+            while (in_buffer_.size() < len) {
+                QCoreApplication::processEvents();
                 if (socket_.bytesAvailable()) {
                     in_buffer_.append(socket_.readAll());
                 }
@@ -227,7 +231,19 @@ bool ConnectionManagerV1::evaluate_cmd(const ctbot::CommandNoCRC* p_cmd) const {
 }
 
 
-ConnectionManagerV2::ConnectionManagerV2(QQmlApplicationEngine* p_engine) : ConnectionManagerBase { p_engine } {}
+ConnectionManagerV2::ConnectionManagerV2(QQmlApplicationEngine* p_engine) : ConnectionManagerBase { p_engine } {
+    QObject::connect(&socket_, &QTcpSocket::readyRead, p_engine_, [this]() {
+        bool new_data {};
+        while (socket_.canReadLine()) {
+            in_buffer_.append(socket_.readLine());
+            new_data = true;
+            QCoreApplication::processEvents();
+        }
+        if (new_data) {
+            process_incoming();
+        }
+    });
+}
 
 ConnectionManagerV2::~ConnectionManagerV2() {}
 
@@ -251,6 +267,7 @@ void ConnectionManagerV2::register_buttons() {
         socket_.close();
         connected_ = false;
     } };
+
     QObject::connect(p_engine_->rootObjects().at(0)->findChild<QObject*>("ShutdownButton"), SIGNAL(shutdownClicked()), p_shutdown_button_, SLOT(cppSlot()));
 }
 
@@ -263,30 +280,65 @@ int ConnectionManagerV2::get_version() const {
 }
 
 bool ConnectionManagerV2::process_incoming() {
-    static const std::regex cmd_regex { R"(<(\w+)>\r\n((?:.*\r\n)+)<(/\1)>\r\n)" };
+    static const std::regex cmd_regex { R"(<(\w+)>((?:.|\r|\n)+?)<(/\1)>\r\n)" };
 
     bool result { true };
 
     if (in_buffer_.size()) {
-        // qDebug() << "ConnectionManagerV2::process_incoming(): input is: " << in_buffer_;
+        const auto start { in_buffer_.indexOf("<", 0) };
 
-        std::match_results<std::string_view::const_iterator> matches;
-        while (std::regex_search(in_buffer_.cbegin(), in_buffer_.cend(), matches, cmd_regex)) {
-            // qDebug() << "ConnectionManagerV2::evaluate_cmd(): Match found:";
-            // for (size_t i { 1 }; i < matches.size(); ++i) {
-            //     qDebug() << i << ":" << QString::fromStdString(matches[i].str());
-            // }
-
-            result &= evaluate_cmd(matches[1].str(), matches[2].str());
-
-            in_buffer_.remove(0, matches[0].length());
-
-            // qDebug() << "ConnectionManagerV2::process_incoming(): next input is: " << in_buffer_;
+        if (DEBUG_) {
+            qDebug() << "ConnectionManagerV2::process_incoming(): start=" << start << "input= " << in_buffer_;
         }
 
-        if (in_buffer_.size() && !in_buffer_.contains('<')) { // FIXME: double check this
-            evaluate_cmd("", std::string_view(in_buffer_.begin(), in_buffer_.size()));
+        if (start == -1) {
+            if (DEBUG_) {
+                qDebug() << "ConnectionManagerV2::process_incoming(): no cmd found (1):" << in_buffer_;
+            }
+            evaluate_cmd("", std::string_view(in_buffer_.data(), in_buffer_.size()));
             in_buffer_.clear();
+            return true;
+        }
+        if (start) {
+            auto prefix { in_buffer_.left(start) };
+            if (DEBUG_) {
+                qDebug() << "ConnectionManagerV2::process_incoming(): no cmd found (2):" << prefix;
+            }
+            evaluate_cmd("", std::string_view(prefix.data(), prefix.size()));
+            in_buffer_.remove(0, start);
+        }
+
+        try {
+            std::cmatch matches;
+            while (std::regex_search(in_buffer_.data(), matches, cmd_regex)) {
+                if (matches.ready()) {
+                    if (DEBUG_) {
+                        // qDebug() << "ConnectionManagerV2::process_incoming(): Match found:";
+                        // for (size_t i { 1 }; i < matches.size(); ++i) {
+                        //     qDebug() << i << ":" << QString::fromStdString(matches[i].str());
+                        // }
+                    }
+
+                    // if (matches[1].str() == "log") {
+                    //     qDebug() << "ConnectionManagerV2::process_incoming(): input=" << in_buffer_;
+                    //     qDebug() << "ConnectionManagerV2::process_incoming(): match=" << QString::fromStdString(matches[2].str());
+                    // }
+
+                    result &= evaluate_cmd(matches[1].str(), matches[2].str());
+
+                    in_buffer_.remove(0, matches[0].length());
+
+                    if (DEBUG_) {
+                        qDebug() << "ConnectionManagerV2::process_incoming(): next input= " << in_buffer_;
+                    }
+
+                    if (in_buffer_.indexOf("<", 0)) {
+                        return result;
+                    }
+                }
+            }
+        } catch (std::regex_error& e) {
+            qDebug() << "ConnectionManagerV2::process_incoming(): regex error " << e.what();
         }
     }
 

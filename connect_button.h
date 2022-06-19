@@ -26,6 +26,7 @@
 
 #include <QObject>
 #include <QString>
+
 #include <functional>
 
 

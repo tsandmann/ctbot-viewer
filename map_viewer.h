@@ -24,12 +24,12 @@
 
 #pragma once
 
-#include <QQmlApplicationEngine>
 #include <cstdint>
 
 #include "connect_button.h"
 
 
+class QQmlApplicationEngine;
 class QTcpSocket;
 class ConnectionManagerV1;
 class MapImageItem;

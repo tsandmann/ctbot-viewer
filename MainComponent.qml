@@ -138,6 +138,7 @@ GridLayout {
                     Layout.preferredWidth: 65
                     font.pixelSize: 14
                     placeholderText: qsTr("Port")
+                    inputMethodHints: Qt.ImhDigitsOnly
 
                     onAccepted: hostname.connectClicked(hostname.text, port.text);
                 }
@@ -212,7 +213,7 @@ GridLayout {
             TextEdit {
                 id: lcd
                 objectName: "LCD"
-                text: "1234 5678--DEAD BEEF\n0123 4567**89AB CDEF\n1234 5678::C001 CAFE\n1234 5678..BADE AFFE\n"
+                text: ""
                 textMargin: 10
                 font.pixelSize: 19
                 font.family: ptMonoFont.name

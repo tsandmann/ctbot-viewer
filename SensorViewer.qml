@@ -35,7 +35,6 @@ Frame {
         ListView {
             implicitWidth: 180
             implicitHeight: contentHeight
-            anchors.fill: parent
             clip: true
             model: sensorModel
             visible: main_viewer.v1.checked
@@ -59,7 +58,6 @@ Frame {
         ListView {
             implicitWidth: 180
             implicitHeight: contentHeight
-            anchors.fill: parent
             clip: true
             model: sensorModelV2
             visible: main_viewer.v2.checked

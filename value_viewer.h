@@ -27,13 +27,14 @@
 #include <QString>
 #include <QHash>
 #include <QModelIndex>
-#include <QQmlApplicationEngine>
 
 #include <regex>
 
 #include "value_model.h"
 #include "value_list.h"
 
+
+class QQmlApplicationEngine;
 
 class ValueViewer {
 protected:

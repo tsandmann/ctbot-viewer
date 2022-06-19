@@ -24,11 +24,10 @@
 
 #pragma once
 
-#include <QQmlApplicationEngine>
-
 #include "connect_button.h"
 
 
+class QQmlApplicationEngine;
 class ConnectionManagerV1;
 class ConnectionManagerV2;
 
@@ -42,6 +41,8 @@ public:
 };
 
 class LogViewerV2 {
+    static constexpr bool DEBUG_ { false };
+
     QQmlApplicationEngine* p_engine_;
     QObject* p_log_;
     QObject* p_minilog_;

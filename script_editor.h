@@ -24,11 +24,10 @@
 
 #pragma once
 
-#include <QQmlApplicationEngine>
-
 #include "connect_button.h"
 
 
+class QQmlApplicationEngine;
 class QTcpSocket;
 
 class ScriptEditor {

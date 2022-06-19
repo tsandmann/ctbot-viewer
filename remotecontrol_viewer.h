@@ -24,26 +24,42 @@
 
 #pragma once
 
-#include <QQmlApplicationEngine>
 #include <QString>
+
 #include <cstdint>
 #include <map>
 
-#include "connect_button.h"
 
-
-class QTcpSocket;
+class QQmlApplicationEngine;
+class ConnectButton;
+class ConnectionManagerV1;
+class ConnectionManagerV2;
 
 class RemoteControlViewerV1 {
     QQmlApplicationEngine* p_engine_;
-    QTcpSocket* p_socket_;
+    ConnectionManagerV1& conn_manager_;
     ConnectButton* p_rc_button_;
     std::map<QString /*RC-Code*/, uint16_t /*CMD-Code*/> rc5_codes_;
 
 public:
-    RemoteControlViewerV1(QQmlApplicationEngine* p_engine, QTcpSocket* p_socket);
+    RemoteControlViewerV1(QQmlApplicationEngine* p_engine, ConnectionManagerV1& conn_manager);
 
     ~RemoteControlViewerV1();
+
+    void register_buttons();
+};
+
+
+class RemoteControlViewerV2 {
+    QQmlApplicationEngine* p_engine_;
+    ConnectionManagerV2& conn_manager_;
+    ConnectButton* p_rc_button_;
+    std::map<QString /*RC-Code*/, uint8_t /*CMD-Code*/> rc5_codes_;
+
+public:
+    RemoteControlViewerV2(QQmlApplicationEngine* p_engine, ConnectionManagerV2& conn_manager);
+
+    ~RemoteControlViewerV2();
 
     void register_buttons();
 };

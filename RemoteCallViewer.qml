@@ -43,7 +43,6 @@ Frame {
         model: remotecallModel
 
         delegate: RowLayout {
-            width: parent.width
             Layout.margins: 10
             Layout.alignment: Qt.AlignTop
 

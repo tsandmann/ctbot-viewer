@@ -93,22 +93,48 @@ RowLayout {
             }
         }
 
-        TextField {
-            id: cmd
-            objectName: "Cmd"
-            text: ""
-            focus: true
-            selectByMouse: Qt.platform.os !== "ios"
+        FocusScope {
+            property alias color: cmd.color
+            id: cmd_focus
+            x: cmd.x
+            y: cmd.y
+            height: cmd.height
             Layout.fillWidth: true
-            font.pixelSize: 14
-            placeholderText: qsTr("Command")
 
-            onAccepted: {
-                sendClicked(cmd.text);
-                cmd.text = "";
+            TextField {
+                id: cmd
+                objectName: "Cmd"
+                text: ""
+                focus: true
+                activeFocusOnPress: true
+                selectByMouse: Qt.platform.os !== "ios"
+                width: parent.width
+                font.pixelSize: 14
+                placeholderText: qsTr("Command")
+                inputMethodHints: Qt.ImhPreferLowercase | Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
+
+                onAccepted: {
+                    sendClicked(cmd.text);
+                    cmd.text = "";
+                    cmd.focus = false;
+                    Qt.callLater(cmd.setFocus);
+                }
+
+                Keys.onUpPressed: {
+                    keyPressed("up");
+                }
+
+                Keys.onDownPressed: {
+                    keyPressed("down");
+                }
+
+                signal sendClicked(string cmd)
+                signal keyPressed(string key)
+
+                function setFocus() {
+                    cmd.focus = true;
+                }
             }
-
-            signal sendClicked(string cmd)
         }
     }
 }
