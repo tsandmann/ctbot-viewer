@@ -130,8 +130,8 @@ SensorViewerV2::SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManage
     qmlRegisterType<ValueModel>("Sensors", 1, 0, "SensorModel");
     qmlRegisterUncreatableType<ValueList>("Sensors", 1, 0, "ValueList", QStringLiteral("Sensors should not be created in QML"));
 
-    list_.appendItem(QStringLiteral("Wheel enc left"));
-    list_.appendItem(QStringLiteral("Wheel enc right"));
+    list_.appendItem(QStringLiteral("Speed enc left [mm/s]"));
+    list_.appendItem(QStringLiteral("Speed enc right [mm/s]"));
     list_.appendItem(QStringLiteral("Distance left"));
     list_.appendItem(QStringLiteral("Distance right"));
     list_.appendItem(QStringLiteral("Line left"));
@@ -143,8 +143,8 @@ SensorViewerV2::SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManage
     list_.appendItem(QStringLiteral("Transport pocket [mm]"));
     list_.appendItem(QStringLiteral("RC-5"));
     list_.appendItem(QStringLiteral("BPS"));
-    list_.appendItem(QStringLiteral("Battery"));
-    list_.appendItem(QStringLiteral("Battery (per cell)"));
+    list_.appendItem(QStringLiteral("Battery [V]"));
+    list_.appendItem(QStringLiteral("Battery (per cell) [V]"));
 
     update_map();
     register_model(QStringLiteral("sensorModelV2"));
@@ -160,27 +160,22 @@ SensorViewerV2::SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManage
             return false;
         }
 
+        static const std::regex enc_regex { R"(enc: (-?\d*) (-?\d*))" };
         static const std::regex dist_regex { R"(dist: (\d*) (\d*))" };
-        static const std::regex enc_regex { R"(enc: (\d*) (\d*))" };
-        static const std::regex border_regex { R"(border: (\d*) (\d*))" };
         static const std::regex line_regex { R"(line: (\d*) (\d*))" };
+        static const std::regex border_regex { R"(border: (\d*) (\d*))" };
         static const std::regex trans_regex { R"(trans: (\d*) (\d*))" };
         static const std::regex bat_regex { R"(bat: (\d*\.\d*) (\d*\.\d*))" };
 
         int16_t values[2];
+        if (parse(str, enc_regex, values[0], values[1])) {
+            model_.setData(map_["Speed enc left [mm/s]"], values[0], ValueModel::Value);
+            model_.setData(map_["Speed enc right [mm/s]"], values[1], ValueModel::Value);
+        }
+
         if (parse(str, dist_regex, values[0], values[1])) {
             model_.setData(map_["Distance left"], values[0], ValueModel::Value);
             model_.setData(map_["Distance right"], values[1], ValueModel::Value);
-        }
-
-        if (parse(str, enc_regex, values[0], values[1])) {
-            model_.setData(map_["Wheel enc left"], values[0], ValueModel::Value);
-            model_.setData(map_["Wheel enc right"], values[1], ValueModel::Value);
-        }
-
-        if (parse(str, border_regex, values[0], values[1])) {
-            model_.setData(map_["Border left"], values[0], ValueModel::Value);
-            model_.setData(map_["Border right"], values[1], ValueModel::Value);
         }
 
         if (parse(str, line_regex, values[0], values[1])) {
@@ -188,20 +183,26 @@ SensorViewerV2::SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManage
             model_.setData(map_["Line right"], values[1], ValueModel::Value);
         }
 
-        if (parse(str, trans_regex, values[0], values[1])) {
-            model_.setData(map_["Transport pocket"], values[0], ValueModel::Value);
-            model_.setData(map_["Transport pocket [mm]"], values[1], ValueModel::Value);
+        if (parse(str, border_regex, values[0], values[1])) {
+            model_.setData(map_["Border left"], values[0], ValueModel::Value);
+            model_.setData(map_["Border right"], values[1], ValueModel::Value);
         }
+
+        // Door
 
         if (parse(str, trans_regex, values[0], values[1])) {
             model_.setData(map_["Transport pocket"], values[0], ValueModel::Value);
             model_.setData(map_["Transport pocket [mm]"], values[1], ValueModel::Value);
         }
+
+        // RC-5
+
+        // BPS
 
         float bat[2];
         if (parse(str, bat_regex, bat[0], bat[1])) {
-            model_.setData(map_["Battery"], static_cast<int>(bat[0] * 1'000.f), ValueModel::Value);
-            model_.setData(map_["Battery (per cell)"], static_cast<int>(bat[1] * 1'000.f), ValueModel::Value);
+            model_.setData(map_["Battery [V]"], static_cast<int>(bat[0] * 1'000.f), ValueModel::Value);
+            model_.setData(map_["Battery (per cell) [V]"], static_cast<int>(bat[1] * 1'000.f), ValueModel::Value);
             // qDebug() << "Bat=" << bat[0] << " " << bat[1];
         }
 

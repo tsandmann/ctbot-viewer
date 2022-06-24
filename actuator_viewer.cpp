@@ -155,8 +155,8 @@ ActuatorViewerV2::ActuatorViewerV2(QQmlApplicationEngine* p_engine, ConnectionMa
     qmlRegisterType<ValueModel>("Actuators", 1, 0, "ActuatorModel");
     qmlRegisterUncreatableType<ValueList>("Actuators", 1, 0, "ValueList", QStringLiteral("Actuators should not be created in QML"));
 
-    list_.appendItem(QStringLiteral("Motor left"));
-    list_.appendItem(QStringLiteral("Motor right"));
+    list_.appendItem(QStringLiteral("Motor left [%]"));
+    list_.appendItem(QStringLiteral("Motor right [%]"));
     list_.appendItem(QStringLiteral("Servo 1"));
     list_.appendItem(QStringLiteral("Servo 2"));
     list_.appendItem(QStringLiteral("LEDs"));
@@ -173,15 +173,15 @@ ActuatorViewerV2::ActuatorViewerV2(QQmlApplicationEngine* p_engine, ConnectionMa
             return false;
         }
 
-        static const std::regex motor_regex { R"(motor: (\d*) (\d*))" };
+        static const std::regex motor_regex { R"(motor: (-?\d*) (-?\d*))" };
         static const std::regex servo1_regex { R"(servo1: (\d*))" };
         static const std::regex servo2_regex { R"(servo2: (\d*))" };
         static const std::regex led_regex { R"(leds: (\d*))" };
 
         int16_t values[2];
         if (parse(str, motor_regex, values[0], values[1])) {
-            model_.setData(map_["Motor left"], values[0], ValueModel::Value);
-            model_.setData(map_["Motor right"], values[1], ValueModel::Value);
+            model_.setData(map_["Motor left [%]"], values[0], ValueModel::Value);
+            model_.setData(map_["Motor right [%]"], values[1], ValueModel::Value);
         }
 
         if (parse(str, servo1_regex, values[0])) {
