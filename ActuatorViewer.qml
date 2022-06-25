@@ -58,6 +58,7 @@ Frame {
         ListView {
             implicitWidth: 180
             implicitHeight: contentHeight
+            spacing: 5
             clip: true
             model: actuatorModelV2
             visible: main_viewer.v2.checked
