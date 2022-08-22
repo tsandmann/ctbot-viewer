@@ -77,6 +77,7 @@ set(qml_resource_files
     "ScriptComponent.qml"
     "SensorViewer.qml"
     "TabComponent.qml"
+    "ShortcutComponent.qml"
     "fonts/PTMono-Regular.ttf"
     "fonts/Roboto-Black.ttf"
     "fonts/Roboto-BlackItalic.ttf"

@@ -105,12 +105,12 @@ RowLayout {
                 id: scripts_abl
                 objectName: "scripts_abl"
                 checked: true
-                text: qsTr("ABL")
+                text: "ABL"
             }
 
             RadioButton {
                 id: scripts_basic
-                text: qsTr("Basic")
+                text: "Basic"
             }
 
             Button {
@@ -144,6 +144,9 @@ RowLayout {
                 id: script_scrollview
                 property ScrollBar hScrollBar: ScrollBar.horizontal
                 property ScrollBar vScrollBar: ScrollBar.vertical
+                ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+                ScrollBar.vertical.width: 10
+                ScrollBar.horizontal.height: 10
 
                 TextArea {
                     id: script_editor

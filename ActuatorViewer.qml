@@ -40,7 +40,7 @@ Frame {
             visible: main_viewer.v1.checked
 
             delegate: RowLayout {
-                width: parent.width
+                width: ListView.view.width
                 spacing: 2
 
                 Label {
@@ -64,7 +64,7 @@ Frame {
             visible: main_viewer.v2.checked
 
             delegate: RowLayout {
-                width: parent.width
+                width: ListView.view.width
                 spacing: 2
 
                 Label {

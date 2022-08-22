@@ -52,6 +52,9 @@ RowLayout {
                 anchors.fill: parent
                 property ScrollBar hScrollBar: ScrollBar.horizontal
                 property ScrollBar vScrollBar: ScrollBar.vertical
+                ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+                ScrollBar.vertical.width: 10
+                ScrollBar.horizontal.height: 10
 
                 TextArea {
                     id: bot_console
@@ -93,6 +96,82 @@ RowLayout {
             }
         }
 
+        ListModel {
+            id: historyModel
+        }
+
+        
+
+        Rectangle {
+            ListView {
+                id: historyList
+                anchors.fill: parent
+                clip: true
+                model: historyModel
+                topMargin: 10
+                bottomMargin: 10
+
+                ScrollBar.vertical: ScrollBar {
+                    anchors.right: parent.right
+                    visible: true
+                    policy: ScrollBar.AlwaysOn
+                    width: 10
+                }
+
+                delegate: Component {
+                    Item {
+                        width: ListView.view.width - 20
+                        height: 22
+
+                        Text {
+                            text: command;
+                            font.pixelSize: 14
+                            color: "white"
+                            anchors.left: parent.left
+                            anchors.leftMargin: 10
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+
+                            onClicked: {
+                                historyList.currentIndex = index;
+                                cmd.text = historyModel.get(historyList.currentIndex).command;
+                            }
+
+                            onDoubleClicked: {
+                                historyViewer.visible = false;
+                                if (historyModel.get(historyList.count - 1).command != cmd.text) {
+                                    historyModel.append({command: cmd.text});
+                                    if (historyList.count > 30) {
+                                        historyModel.remove(0, 1);
+                                    }
+                                }
+                                cmd.sendClicked(cmd.text);
+                                cmd.text = "";
+                            }
+                        }
+                    }
+                }
+                
+                highlight: Rectangle {
+                    color: 'grey'
+                    radius: 5
+                    opacity: 0.7
+                }
+
+                // onCurrentItemChanged: console.log(historyList.currentIndex + '/' + historyList.count + ': ' + historyModel.get(historyList.currentIndex).command + ' selected')
+            }
+
+            id: historyViewer
+            color: "#353637"
+            border.color: "#d5d8dc"
+            border.width: 1
+            Layout.fillWidth: true
+            height: 100
+            visible: false;
+        }
+
         FocusScope {
             property alias color: cmd.color
             id: cmd_focus
@@ -105,7 +184,7 @@ RowLayout {
                 id: cmd
                 objectName: "Cmd"
                 text: ""
-                focus: true
+                focus: layout.currentIndex == 5
                 activeFocusOnPress: true
                 selectByMouse: Qt.platform.os !== "ios"
                 width: parent.width
@@ -114,26 +193,46 @@ RowLayout {
                 inputMethodHints: Qt.ImhPreferLowercase | Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
 
                 onAccepted: {
+                    if (historyViewer.visible) {
+                        historyViewer.visible = false;
+                    }
+                    if (historyList.count == 0 || historyModel.get(historyList.count - 1).command != cmd.text) {
+                        if (cmd.text != "") {
+                            historyModel.append({command: cmd.text});
+                            if (historyList.count > 30) {
+                                historyModel.remove(0, 1);
+                            }
+                        }
+                    }
                     sendClicked(cmd.text);
                     cmd.text = "";
-                    cmd.focus = false;
-                    Qt.callLater(cmd.setFocus);
                 }
 
                 Keys.onUpPressed: {
-                    keyPressed("up");
+                    if (historyViewer.visible) {
+                        historyList.decrementCurrentIndex();
+                        cmd.text = historyModel.get(historyList.currentIndex).command;
+                    } else if (cmd.text == "" && historyList.count != 0) {
+                        historyList.currentIndex = historyList.count - 1;
+                        historyList.positionViewAtIndex(historyList.count - 1, ListView.Beginning);
+                        historyViewer.visible = true;
+                        cmd.text = historyModel.get(historyList.currentIndex).command;
+                    }
                 }
 
                 Keys.onDownPressed: {
-                    keyPressed("down");
+                    if (historyViewer.visible) {
+                        if (historyList.currentIndex == historyList.count - 1) {
+                            historyViewer.visible = false;
+                            cmd.text = "";
+                        } else {
+                            historyList.incrementCurrentIndex();
+                            cmd.text = historyModel.get(historyList.currentIndex).command;
+                        }
+                    }
                 }
 
                 signal sendClicked(string cmd)
-                signal keyPressed(string key)
-
-                function setFocus() {
-                    cmd.focus = true;
-                }
             }
         }
     }

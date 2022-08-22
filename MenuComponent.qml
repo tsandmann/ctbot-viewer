@@ -64,18 +64,30 @@ MenuBar {
         MenuItem {
             text: qsTr("Main")
             horizontalPadding: 10
+
+            ToolTip.visible: hovered
+            ToolTip.text: "Strg + 1"
+
             onTriggered: layout.currentIndex = 0
         }
 
         MenuItem {
             text: qsTr("Log")
             horizontalPadding: 10
+
+            ToolTip.visible: hovered
+            ToolTip.text: "Strg + 2"
+
             onTriggered: layout.currentIndex = 1
         }
 
         MenuItem {
             text: qsTr("Remote Calls")
             horizontalPadding: 10
+
+            ToolTip.visible: main_viewer.v1.checked ? hovered : false
+            ToolTip.text: "Strg + 3"
+
             onTriggered: layout.currentIndex = 2
             enabled: main_viewer.v1.checked
         }
@@ -83,6 +95,10 @@ MenuBar {
         MenuItem {
             text: qsTr("Map")
             horizontalPadding: 10
+
+            ToolTip.visible: main_viewer.v1.checked ? hovered : false
+            ToolTip.text: "Strg + 4"
+
             onTriggered: layout.currentIndex = 3
             enabled: main_viewer.v1.checked
         }
@@ -90,6 +106,10 @@ MenuBar {
         MenuItem {
             text: qsTr("Scripts")
             horizontalPadding: 10
+
+            ToolTip.visible: main_viewer.v1.checked ? hovered : false
+            ToolTip.text: "Strg + 5"
+
             onTriggered: layout.currentIndex = 4
             enabled: main_viewer.v1.checked
         }
@@ -97,6 +117,10 @@ MenuBar {
         MenuItem {
             text: qsTr("Console")
             horizontalPadding: 10
+
+            ToolTip.visible: main_viewer.v2.checked ? hovered : false
+            ToolTip.text: "Strg + 6"
+
             onTriggered: layout.currentIndex = 5
             enabled: main_viewer.v2.checked
         }

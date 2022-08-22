@@ -148,12 +148,13 @@ GridLayout {
                 RadioButton {
                     id: radio_v1
                     checked: true
-                    text: qsTr("ct-Bot")
+                    text: "ct-Bot"
                 }
 
                 RadioButton {
                     id: radio_v2
-                    text: qsTr("ct-Bot v2")
+                    checked: !radio_v1.checked
+                    text: "ct-Bot v2"
                 }
             }
         }
@@ -258,4 +259,6 @@ GridLayout {
 
         MiniLogComponent {}
     }
+
+    ShortcutComponent {}
 }

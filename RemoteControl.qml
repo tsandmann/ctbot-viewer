@@ -38,9 +38,13 @@ Frame {
         }
 
         RCButton {
-            text: qsTr("Power")
+            id: rc_power
+            text: "Power"
             Layout.preferredWidth: 75
             Layout.columnSpan: 2
+
+            ToolTip.visible: hovered
+            ToolTip.text: "Esc/space"
         }
 
         Repeater {
@@ -49,11 +53,14 @@ Frame {
 
             RCButton {
                 text: index + 1
+
+                ToolTip.visible: index < 10 ? hovered : false
+                ToolTip.text: index < 9 ? index + 1 : 0
             }
         }
 
         RCButton {
-            text: qsTr("Gr")
+            text: "Gr"
 
             contentItem: Rectangle {
                 color: parent.down ? "#08D508" : "#058B05"
@@ -64,7 +71,7 @@ Frame {
         }
 
         RCButton {
-            text: qsTr("Re")
+            text: "Re"
 
             contentItem: Rectangle {
                 color: parent.down ? "#ff0000" : "#9F0404"
@@ -75,7 +82,7 @@ Frame {
         }
 
         RCButton {
-            text: qsTr("Ye")
+            text: "Ye"
 
             contentItem: Rectangle {
                 color: parent.down ? "#F8E849" : "#ECD709"
@@ -86,7 +93,7 @@ Frame {
         }
 
         RCButton {
-            text: qsTr("Bl")
+            text: "Bl"
 
             contentItem: Rectangle {
                 color: parent.down ? "#0078FF" : "#0000CE"
@@ -97,12 +104,12 @@ Frame {
         }
 
         RCButton {
-            text: qsTr("I/II")
+            text: "I/II"
             padding: 0
         }
 
         RCButton {
-            text: qsTr("TV")
+            text: "TV"
         }
 
         Item {
@@ -110,7 +117,11 @@ Frame {
         }
 
         RCButton {
-            text: qsTr("||")
+            id: rc_up
+            text: "||"
+
+            ToolTip.visible: hovered
+            ToolTip.text: "w"
         }
 
         Item {
@@ -118,15 +129,23 @@ Frame {
         }
 
         RCButton {
-            text: qsTr("<<")
+            id: rc_left
+            text: "<<"
+
+            ToolTip.visible: hovered
+            ToolTip.text: "a"
         }
 
         RCButton {
-            text: qsTr("\u25B6")
+            text: "\u25B6"
         }
 
         RCButton {
-            text: qsTr(">>")
+            id: rc_right
+            text: ">>"
+
+            ToolTip.visible: hovered
+            ToolTip.text: "d"
         }
 
         Item {
@@ -135,7 +154,11 @@ Frame {
 
 
         RCButton {
-            text: qsTr("\u2B1B")
+            id: rc_down
+            text: "\u2B1B"
+
+            ToolTip.visible: hovered
+            ToolTip.text: "s"
         }
 
         Item {
@@ -143,29 +166,29 @@ Frame {
         }
 
         RCButton {
-            text: qsTr("\u25CF")
+            text: "\u25CF"
         }
 
         RCButton {
-            text: qsTr("CH*P/C")
+            text: "CH*P/C"
             Layout.preferredWidth: 75
             Layout.columnSpan: 2
         }
 
         RCButton {
-            text: qsTr("V+")
+            text: "V+"
         }
 
         RCButton {
-            text: qsTr("M")
+            text: "M"
         }
 
         RCButton {
-            text: qsTr("C+")
+            text: "C+"
         }
 
         RCButton {
-            text: qsTr("V-")
+            text: "V-"
         }
 
         Item {
@@ -173,7 +196,142 @@ Frame {
         }
 
         RCButton {
-            text: qsTr("C-")
+            text: "C-"
+        }
+    }
+
+    Shortcut {
+        sequences: ["Esc", "Space"]
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log('Esc/space pressed: ' + rc_power.text);
+            grid.rcButtonClicked(rc_power.text, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "w"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log('w pressed: ' + rc_up.text);
+            grid.rcButtonClicked(rc_up.text, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "a"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log('a pressed: ' + rc_left.text);
+            grid.rcButtonClicked(rc_left.text, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "s"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log('s pressed: ' + rc_down.text);
+            grid.rcButtonClicked(rc_down.text, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "d"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log('d pressed: ' + rc_right.text);
+            grid.rcButtonClicked(rc_right.text, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "1"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log(sequence + ' pressed');
+            grid.rcButtonClicked(sequence, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "2"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log(sequence + ' pressed');
+            grid.rcButtonClicked(sequence, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "3"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log(sequence + ' pressed');
+            grid.rcButtonClicked(sequence, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "4"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log(sequence + ' pressed');
+            grid.rcButtonClicked(sequence, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "5"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log(sequence + ' pressed');
+            grid.rcButtonClicked(sequence, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "6"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log(sequence + ' pressed');
+            grid.rcButtonClicked(sequence, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "7"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log(sequence + ' pressed');
+            grid.rcButtonClicked(sequence, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "8"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log(sequence + ' pressed');
+            grid.rcButtonClicked(sequence, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "9"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log(sequence + ' pressed');
+            grid.rcButtonClicked(sequence, "");
+        }
+    }
+
+    Shortcut {
+        sequence: "0"
+        enabled: layout.currentIndex == 0
+        onActivated: {
+            // console.log('10 pressed');
+            grid.rcButtonClicked("10", "");
         }
     }
 }

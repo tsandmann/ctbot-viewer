@@ -143,6 +143,7 @@ SensorViewerV2::SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManage
     list_.appendItem(QStringLiteral("Transport pocket [mm]"));
     list_.appendItem(QStringLiteral("RC-5 Command"));
     // list_.appendItem(QStringLiteral("BPS"));
+    list_.appendItem(QStringLiteral("Motor current [mA]"));
     list_.appendItem(QStringLiteral("Battery [mV]"));
     list_.appendItem(QStringLiteral("Battery (per cell) [mV]"));
 
@@ -167,6 +168,7 @@ SensorViewerV2::SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManage
         static const std::regex trans_regex { R"(trans: (\d*) (\d*))" };
         static const std::regex rc5_regex { R"(rc5: (\d*) (\d*) (?:\d*))" };
         static const std::regex bat_regex { R"(bat: (\d*\.\d*) (\d*\.\d*))" };
+        static const std::regex mcurrent_regex { R"(mcurrent: (\d*))" };
 
         int16_t values[2];
         if (parse(str, enc_regex, values[0], values[1])) {
@@ -207,6 +209,10 @@ SensorViewerV2::SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManage
             model_.setData(map_["Battery [mV]"], static_cast<int>(bat[0] * 1'000.f), ValueModel::Value);
             model_.setData(map_["Battery (per cell) [mV]"], static_cast<int>(bat[1] * 1'000.f), ValueModel::Value);
             // qDebug() << "Bat=" << bat[0] << " " << bat[1];
+        }
+
+        if (parse(str, mcurrent_regex, values[0])) {
+            model_.setData(map_["Motor current [mA]"], values[0], ValueModel::Value);
         }
 
         return true;

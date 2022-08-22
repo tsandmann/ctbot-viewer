@@ -16,6 +16,7 @@
         <file>ConsoleComponent.qml</file>
         <file>TabComponent.qml</file>
         <file>MiniLogComponent.qml</file>
+        <file>ShortcutComponent.qml</file>
         <file>fonts/PTMono-Regular.ttf</file>
         <file>fonts/Roboto-Black.ttf</file>
         <file>fonts/Roboto-BlackItalic.ttf</file>

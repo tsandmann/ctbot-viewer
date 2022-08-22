@@ -32,7 +32,7 @@
 
 
 BotConsole::BotConsole(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval)
-    : p_engine_ { p_engine }, conn_manager_ { command_eval }, p_console_ {}, p_cmd_button_ {}, p_key_pressed_ {}, current_history_view_ {} {
+    : p_engine_ { p_engine }, conn_manager_ { command_eval }, p_console_ {}, p_cmd_button_ {} {
     conn_manager_.register_cmd("", [this](const std::string_view& str) {
         // qDebug() << "CONSOLE received: " << QString::fromUtf8(str.data(), str.size());
 
@@ -95,14 +95,6 @@ void BotConsole::register_buttons() {
             QMetaObject::invokeMethod(p_console_, "add", Qt::DirectConnection, Q_ARG(QVariant, "% "));
         }
 
-        if (history_.empty() || history_.front() != cmd) {
-            history_.emplace_front(cmd);
-            if (history_.size() > HISTORY_SIZE_) {
-                history_.pop_back();
-            }
-        }
-        current_history_view_ = 0;
-
         cmd += "\r\n";
         if (conn_manager_.get_socket()->isOpen()) {
             conn_manager_.get_socket()->write(cmd.toUtf8(), cmd.length());
@@ -111,33 +103,4 @@ void BotConsole::register_buttons() {
         // qDebug() << "CMD sent: " << cmd;
     } };
     QObject::connect(p_engine_->rootObjects().at(0)->findChild<QObject*>("Cmd"), SIGNAL(sendClicked(QString)), p_cmd_button_, SLOT(cppSlot(QString)));
-
-    p_key_pressed_ = new ConnectButton { [this](QString key, QString) {
-        // qDebug() << "Key pressed: " << key;
-
-        auto cmd_field { p_engine_->rootObjects().at(0)->findChild<QObject*>("Cmd") };
-        if (key == "up" && history_.size()) {
-            const auto cmd { history_[current_history_view_++] };
-            if (current_history_view_ == history_.size()) {
-                --current_history_view_;
-            }
-            // qDebug() << "HISTORY cmd=" << cmd;
-
-            if (cmd_field) {
-                cmd_field->setProperty("text", cmd);
-            }
-        } else if (key == "down") {
-            if (current_history_view_) {
-                const auto cmd { history_[--current_history_view_] };
-                // qDebug() << "HISTORY cmd=" << cmd;
-
-                if (cmd_field) {
-                    cmd_field->setProperty("text", cmd);
-                }
-            } else if (cmd_field) {
-                cmd_field->setProperty("text", "");
-            }
-        }
-    } };
-    QObject::connect(p_engine_->rootObjects().at(0)->findChild<QObject*>("Cmd"), SIGNAL(keyPressed(QString)), p_key_pressed_, SLOT(cppSlot(QString)));
 }

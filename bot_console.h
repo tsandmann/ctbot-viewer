@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include <deque>
-
 #include <QString>
 
 #include "connect_button.h"
@@ -35,15 +33,10 @@ class QQmlApplicationEngine;
 class ConnectionManagerV2;
 
 class BotConsole {
-    static constexpr size_t HISTORY_SIZE_ { 30 };
-
     QQmlApplicationEngine* p_engine_;
     ConnectionManagerV2& conn_manager_;
     QObject* p_console_;
     ConnectButton* p_cmd_button_;
-    ConnectButton* p_key_pressed_;
-    std::deque<QString> history_;
-    size_t current_history_view_;
 
 public:
     BotConsole(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval);

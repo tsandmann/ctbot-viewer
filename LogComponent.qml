@@ -63,6 +63,9 @@ RowLayout {
                 anchors.fill: parent
                 property ScrollBar hScrollBar: ScrollBar.horizontal
                 property ScrollBar vScrollBar: ScrollBar.vertical
+                ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+                ScrollBar.vertical.width: 10
+                ScrollBar.horizontal.height: 10
 
                 TextArea {
                     id: log_viewer

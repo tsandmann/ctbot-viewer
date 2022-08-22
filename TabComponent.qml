@@ -25,36 +25,54 @@ TabBar {
         text: qsTr("Main")
         id: main_tab
         onClicked: layout.currentIndex = 0
+
+        ToolTip.visible: hovered
+        ToolTip.text: "Strg + 1"
     }
 
     TabButton {
         text: qsTr("Log")
         onClicked: layout.currentIndex = 1
+
+        ToolTip.visible: hovered
+        ToolTip.text: "Strg + 2"
     }
 
     TabButton {
         text: qsTr("Remote Calls")
-//        width: Math.max(contentItem.implicitWidth + leftPadding + rightPadding, main_tab.width)
+//      width: Math.max(contentItem.implicitWidth + leftPadding + rightPadding, main_tab.width)
         width: contentItem.implicitWidth + leftPadding + rightPadding
         onClicked: layout.currentIndex = 2
         enabled: main_viewer.v1.checked
+
+        ToolTip.visible: main_viewer.v1.checked ? hovered : false
+        ToolTip.text: "Strg + 3"
     }
 
     TabButton {
         text: qsTr("Map")
         onClicked: layout.currentIndex = 3
         enabled: main_viewer.v1.checked
+
+        ToolTip.visible: main_viewer.v1.checked ? hovered : false
+        ToolTip.text: "Strg + 4"
     }
 
     TabButton {
         text: qsTr("Scripts")
         onClicked: layout.currentIndex = 4
         enabled: main_viewer.v1.checked
+
+        ToolTip.visible: main_viewer.v1.checked ? hovered : false
+        ToolTip.text: "Strg + 5"
     }
 
     TabButton {
         text: qsTr("Console")
         onClicked: layout.currentIndex = 5
         enabled: main_viewer.v2.checked
+
+        ToolTip.visible: main_viewer.v2.checked ? hovered : false
+        ToolTip.text: "Strg + 6"
     }
 }
