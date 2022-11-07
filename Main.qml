@@ -29,13 +29,13 @@ ApplicationWindow {
     id: applicationWindow
     visible: true
     height: 670
-     minimumHeight: 670
+    minimumHeight: 670
     // maximumHeight: 670
     width: 666
     minimumWidth: 666
     // maximumWidth: 666
     font: defaultFont.font
-    title: "ct-Bot Remote Viewer 0.6.4"
+    title: "ct-Bot Remote Viewer 0.6.5"
 
     Material.theme: Material.Dark
     Material.accent: Material.Green

@@ -80,7 +80,7 @@ RowLayout {
                 }
             }
 
-            Layout.minimumHeight: 172
+            Layout.minimumHeight: 122
             Layout.minimumWidth: 480
 
             onWidthChanged: {
