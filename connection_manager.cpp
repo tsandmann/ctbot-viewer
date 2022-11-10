@@ -31,7 +31,6 @@
 #include <QDebug>
 
 #include <iostream>
-#include <regex>
 
 #include "connection_manager.h"
 
@@ -280,8 +279,6 @@ int ConnectionManagerV2::get_version() const {
 }
 
 bool ConnectionManagerV2::process_incoming() {
-    static const std::regex cmd_regex { R"(<(\w+)>((?:.|\r|\n)+?)<(/\1)>\r\n)" };
-
     bool result { true };
 
     if (in_buffer_.size()) {
@@ -310,7 +307,7 @@ bool ConnectionManagerV2::process_incoming() {
 
         try {
             std::cmatch matches;
-            while (std::regex_search(in_buffer_.data(), matches, cmd_regex)) {
+            while (std::regex_search(in_buffer_.data(), matches, cmd_regex_)) {
                 if (matches.ready()) {
                     if (DEBUG_) {
                         // qDebug() << "ConnectionManagerV2::process_incoming(): Match found:";

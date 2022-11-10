@@ -31,6 +31,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <regex>
 
 #include "command.h"
 #include "connect_button.h"
@@ -91,6 +92,8 @@ class ConnectionManagerV2 : public ConnectionManagerBase {
     std::map<std::string /*cmd*/, std::vector<std::function<bool(const std::string_view&)>> /*functions*/> commands_;
 
 protected:
+    static inline const std::regex cmd_regex_ { R"(<(\w+)>((?:.|\r|\n)+?)<(/\1)>\r\n)" };
+
     virtual bool process_incoming() override;
     virtual void connected_hook() override;
     virtual void disconnected_hook() override;

@@ -24,7 +24,6 @@
 
 #include <QQmlApplicationEngine>
 #include <QString>
-#include <QRegularExpression>
 #include <QDebug>
 
 #include <cstring>
@@ -39,23 +38,23 @@ ActuatorViewerV1::ActuatorViewerV1(QQmlApplicationEngine* p_engine, ConnectionMa
     qmlRegisterType<ValueModel>("Actuators", 1, 0, "ActuatorModel");
     qmlRegisterUncreatableType<ValueList>("Actuators", 1, 0, "ValueList", QStringLiteral("Actuators should not be created in QML"));
 
-    list_.appendItem(QStringLiteral("Motor left"));
-    list_.appendItem(QStringLiteral("Motor right"));
-    list_.appendItem(QStringLiteral("LEDs"));
+    list_.appendItem(MOTOR_L_.cbegin());
+    list_.appendItem(MOTOR_R_.cbegin());
+    list_.appendItem(LEDS_.cbegin());
 
     update_map();
     register_model(QStringLiteral("actuatorModel"));
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_AKT_MOT, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_AKT_MOT received: " << cmd << "\n";
-        model_.setData(map_["Motor left"], cmd.get_cmd_data_l(), ValueModel::Value);
-        model_.setData(map_["Motor right"], cmd.get_cmd_data_r(), ValueModel::Value);
+        model_.setData(map_[MOTOR_L_.cbegin()], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_[MOTOR_R_.cbegin()], cmd.get_cmd_data_r(), ValueModel::Value);
         return true;
     });
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_AKT_LED, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_AKT_LED received: " << cmd << std::endl;
-        model_.setData(map_["LEDs"], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_[LEDS_.cbegin()], cmd.get_cmd_data_l(), ValueModel::Value);
         return true;
     });
 
@@ -124,10 +123,6 @@ ActuatorViewerV1::ActuatorViewerV1(QQmlApplicationEngine* p_engine, ConnectionMa
                 std::strncpy(&lcd_text_[row][col], reinterpret_cast<const char*>(cmd.get_payload().data()), len);
                 lcd_text_[row][col + len] = 0;
 
-                static const auto regex1 { QRegularExpression("[\001-\011]") };
-                static const auto regex2 { QRegularExpression("[\013-\037]") };
-                static const auto regex3 { QRegularExpression("[\177-\377]") };
-
                 QString data = lcd_text_[0];
                 data += "\n";
                 data += lcd_text_[1];
@@ -135,9 +130,9 @@ ActuatorViewerV1::ActuatorViewerV1(QQmlApplicationEngine* p_engine, ConnectionMa
                 data += lcd_text_[2];
                 data += "\n";
                 data += lcd_text_[3];
-                data.replace(regex1, ".");
-                data.replace(regex2, ".");
-                data.replace(regex3, "#");
+                data.replace(regex_replace_0_, ".");
+                data.replace(regex_replace_1_, ".");
+                data.replace(regex_replace_2_, "#");
                 // qDebug() << "data = " << data;
 
                 p_lcd_->setProperty("text", data);
@@ -155,11 +150,11 @@ ActuatorViewerV2::ActuatorViewerV2(QQmlApplicationEngine* p_engine, ConnectionMa
     qmlRegisterType<ValueModel>("Actuators", 1, 0, "ActuatorModel");
     qmlRegisterUncreatableType<ValueList>("Actuators", 1, 0, "ValueList", QStringLiteral("Actuators should not be created in QML"));
 
-    list_.appendItem(QStringLiteral("Motor left [%]"));
-    list_.appendItem(QStringLiteral("Motor right [%]"));
-    list_.appendItem(QStringLiteral("Servo 1"));
-    list_.appendItem(QStringLiteral("Servo 2"));
-    list_.appendItem(QStringLiteral("LEDs"));
+    list_.appendItem(MOTOR_L_.cbegin());
+    list_.appendItem(MOTOR_R_.cbegin());
+    list_.appendItem(SERVO_1_.cbegin());
+    list_.appendItem(SERVO_2_.cbegin());
+    list_.appendItem(LEDS_.cbegin());
 
     update_map();
     register_model(QStringLiteral("actuatorModelV2"));
@@ -173,27 +168,22 @@ ActuatorViewerV2::ActuatorViewerV2(QQmlApplicationEngine* p_engine, ConnectionMa
             return false;
         }
 
-        static const std::regex motor_regex { R"(motor: (-?\d*) (-?\d*))" };
-        static const std::regex servo1_regex { R"(servo1: (\d*))" };
-        static const std::regex servo2_regex { R"(servo2: (\d*))" };
-        static const std::regex led_regex { R"(leds: (\d*))" };
-
         int16_t values[2];
-        if (parse(str, motor_regex, values[0], values[1])) {
-            model_.setData(map_["Motor left [%]"], values[0], ValueModel::Value);
-            model_.setData(map_["Motor right [%]"], values[1], ValueModel::Value);
+        if (parse(str, motor_regex_, values[0], values[1])) {
+            model_.setData(map_[MOTOR_L_.cbegin()], values[0], ValueModel::Value);
+            model_.setData(map_[MOTOR_R_.cbegin()], values[1], ValueModel::Value);
         }
 
-        if (parse(str, servo1_regex, values[0])) {
-            model_.setData(map_["Servo 1"], values[0], ValueModel::Value);
+        if (parse(str, servo1_regex_, values[0])) {
+            model_.setData(map_[SERVO_1_.cbegin()], values[0], ValueModel::Value);
         }
 
-        if (parse(str, servo2_regex, values[0])) {
-            model_.setData(map_["Servo 2"], values[0], ValueModel::Value);
+        if (parse(str, servo2_regex_, values[0])) {
+            model_.setData(map_[SERVO_2_.cbegin()], values[0], ValueModel::Value);
         }
 
-        if (parse(str, led_regex, values[0])) {
-            model_.setData(map_["LEDs"], values[0], ValueModel::Value);
+        if (parse(str, led_regex_, values[0])) {
+            model_.setData(map_[LEDS_.cbegin()], values[0], ValueModel::Value);
         }
         return true;
     });

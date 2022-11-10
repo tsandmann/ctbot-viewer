@@ -23,8 +23,6 @@
  */
 
 #include <QQmlApplicationEngine>
-#include <QString>
-#include <QRegularExpression>
 
 #include "log_viewer.h"
 #include "connection_manager.h"
@@ -50,14 +48,10 @@ LogViewerV1::LogViewerV1(QQmlApplicationEngine* p_engine, ConnectionManagerV1& c
             return false;
         }
 
-        static const QRegularExpression regex1 { QRegularExpression("[\001-\011]") };
-        static const QRegularExpression regex2 { QRegularExpression("[\013-\037]") };
-        static const QRegularExpression regex3 { QRegularExpression("[\177-\377]") };
-
         QString data { QString::fromUtf8(reinterpret_cast<const char*>(cmd.get_payload().data()), static_cast<int>(cmd.get_payload_size())) };
-        data.replace(regex1, ".");
-        data.replace(regex2, ".");
-        data.replace(regex3, "#");
+        data.replace(regex_replace_0_, ".");
+        data.replace(regex_replace_1_, ".");
+        data.replace(regex_replace_2_, "#");
         data.append("\r\n");
 
         if (p_log_) {
@@ -77,10 +71,6 @@ LogViewerV1::LogViewerV1(QQmlApplicationEngine* p_engine, ConnectionManagerV1& c
 
 LogViewerV2::LogViewerV2(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval) : p_engine_ { p_engine }, p_log_ {}, p_minilog_ {} {
     command_eval.register_cmd("log", [this, &command_eval](const std::string_view& str) {
-        static const QRegularExpression regex1 { QRegularExpression("[\001-\007]") };
-        static const QRegularExpression regex2 { QRegularExpression("[\016-\037]") };
-        static const QRegularExpression regex3 { QRegularExpression("[\177-\377]") };
-
         if (command_eval.get_version() != command_eval.version_active()) {
             return false;
         }
@@ -104,9 +94,9 @@ LogViewerV2::LogViewerV2(QQmlApplicationEngine* p_engine, ConnectionManagerV2& c
         }
 
         QString data { QString::fromStdString(input) };
-        data.replace(regex1, ".");
-        data.replace(regex2, ".");
-        data.replace(regex3, "#");
+        data.replace(regex_replace_0_, ".");
+        data.replace(regex_replace_1_, ".");
+        data.replace(regex_replace_2_, "#");
 
         if (p_log_) {
             QMetaObject::invokeMethod(p_log_, "add", Qt::DirectConnection, Q_ARG(QVariant, data));

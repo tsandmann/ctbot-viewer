@@ -38,89 +38,89 @@ SensorViewerV1::SensorViewerV1(QQmlApplicationEngine* p_engine, ConnectionManage
     qmlRegisterType<ValueModel>("Sensors", 1, 0, "SensorModel");
     qmlRegisterUncreatableType<ValueList>("Sensors", 1, 0, "ValueList", QStringLiteral("Sensors should not be created in QML"));
 
-    list_.appendItem(QStringLiteral("Wheel enc left"));
-    list_.appendItem(QStringLiteral("Wheel enc right"));
-    list_.appendItem(QStringLiteral("Distance left"));
-    list_.appendItem(QStringLiteral("Distance right"));
-    list_.appendItem(QStringLiteral("Line left"));
-    list_.appendItem(QStringLiteral("Line right"));
-    list_.appendItem(QStringLiteral("Border left"));
-    list_.appendItem(QStringLiteral("Border right"));
-    list_.appendItem(QStringLiteral("Light left"));
-    list_.appendItem(QStringLiteral("Light right"));
-    list_.appendItem(QStringLiteral("Mouse dX"));
-    list_.appendItem(QStringLiteral("Mouse dY"));
-    list_.appendItem(QStringLiteral("Door"));
-    list_.appendItem(QStringLiteral("Transport pocket"));
-    list_.appendItem(QStringLiteral("RC-5"));
-    list_.appendItem(QStringLiteral("BPS"));
-    list_.appendItem(QStringLiteral("Error"));
+    list_.appendItem(SPEED_ENC_L_.cbegin());
+    list_.appendItem(SPEED_ENC_R_.cbegin());
+    list_.appendItem(DISTANCE_L_.cbegin());
+    list_.appendItem(DISTANCE_R_.cbegin());
+    list_.appendItem(LINE_L_.cbegin());
+    list_.appendItem(LINE_R_.cbegin());
+    list_.appendItem(BORDER_L_.cbegin());
+    list_.appendItem(BORDER_R_.cbegin());
+    list_.appendItem(LIGHT_L_.cbegin());
+    list_.appendItem(LIGHT_R_.cbegin());
+    list_.appendItem(MOUSE_DX_.cbegin());
+    list_.appendItem(MOUSE_DY_.cbegin());
+    list_.appendItem(DOOR_.cbegin());
+    list_.appendItem(TRANSPORT_.cbegin());
+    list_.appendItem(RC5_.cbegin());
+    list_.appendItem(BPS_.cbegin());
+    list_.appendItem(ERROR_.cbegin());
 
     update_map();
     register_model(QStringLiteral("sensorModel"));
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_SENS_IR, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_IR received: " << cmd << "\n";
-        model_.setData(map_["Distance left"], cmd.get_cmd_data_l(), ValueModel::Value);
-        model_.setData(map_["Distance right"], cmd.get_cmd_data_r(), ValueModel::Value);
+        model_.setData(map_[DISTANCE_L_.cbegin()], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_[DISTANCE_R_.cbegin()], cmd.get_cmd_data_r(), ValueModel::Value);
         return true;
     });
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_SENS_ENC, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_ENC received: " << cmd << "\n";
-        model_.setData(map_["Wheel enc left"], cmd.get_cmd_data_l(), ValueModel::Value);
-        model_.setData(map_["Wheel enc right"], cmd.get_cmd_data_r(), ValueModel::Value);
+        model_.setData(map_[SPEED_ENC_L_.cbegin()], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_[SPEED_ENC_R_.cbegin()], cmd.get_cmd_data_r(), ValueModel::Value);
         return true;
     });
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_SENS_BORDER, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_BORDER received: " << cmd << "\n";
-        model_.setData(map_["Border left"], cmd.get_cmd_data_l(), ValueModel::Value);
-        model_.setData(map_["Border right"], cmd.get_cmd_data_r(), ValueModel::Value);
+        model_.setData(map_[BORDER_L_.cbegin()], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_[BORDER_R_.cbegin()], cmd.get_cmd_data_r(), ValueModel::Value);
         return true;
     });
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_SENS_LINE, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_LINE received: " << cmd << "\n";
-        model_.setData(map_["Line left"], cmd.get_cmd_data_l(), ValueModel::Value);
-        model_.setData(map_["Line right"], cmd.get_cmd_data_r(), ValueModel::Value);
+        model_.setData(map_[LINE_L_.cbegin()], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_[LINE_R_.cbegin()], cmd.get_cmd_data_r(), ValueModel::Value);
         return true;
     });
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_SENS_LDR, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_LDR received: " << cmd << "\n";
-        model_.setData(map_["Light left"], cmd.get_cmd_data_l(), ValueModel::Value);
-        model_.setData(map_["Light right"], cmd.get_cmd_data_r(), ValueModel::Value);
+        model_.setData(map_[LIGHT_L_.cbegin()], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_[LIGHT_R_.cbegin()], cmd.get_cmd_data_r(), ValueModel::Value);
         return true;
     });
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_SENS_TRANS, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_TRANS received: " << cmd << "\n";
-        model_.setData(map_["Transport pocket"], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_[TRANSPORT_.cbegin()], cmd.get_cmd_data_l(), ValueModel::Value);
         return true;
     });
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_SENS_DOOR, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_DOOR received: " << cmd << "\n";
-        model_.setData(map_["Door"], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_[DOOR_.cbegin()], cmd.get_cmd_data_l(), ValueModel::Value);
         return true;
     });
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_SENS_RC5, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_RC5 received: " << cmd << "\n";
-        model_.setData(map_["RC-5"], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_[RC5_.cbegin()], cmd.get_cmd_data_l(), ValueModel::Value);
         return true;
     });
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_SENS_BPS, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_BPS received: " << cmd << "\n";
-        model_.setData(map_["BPS"], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_[BPS_.cbegin()], cmd.get_cmd_data_l(), ValueModel::Value);
         return true;
     });
 
     command_eval.register_cmd(ctbot::CommandCodes::CMD_SENS_ERROR, [this](const ctbot::CommandBase& cmd) {
         // std::cout << "CMD_SENS_ERROR received: " << cmd << "\n";
-        model_.setData(map_["Error"], cmd.get_cmd_data_l(), ValueModel::Value);
+        model_.setData(map_[ERROR_.cbegin()], cmd.get_cmd_data_l(), ValueModel::Value);
         return true;
     });
 }
@@ -128,26 +128,27 @@ SensorViewerV1::SensorViewerV1(QQmlApplicationEngine* p_engine, ConnectionManage
 
 SensorViewerV2::SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval) : ValueViewer { p_engine } {
     qmlRegisterType<ValueModel>("Sensors", 1, 0, "SensorModel");
+    qmlRegisterType<ValueModel>("Sensors", 1, 0, "SensorModel");
     qmlRegisterUncreatableType<ValueList>("Sensors", 1, 0, "ValueList", QStringLiteral("Sensors should not be created in QML"));
 
-    list_.appendItem(QStringLiteral("Speed enc left [mm/s]"));
-    list_.appendItem(QStringLiteral("Speed enc right [mm/s]"));
-    list_.appendItem(QStringLiteral("Distance left [mm]"));
-    list_.appendItem(QStringLiteral("Distance right [mm]"));
-    list_.appendItem(QStringLiteral("Line left"));
-    list_.appendItem(QStringLiteral("Line right"));
-    list_.appendItem(QStringLiteral("Border left"));
-    list_.appendItem(QStringLiteral("Border right"));
-    // list_.appendItem(QStringLiteral("Door"));
-    list_.appendItem(QStringLiteral("Transport pocket"));
-    list_.appendItem(QStringLiteral("Transport pocket [mm]"));
-    list_.appendItem(QStringLiteral("RC-5 Command"));
-    // list_.appendItem(QStringLiteral("BPS"));
-    list_.appendItem(QStringLiteral("5V rail current [mA]"));
-    list_.appendItem(QStringLiteral("Motor current [mA]"));
-    list_.appendItem(QStringLiteral("Servo current [mA]"));
-    list_.appendItem(QStringLiteral("Battery [mV]"));
-    list_.appendItem(QStringLiteral("Battery (per cell) [mV]"));
+    list_.appendItem(SPEED_ENC_L_.cbegin());
+    list_.appendItem(SPEED_ENC_R_.cbegin());
+    list_.appendItem(DISTANCE_L_.cbegin());
+    list_.appendItem(DISTANCE_R_.cbegin());
+    list_.appendItem(LINE_L_.cbegin());
+    list_.appendItem(LINE_R_.cbegin());
+    list_.appendItem(BORDER_L_.cbegin());
+    list_.appendItem(BORDER_R_.cbegin());
+    // list_.appendItem(DOOR_.cbegin());
+    list_.appendItem(TRANSPORT_.cbegin());
+    list_.appendItem(TRANSPORT_MM_.cbegin());
+    list_.appendItem(RC5_.cbegin());
+    // list_.appendItem(BPS_.cbegin());
+    list_.appendItem(CURRENT_5V_.cbegin());
+    list_.appendItem(CURRENT_MOTOR_.cbegin());
+    list_.appendItem(CURRENT_SERVO_.cbegin());
+    list_.appendItem(BAT_VOLTAGE_.cbegin());
+    list_.appendItem(BAT_VOLTAGE_CELL_.cbegin());
 
     update_map();
     register_model(QStringLiteral("sensorModelV2"));
@@ -163,64 +164,54 @@ SensorViewerV2::SensorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManage
             return false;
         }
 
-        static const std::regex enc_regex { R"(enc: (-?\d*) (-?\d*))" };
-        static const std::regex dist_regex { R"(dist: (\d*) (\d*))" };
-        static const std::regex line_regex { R"(line: (\d*) (\d*))" };
-        static const std::regex border_regex { R"(border: (\d*) (\d*))" };
-        static const std::regex trans_regex { R"(trans: (\d*) (\d*))" };
-        static const std::regex rc5_regex { R"(rc5: (\d*) (\d*) (?:\d*))" };
-        static const std::regex bat_regex { R"(bat: (\d*\.\d*) (\d*\.\d*))" };
-        static const std::regex currents_regex { R"(currents: (\d*) (\d*))" };
-        static const std::regex mcurrent_regex { R"(mcurrent: (\d*))" };
-
         int16_t values[2];
-        if (parse(str, enc_regex, values[0], values[1])) {
-            model_.setData(map_["Speed enc left [mm/s]"], values[0], ValueModel::Value);
-            model_.setData(map_["Speed enc right [mm/s]"], values[1], ValueModel::Value);
+        if (parse(str, enc_regex_, values[0], values[1])) {
+            model_.setData(map_[SPEED_ENC_L_.cbegin()], values[0], ValueModel::Value);
+            model_.setData(map_[SPEED_ENC_R_.cbegin()], values[1], ValueModel::Value);
         }
 
-        if (parse(str, dist_regex, values[0], values[1])) {
-            model_.setData(map_["Distance left [mm]"], values[0], ValueModel::Value);
-            model_.setData(map_["Distance right [mm]"], values[1], ValueModel::Value);
+        if (parse(str, dist_regex_, values[0], values[1])) {
+            model_.setData(map_[DISTANCE_L_.cbegin()], values[0], ValueModel::Value);
+            model_.setData(map_[DISTANCE_R_.cbegin()], values[1], ValueModel::Value);
         }
 
-        if (parse(str, line_regex, values[0], values[1])) {
-            model_.setData(map_["Line left"], values[0], ValueModel::Value);
-            model_.setData(map_["Line right"], values[1], ValueModel::Value);
+        if (parse(str, line_regex_, values[0], values[1])) {
+            model_.setData(map_[LINE_L_.cbegin()], values[0], ValueModel::Value);
+            model_.setData(map_[LINE_R_.cbegin()], values[1], ValueModel::Value);
         }
 
-        if (parse(str, border_regex, values[0], values[1])) {
-            model_.setData(map_["Border left"], values[0], ValueModel::Value);
-            model_.setData(map_["Border right"], values[1], ValueModel::Value);
+        if (parse(str, border_regex_, values[0], values[1])) {
+            model_.setData(map_[BORDER_L_.cbegin()], values[0], ValueModel::Value);
+            model_.setData(map_[BORDER_R_.cbegin()], values[1], ValueModel::Value);
         }
 
         // Door
 
-        if (parse(str, trans_regex, values[0], values[1])) {
-            model_.setData(map_["Transport pocket"], values[0], ValueModel::Value);
-            model_.setData(map_["Transport pocket [mm]"], values[1], ValueModel::Value);
+        if (parse(str, trans_regex_, values[0], values[1])) {
+            model_.setData(map_[TRANSPORT_.cbegin()], values[0], ValueModel::Value);
+            model_.setData(map_[TRANSPORT_MM_.cbegin()], values[1], ValueModel::Value);
         }
 
-        if (parse(str, rc5_regex, values[0], values[1])) {
-            model_.setData(map_["RC-5 Command"], values[1], ValueModel::Value);
+        if (parse(str, rc5_regex_, values[0], values[1])) {
+            model_.setData(map_[RC5_.cbegin()], values[1], ValueModel::Value);
         }
 
         // BPS
 
+        if (parse(str, currents_regex_, values[0], values[1])) {
+            model_.setData(map_[CURRENT_5V_.cbegin()], values[0], ValueModel::Value);
+            model_.setData(map_[CURRENT_SERVO_.cbegin()], values[1], ValueModel::Value);
+        }
+
+        if (parse(str, mcurrent_regex_, values[0])) {
+            model_.setData(map_[CURRENT_MOTOR_.cbegin()], values[0], ValueModel::Value);
+        }
+
         float bat[2];
-        if (parse(str, bat_regex, bat[0], bat[1])) {
-            model_.setData(map_["Battery [mV]"], static_cast<int>(bat[0] * 1'000.f), ValueModel::Value);
-            model_.setData(map_["Battery (per cell) [mV]"], static_cast<int>(bat[1] * 1'000.f), ValueModel::Value);
+        if (parse(str, bat_regex_, bat[0], bat[1])) {
+            model_.setData(map_[BAT_VOLTAGE_.cbegin()], static_cast<int>(bat[0] * 1'000.f), ValueModel::Value);
+            model_.setData(map_[BAT_VOLTAGE_CELL_.cbegin()], static_cast<int>(bat[1] * 1'000.f), ValueModel::Value);
             // qDebug() << "Bat=" << bat[0] << " " << bat[1];
-        }
-
-        if (parse(str, currents_regex, values[0], values[1])) {
-            model_.setData(map_["5V rail current [mA]"], values[0], ValueModel::Value);
-            model_.setData(map_["Servo current [mA]"], values[1], ValueModel::Value);
-        }
-
-        if (parse(str, mcurrent_regex, values[0])) {
-            model_.setData(map_["Motor current [mA]"], values[0], ValueModel::Value);
         }
 
         return true;

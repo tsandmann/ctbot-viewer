@@ -26,11 +26,25 @@
 
 #include "value_viewer.h"
 
+#include <QRegularExpression>
+
+#include <string_view>
+#include <regex>
+
 
 class ConnectionManagerV1;
 class ConnectionManagerV2;
 
 class ActuatorViewerV1 : public ValueViewer {
+protected:
+    static constexpr std::string_view MOTOR_L_ { "Motor left" };
+    static constexpr std::string_view MOTOR_R_ { "Motor right" };
+    static constexpr std::string_view LEDS_ { "LEDs" };
+
+    static inline const QRegularExpression regex_replace_0_ { "[\001-\007]" };
+    static inline const QRegularExpression regex_replace_1_ { "[\016-\037]" };
+    static inline const QRegularExpression regex_replace_2_ { "[\177-\377]" };
+
     QObject* p_lcd_;
     char lcd_text_[4][21];
 
@@ -40,6 +54,22 @@ public:
 
 
 class ActuatorViewerV2 : public ValueViewer {
+protected:
+    static constexpr std::string_view MOTOR_L_ { "Motor left [%]" };
+    static constexpr std::string_view MOTOR_R_ { "Motor right [%]" };
+    static constexpr std::string_view MOTOR_RE_ { R"(motor: (-?\d*) (-?\d*))" };
+    static constexpr std::string_view SERVO_1_ { "Servo 1" };
+    static constexpr std::string_view SERVO_1_RE_ { R"(servo1: (\d*))" };
+    static constexpr std::string_view SERVO_2_ { "Servo 2" };
+    static constexpr std::string_view SERVO_2_RE_ { R"(servo2: (\d*))" };
+    static constexpr std::string_view LEDS_ { "LEDs" };
+    static constexpr std::string_view LEDS_RE_ { R"(leds: (\d*))" };
+
+    static inline const std::regex motor_regex_ { MOTOR_RE_.cbegin() };
+    static inline const std::regex servo1_regex_ { SERVO_1_RE_.cbegin() };
+    static inline const std::regex servo2_regex_ { SERVO_2_RE_.cbegin() };
+    static inline const std::regex led_regex_ { LEDS_RE_.cbegin() };
+
 public:
     ActuatorViewerV2(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval);
 };

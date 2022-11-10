@@ -23,8 +23,6 @@
  */
 
 #include <QQmlApplicationEngine>
-#include <QString>
-#include <QRegularExpression>
 #include <QDebug>
 
 #include "bot_console.h"
@@ -49,34 +47,20 @@ BotConsole::BotConsole(QQmlApplicationEngine* p_engine, ConnectionManagerV2& com
             return false;
         }
 
-        static const QRegularExpression regex0 { QRegularExpression("\377..") };
-        static const QRegularExpression regex1 { QRegularExpression("[\001-\011]") };
-        static const QRegularExpression regex2 { QRegularExpression("[\013-\037]") };
-        static const QRegularExpression regex3 { QRegularExpression("[\177-\377]") };
-
-        static const QRegularExpression regex_eol { QRegularExpression("\n") };
-        static const QRegularExpression regex_tab { QRegularExpression("\t") };
-        static const QRegularExpression regex_space { QRegularExpression(" ") };
-        static const QRegularExpression regex_discard { QRegularExpression("\\[[0-9]m") };
-        static const QRegularExpression regex_red_start { QRegularExpression("\\[31;40m") };
-        static const QRegularExpression regex_green_start { QRegularExpression("\\[32;40m") };
-        static const QRegularExpression regex_yellow_start { QRegularExpression("\\[33;40m") };
-        static const QRegularExpression regex_color_end { QRegularExpression("\\[37;40m") };
-
         QString data { QString::fromUtf8(str.data(), str.size()) };
-        data.replace(regex_tab, "&nbsp;&nbsp;");
-        data.replace(regex_space, "&nbsp;");
-        data.remove(regex0);
-        data.remove(regex1);
-        data.remove(regex2);
-        data.remove(regex3);
-        data.remove(regex_discard);
+        data.replace(regex_tab_, HTML_TAB_.cbegin());
+        data.replace(regex_space_, HTML_SPACE_.cbegin());
+        data.remove(regex_ignore_0_);
+        data.remove(regex_ignore_1_);
+        data.remove(regex_ignore_2_);
+        data.remove(regex_ignore_3_);
+        data.remove(regex_discard_color_);
 
-        data.replace(regex_red_start, "<span style=\"color:red\">");
-        data.replace(regex_green_start, "<span style=\"color:green\">");
-        data.replace(regex_yellow_start, "<span style=\"color:yellow\">");
-        data.replace(regex_color_end, "</span>");
-        data.replace(regex_eol, "<br />");
+        data.replace(regex_red_start_, HTML_COLOR_RED_START_.cbegin());
+        data.replace(regex_green_start_, HTML_COLOR_GREEN_START_.cbegin());
+        data.replace(regex_yellow_start_, HTML_COLOR_YELLOW_START_.cbegin());
+        data.replace(regex_color_end_, HTML_COLOR_END_.cbegin());
+        data.replace(regex_eol_, HTML_EOL_.cbegin());
 
         if (data.length() < 1) {
             return false;

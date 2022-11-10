@@ -24,6 +24,10 @@
 
 #pragma once
 
+#include <QString>
+#include <QRegularExpression>
+#include <string_view>
+
 #include "connect_button.h"
 
 
@@ -32,6 +36,10 @@ class ConnectionManagerV1;
 class ConnectionManagerV2;
 
 class LogViewerV1 {
+    static inline const QRegularExpression regex_replace_0_ { "[\001-\007]" };
+    static inline const QRegularExpression regex_replace_1_ { "[\016-\037]" };
+    static inline const QRegularExpression regex_replace_2_ { "[\177-\377]" };
+
     QQmlApplicationEngine* p_engine_;
     QObject* p_log_;
     QObject* p_minilog_;
@@ -42,6 +50,10 @@ public:
 
 class LogViewerV2 {
     static constexpr bool DEBUG_ { false };
+
+    static inline const QRegularExpression regex_replace_0_ { "[\001-\007]" };
+    static inline const QRegularExpression regex_replace_1_ { "[\016-\037]" };
+    static inline const QRegularExpression regex_replace_2_ { "[\177-\377]" };
 
     QQmlApplicationEngine* p_engine_;
     QObject* p_log_;

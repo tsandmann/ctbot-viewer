@@ -25,6 +25,8 @@
 #pragma once
 
 #include <QString>
+#include <QRegularExpression>
+#include <string_view>
 
 #include "connect_button.h"
 
@@ -33,6 +35,28 @@ class QQmlApplicationEngine;
 class ConnectionManagerV2;
 
 class BotConsole {
+    static inline const QRegularExpression regex_ignore_0_ { "\377.." };
+    static inline const QRegularExpression regex_ignore_1_ { "[\001-\011]" };
+    static inline const QRegularExpression regex_ignore_2_ { "[\013-\037]" };
+    static inline const QRegularExpression regex_ignore_3_ { "[\177-\377]" };
+
+    static inline const QRegularExpression regex_eol_ { "\n" };
+    static inline const QRegularExpression regex_tab_ { "\t" };
+    static inline const QRegularExpression regex_space_ { " " };
+    static inline const QRegularExpression regex_discard_color_ { "\\[[0-9]m" };
+    static inline const QRegularExpression regex_red_start_ { "\\[31;40m" };
+    static inline const QRegularExpression regex_green_start_ { "\\[32;40m" };
+    static inline const QRegularExpression regex_yellow_start_ { "\\[33;40m" };
+    static inline const QRegularExpression regex_color_end_ { "\\[37;40m" };
+
+    static constexpr std::string_view HTML_COLOR_RED_START_ { "<span style=\"color:red\">" };
+    static constexpr std::string_view HTML_COLOR_GREEN_START_ { "<span style=\"color:green\">" };
+    static constexpr std::string_view HTML_COLOR_YELLOW_START_ { "<span style=\"color:yellow\">" };
+    static constexpr std::string_view HTML_COLOR_END_ { "</span>" };
+    static constexpr std::string_view HTML_EOL_ { "<br />" };
+    static constexpr std::string_view HTML_SPACE_ { "&nbsp;" };
+    static constexpr std::string_view HTML_TAB_ { "&nbsp;&nbsp;" };
+
     QQmlApplicationEngine* p_engine_;
     ConnectionManagerV2& conn_manager_;
     QObject* p_console_;
