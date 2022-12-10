@@ -13,6 +13,7 @@
         <file>LogComponent.qml</file>
         <file>MapComponent.qml</file>
         <file>ScriptComponent.qml</file>
+        <file>SystemViewer.qml</file>
         <file>ConsoleComponent.qml</file>
         <file>TabComponent.qml</file>
         <file>MiniLogComponent.qml</file>
