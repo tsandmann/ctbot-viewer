@@ -46,7 +46,8 @@ GridLayout {
 
     ColumnLayout {
         spacing: 2
-        Layout.margins: 10
+        Layout.margins: 0
+        Layout.topMargin: 10
         Layout.alignment: Qt.AlignTop
 
         ColumnLayout {
@@ -64,13 +65,18 @@ GridLayout {
             ActuatorViewer {}
 
             Item {
-                height: 24
+                height: 10
             }
+
+            SystemViewer {}
         }
 
         ColumnLayout {
             id: connection_box
             visible: true
+
+            spacing: 0
+            Layout.margins: 0
 
             Label {
                 font.bold: true
@@ -145,6 +151,9 @@ GridLayout {
             }
 
             RowLayout {
+                spacing: 0
+                Layout.margins: 0
+
                 RadioButton {
                     id: radio_v1
                     checked: true
@@ -160,7 +169,14 @@ GridLayout {
         }
 
         ColumnLayout {
+            spacing: 0
+            Layout.margins: 0
+            Layout.alignment: Qt.AlignTop
+
             RowLayout {
+                spacing: 0
+                Layout.margins: 0
+
                 Button {
                     id: button
                     text: qsTr("Connect")
@@ -198,6 +214,7 @@ GridLayout {
         Item {
             width: 250
             height: 17
+            visible: radio_v1.checked ? true : false
         }
 
         Label {
@@ -252,8 +269,8 @@ GridLayout {
 
     ColumnLayout {
         spacing: 2
-        Layout.margins: 10
-        Layout.bottomMargin: 0
+        Layout.margins: 0
+        Layout.leftMargin: 10
         Layout.alignment: Qt.AlignBottom
         Layout.columnSpan: 2
 

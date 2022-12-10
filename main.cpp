@@ -31,6 +31,7 @@
 #include "connection_manager.h"
 #include "sensor_viewer.h"
 #include "actuator_viewer.h"
+#include "system_viewer.h"
 #include "remotecontrol_viewer.h"
 #include "remotecall_viewer.h"
 #include "log_viewer.h"
@@ -52,6 +53,7 @@ int main(int argc, char* argv[]) {
     SensorViewerV2 sensor_viewer_v2 { &engine, connection_v2 };
     ActuatorViewerV1 actuator_viewer_v1 { &engine, connection_v1 };
     ActuatorViewerV2 actuator_viewer_v2 { &engine, connection_v2 };
+    SystemViewerV2 system_viewer_v2 { &engine, connection_v2 };
     RemoteControlViewerV1 rc5_viewer_v1 { &engine, connection_v1 };
     RemoteControlViewerV2 rc5_viewer_v2 { &engine, connection_v2 };
     RemotecallViewer remotecall_viewer { &engine, connection_v1 };
@@ -73,6 +75,7 @@ int main(int argc, char* argv[]) {
 
     connection_v1.register_buttons();
     connection_v2.register_buttons();
+    system_viewer_v2.init();
     rc5_viewer_v1.register_buttons();
     rc5_viewer_v2.register_buttons();
     remotecall_viewer.register_buttons();

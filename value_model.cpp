@@ -48,7 +48,6 @@ QVariant ValueModel::data(const QModelIndex& index, int role) const {
 
     switch (role) {
         case Name: return QVariant(item.name);
-
         case Value: return QVariant(item.value);
     }
 
@@ -61,12 +60,12 @@ bool ValueModel::setData(const QModelIndex& index, const QVariant& value, int ro
     }
 
     ViewerItem item { list_->items().at(index.row()) };
-    // qDebug() << "ValueModel::setData(): item={\"" << item.name << "\", " << item.value << "}";
+    // qDebug() << "ValueModel::setData(): item={\"" << item.name << "\", " << item.value << "}"
+    //          << "role=" << role;
 
     switch (role) {
         case Name: item.name = value.toString(); break;
-
-        case Value: item.value = value.toInt(); break;
+        case Value: item.value = value.toFloat(); break;
     }
 
     if (list_->setItemAt(index.row(), item)) {
@@ -74,6 +73,7 @@ bool ValueModel::setData(const QModelIndex& index, const QVariant& value, int ro
         emit dataChanged(index, index, QVector<int>() << role);
         return true;
     }
+
     return false;
 }
 
@@ -113,6 +113,14 @@ void ValueModel::setList(ValueList* list) {
 
         connect(list_, &ValueList::postItemAppended, this, [=]() { endInsertRows(); });
     }
+
+    endResetModel();
+}
+
+void ValueModel::sort() {
+    beginResetModel();
+
+    list_->sort();
 
     endResetModel();
 }

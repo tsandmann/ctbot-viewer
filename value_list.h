@@ -25,12 +25,16 @@
 #pragma once
 
 #include <QObject>
-#include <QVector>
+#include <QList>
 
 
 struct ViewerItem {
     QString name;
-    int value;
+    float value;
+
+    bool operator()(const ViewerItem& a, const ViewerItem& b) const {
+        return a.value < b.value;
+    }
 };
 
 
@@ -40,10 +44,12 @@ class ValueList : public QObject {
 public:
     explicit ValueList(QObject* parent = nullptr);
 
-    const QVector<ViewerItem>& items() const;
+    const QList<ViewerItem>& items() const;
 
     bool setItemAt(int index, const ViewerItem& item);
-    //    bool updateItemAt(int index, const int value);
+    // bool updateItemAt(int index, const int value);
+
+    void sort();
 
 signals:
     void preItemAppended();
@@ -53,5 +59,5 @@ public slots:
     void appendItem(const QString& name);
 
 private:
-    QVector<ViewerItem> items_;
+    QList<ViewerItem> items_;
 };

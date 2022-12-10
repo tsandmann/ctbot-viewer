@@ -24,10 +24,12 @@
 
 #include "value_list.h"
 
+#include <algorithm>
+
 
 ValueList::ValueList(QObject* parent) : QObject { parent } {}
 
-const QVector<ViewerItem>& ValueList::items() const {
+const QList<ViewerItem>& ValueList::items() const {
     return items_;
 }
 
@@ -67,4 +69,8 @@ void ValueList::appendItem(const QString& name) {
     items_.append(item);
 
     emit postItemAppended();
+}
+
+void ValueList::sort() {
+    std::sort(items_.begin(), items_.end(), [](const ViewerItem& v1, const ViewerItem& v2) { return v1.value > v2.value; });
 }

@@ -38,6 +38,7 @@ qt_add_executable(ctbot-viewer WIN32 MACOSX_BUNDLE
     remotecontrol_viewer.cpp remotecontrol_viewer.h
     script_editor.cpp script_editor.h
     sensor_viewer.cpp sensor_viewer.h
+    system_viewer.cpp system_viewer.h
     value_list.cpp value_list.h
     value_model.cpp value_model.h
     value_viewer.cpp value_viewer.h
@@ -76,6 +77,7 @@ set(qml_resource_files
     "RemoteControl.qml"
     "ScriptComponent.qml"
     "SensorViewer.qml"
+    "SystemViewer.qml"
     "TabComponent.qml"
     "ShortcutComponent.qml"
     "fonts/PTMono-Regular.ttf"

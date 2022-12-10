@@ -29,8 +29,6 @@
 #include "value_list.h"
 
 
-class ValueList;
-
 class ValueModel : public QAbstractListModel {
     Q_OBJECT
     Q_PROPERTY(ValueList* list READ list WRITE setList NOTIFY listChanged)
@@ -55,6 +53,8 @@ public:
     ValueList* list() const;
 
     void setList(ValueList* list);
+
+    void sort();
 
 signals:
     void listChanged();
