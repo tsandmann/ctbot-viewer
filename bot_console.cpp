@@ -30,9 +30,11 @@
 
 
 BotConsole::BotConsole(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval)
-    : p_engine_ { p_engine }, conn_manager_ { command_eval }, p_console_ {}, p_cmd_button_ {} {
+    : p_engine_ { p_engine }, conn_manager_ { command_eval }, p_console_ {}, p_cmd_button_ {}, p_active_switch_ {} {
     conn_manager_.register_cmd("", [this](const std::string_view& str) {
-        // qDebug() << "CONSOLE received: " << QString::fromUtf8(str.data(), str.size());
+        if constexpr (DEBUG_) {
+            qDebug() << "CONSOLE received: " << QString::fromUtf8(str.data(), str.size());
+        }
 
         if (conn_manager_.get_version() != conn_manager_.version_active()) {
             return false;
@@ -48,6 +50,7 @@ BotConsole::BotConsole(QQmlApplicationEngine* p_engine, ConnectionManagerV2& com
         }
 
         QString data { QString::fromUtf8(str.data(), str.size()) };
+        data.remove(regex_clear_);
         data.replace(regex_tab_, HTML_TAB_.cbegin());
         data.replace(regex_space_, HTML_SPACE_.cbegin());
         data.remove(regex_ignore_0_);
@@ -65,7 +68,9 @@ BotConsole::BotConsole(QQmlApplicationEngine* p_engine, ConnectionManagerV2& com
         if (data.length() < 1) {
             return false;
         }
-        // qDebug() << "CONSOLE received: " << data;
+        if constexpr (DEBUG_) {
+            qDebug() << "CONSOLE data= " << data;
+        }
 
         QMetaObject::invokeMethod(p_console_, "add", Qt::DirectConnection, Q_ARG(QVariant, data));
 
@@ -84,7 +89,18 @@ void BotConsole::register_buttons() {
             conn_manager_.get_socket()->write(cmd.toUtf8(), cmd.length());
         }
 
-        // qDebug() << "CMD sent: " << cmd;
+        if constexpr (DEBUG_) {
+            qDebug() << "CMD sent: " << cmd;
+        }
     } };
     QObject::connect(p_engine_->rootObjects().at(0)->findChild<QObject*>("Cmd"), SIGNAL(sendClicked(QString)), p_cmd_button_, SLOT(cppSlot(QString)));
+
+    p_active_switch_ = new ConnectButton { [this](QString state, QString) {
+        if (conn_manager_.get_socket()->isOpen()) {
+            const QString cmd { "c viewer " + state + "\r\n" };
+            conn_manager_.get_socket()->write(cmd.toUtf8(), cmd.length());
+        }
+    } };
+    QObject::connect(
+        p_engine_->rootObjects().at(0)->findChild<QObject*>("viewer_active"), SIGNAL(activeChanged(QString)), p_active_switch_, SLOT(cppSlot(QString)));
 }

@@ -35,12 +35,15 @@ class QQmlApplicationEngine;
 class ConnectionManagerV2;
 
 class BotConsole {
+    static constexpr bool DEBUG_ { false };
+
     static inline const QRegularExpression regex_ignore_0_ { "\377.." };
     static inline const QRegularExpression regex_ignore_1_ { "[\001-\011]" };
     static inline const QRegularExpression regex_ignore_2_ { "[\013-\037]" };
     static inline const QRegularExpression regex_ignore_3_ { "[\177-\377]" };
 
     static inline const QRegularExpression regex_eol_ { "\n" };
+    static inline const QRegularExpression regex_clear_ { ".*\r {64}\r" };
     static inline const QRegularExpression regex_tab_ { "\t" };
     static inline const QRegularExpression regex_space_ { " " };
     static inline const QRegularExpression regex_discard_color_ { "\\[[0-9]m" };
@@ -55,12 +58,13 @@ class BotConsole {
     static constexpr std::string_view HTML_COLOR_END_ { "</span>" };
     static constexpr std::string_view HTML_EOL_ { "<br />" };
     static constexpr std::string_view HTML_SPACE_ { "&nbsp;" };
-    static constexpr std::string_view HTML_TAB_ { "&nbsp;&nbsp;" };
+    static constexpr std::string_view HTML_TAB_ { "&nbsp;&nbsp;&nbsp;&nbsp;" }; // TODO: implement tab
 
     QQmlApplicationEngine* p_engine_;
     ConnectionManagerV2& conn_manager_;
     QObject* p_console_;
     ConnectButton* p_cmd_button_;
+    ConnectButton* p_active_switch_;
 
 public:
     BotConsole(QQmlApplicationEngine* p_engine, ConnectionManagerV2& command_eval);

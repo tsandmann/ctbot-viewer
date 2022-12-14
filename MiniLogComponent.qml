@@ -21,71 +21,58 @@ import QtQuick.Layouts
 
 RowLayout {
     FontLoader { id: ptMonoFont; source: "qrc:/fonts/PTMono-Regular.ttf" }
+    Layout.margins: 0
 
-    ColumnLayout {
-        spacing: 2
-        Layout.margins: 0
-        Layout.alignment: Qt.AlignTop
+    Rectangle {
+        ScrollView {
+            anchors.fill: parent
+            property ScrollBar hScrollBar: ScrollBar.horizontal
+            property ScrollBar vScrollBar: ScrollBar.vertical
+            ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+            ScrollBar.vertical.width: 10
+            ScrollBar.horizontal.height: 10
 
-        RowLayout {
-            Label {
-                font.bold: true
-                font.styleName: "Bold"
-                text: "Log:"
-            }
-        }
+            TextArea {
+                id: mini_log_viewer
+                objectName: "mini_log_viewer"
+                placeholderText: qsTr("Log")
+                color: "#ffab91"
+                textMargin: 8
+                leftPadding: 8
+                rightPadding: 8
+                topPadding: 8
+                bottomPadding: 8
+                font.family: ptMonoFont.name
+                font.pixelSize: 11
+                readOnly: true
+                selectByKeyboard: true
+                selectByMouse: Qt.platform.os !== "ios"
+                clip: true
 
-        Rectangle {
-            ScrollView {
-                anchors.fill: parent
-                property ScrollBar hScrollBar: ScrollBar.horizontal
-                property ScrollBar vScrollBar: ScrollBar.vertical
-                ScrollBar.vertical.policy: ScrollBar.AlwaysOn
-                ScrollBar.vertical.width: 10
-                ScrollBar.horizontal.height: 10
+                function add(text) {
+                    mini_log_viewer.insert(mini_log_viewer.length, text);
+                }
 
-                TextArea {
-                    id: mini_log_viewer
-                    objectName: "mini_log_viewer"
-                    placeholderText: qsTr("Log")
-                    color: "#ffab91"
-                    textMargin: 8
-                    leftPadding: 8
-                    rightPadding: 8
-                    topPadding: 8
-                    bottomPadding: 8
-                    font.family: ptMonoFont.name
-                    font.pixelSize: 11
-                    readOnly: true
-                    selectByKeyboard: true
-                    selectByMouse: Qt.platform.os !== "ios"
-                    clip: true
+                background: Rectangle {
+                    color: "#353637"
+                    border.color: "#d5d8dc"
+                    border.width: 1
+                }
 
-                    function add(text) {
-                        mini_log_viewer.insert(mini_log_viewer.length, text);
-                    }
-
-                    background: Rectangle {
-                        color: "#353637"
-                        border.color: "#d5d8dc"
-                        border.width: 1
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onDoubleClicked: {
-                            mini_log_viewer.text = ""
-                        }
+                MouseArea {
+                    anchors.fill: parent
+                    onDoubleClicked: {
+                        mini_log_viewer.text = ""
                     }
                 }
             }
+        }
 
-            Layout.minimumHeight: 122
-            Layout.minimumWidth: 480
+        Layout.minimumHeight: 122
+        Layout.minimumWidth: 480
 
-            onWidthChanged: {
-                mini_log_viewer.update();
-            }
+        onWidthChanged: {
+            mini_log_viewer.update();
         }
     }
 }

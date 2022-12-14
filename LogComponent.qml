@@ -19,7 +19,6 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-// FIXME: check box for enable autoscrolling
 
 RowLayout {
     ColumnLayout {
@@ -50,7 +49,7 @@ RowLayout {
                 width: 20
             }
 
-            CheckBox {
+            Switch {
                 id: autoscroll
                 checked: true
                 text: qsTr("Auto scroll")

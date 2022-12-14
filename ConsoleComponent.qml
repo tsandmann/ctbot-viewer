@@ -45,6 +45,18 @@ RowLayout {
                     bot_console.text = ""
                 }
             }
+
+            Switch {
+                id: viewer_active
+                objectName: "viewer_active"
+                checked: true
+                text: qsTr("Send data periodically")
+                onToggled: {
+                    activeChanged(checked ? "1" : "0");
+                }
+
+                signal activeChanged(string status)
+            }
         }
 
         Rectangle {

@@ -182,7 +182,9 @@ GridLayout {
                     text: qsTr("Connect")
                     font.bold: true
                     font.styleName: "Bold"
-                    Layout.preferredWidth: 110
+                    font.pixelSize: 12
+                    Layout.preferredWidth: 97
+                    Layout.preferredHeight: 40
 
                     onClicked: {
                         hostname.connectClicked(hostname.text, port.text);
@@ -199,7 +201,9 @@ GridLayout {
                     text: qsTr("Shutdown")
                     font.bold: false
                     font.styleName: "Regular"
-                    Layout.preferredWidth: 110
+                    font.pixelSize: 12
+                    Layout.preferredWidth: 97
+                    Layout.preferredHeight: 40
                     enabled: false
 
                     signal shutdownClicked()
