@@ -20,6 +20,8 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 RowLayout {
+    property alias active : viewer_active
+
     enabled: main_viewer.v2.checked
 
     ColumnLayout {

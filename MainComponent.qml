@@ -114,6 +114,9 @@ GridLayout {
                         button.font.styleName = "Regular";
                         actuator_viewer.visible = true;
                         connection_box.visible = false;
+                        if (radio_v2.checked) {
+                            console_viewer.active.checked = true;
+                        }
                     }
 
                     function disconnected(msg) {
@@ -128,6 +131,7 @@ GridLayout {
                         button.font.styleName = "Bold";
                         actuator_viewer.visible = false;
                         connection_box.visible = true;
+                        console_viewer.active.checked = false;
                     }
                 }
 

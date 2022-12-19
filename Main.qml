@@ -62,7 +62,9 @@ ApplicationWindow {
 
         ScriptComponent {}
 
-        ConsoleComponent {}
+        ConsoleComponent {
+            id: console_viewer
+        }
     }
 
     footer: TabComponent {

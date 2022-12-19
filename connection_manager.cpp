@@ -92,9 +92,17 @@ void ConnectionManagerBase::register_buttons() {
             socket_.connectToHost(hostname, static_cast<quint16>(port.toUInt()));
         } else {
             disconnected_hook();
-            socket_.flush();
-            socket_.close();
-            QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QVariant, hostname));
+
+            QTimer::singleShot(100, &socket_, [this, object, hostname]() {
+                if (!socket_.isOpen()) {
+                    return;
+                }
+
+                socket_.flush();
+                socket_.close();
+
+                QMetaObject::invokeMethod(object, "disconnected", Q_ARG(QVariant, hostname));
+            });
         }
     } };
 
@@ -262,9 +270,15 @@ void ConnectionManagerV2::register_buttons() {
 
         qDebug() << "Shutdown requested.";
 
-        socket_.flush();
-        socket_.close();
-        connected_ = false;
+        QTimer::singleShot(100, &socket_, [this]() {
+            if (!socket_.isOpen()) {
+                return;
+            }
+
+            socket_.flush();
+            socket_.close();
+            connected_ = false;
+        });
     } };
 
     QObject::connect(p_engine_->rootObjects().at(0)->findChild<QObject*>("ShutdownButton"), SIGNAL(shutdownClicked()), p_shutdown_button_, SLOT(cppSlot()));
